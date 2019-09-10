@@ -14,8 +14,8 @@ matrix:
       - cd src/Hypnonema.NUI
       - npm install -g @angular/cli
     script:
-    - ng lint
-    - ng build --prod --base-href ./ --output-hashing none
+      - ng lint
+      - ng build --prod --base-href ./ --output-hashing none
 
     - language: csharp
       solution: Hypnonema.sln
