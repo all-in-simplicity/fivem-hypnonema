@@ -40,3 +40,5 @@ Hint:
 ### Using this on a vps/dedicated machine
 The steps are basically the same, just make sure that you replace localhost with the ip of your server. If you have any firewalls enabled make sure to open the 2015 tcp port. 
 
+## Final Notes
+I recommend reading the [documentation](https://caddyserver.com/docs) if you have need of a more fine tuned setup.
