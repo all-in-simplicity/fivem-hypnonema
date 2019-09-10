@@ -6,16 +6,16 @@ matrix:
       dist: trusty
       sudo: required
 
-    branches:
-      only:
-      - master
+      branches:
+        only:
+        - master
 
-    before_script:
-      - cd src/Hypnonema.NUI
-      - npm install -g @angular/cli
-    script:
-      - ng lint
-      - ng build --prod --base-href ./ --output-hashing none
+      before_script:
+        - cd src/Hypnonema.NUI
+        - npm install -g @angular/cli
+      script:
+        - ng lint
+        - ng build --prod --base-href ./ --output-hashing none
 
     - language: csharp
       solution: Hypnonema.sln
