@@ -28,7 +28,7 @@
 
         private float sndMinDistance = 10.0f;
 
-        private float sndAttenuation = 10.0f;
+        private float sndAttenuation = 5.0f;
 
         private float sndGlobalVolume = 100f;
 
@@ -37,7 +37,6 @@
         private bool scaleformTickActive = false;
 
         private bool initialized = false;
-        
 
         private long duiObj = 0;
 
@@ -77,7 +76,7 @@
         {
             var attenuation = args.FirstOrDefault(arg => arg.Key == "soundAttenuation").Value?.ToString();
             if (!string.IsNullOrEmpty(attenuation))
-                BaseScript.TriggerServerEvent(ServerEvents.OnSetSoundAttenuation, attenuation);
+                TriggerServerEvent(ServerEvents.OnSetSoundAttenuation, attenuation);
             return callback;
         }
 
@@ -85,7 +84,7 @@
         {
             var soundMinDistance = args.FirstOrDefault(arg => arg.Key == "minDistance").Value?.ToString();
             if (!string.IsNullOrEmpty(soundMinDistance))
-                BaseScript.TriggerServerEvent(ServerEvents.OnSetSoundMinDistance, soundMinDistance);
+                TriggerServerEvent(ServerEvents.OnSetSoundMinDistance, soundMinDistance);
             return callback;
         }
 
@@ -121,7 +120,7 @@
 
         private CallbackDelegate OnResumeVideo(IDictionary<string, object> args, CallbackDelegate callback)
         {
-            BaseScript.TriggerServerEvent(ServerEvents.OnResumeVideo);
+            TriggerServerEvent(ServerEvents.OnResumeVideo);
             return callback;
         }
 
@@ -132,7 +131,7 @@
 
         private CallbackDelegate OnStopVideo(IDictionary<string, object> args, CallbackDelegate callback)
         {
-            BaseScript.TriggerServerEvent(ServerEvents.OnStopVideo);
+            TriggerServerEvent(ServerEvents.OnStopVideo);
             return callback;
         }
 
@@ -143,12 +142,13 @@
                 this.scaleformTickActive = false;
                 this.Tick -= this.ShowVideo;
             }
+
             API.SendDuiMessage(this.duiObj, JsonConvert.SerializeObject(new { type = "stop" }));
         }
 
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
         {
-            BaseScript.TriggerServerEvent(ServerEvents.OnPause);
+            TriggerServerEvent(ServerEvents.OnPause);
             return callback;
         }
 
@@ -177,7 +177,7 @@
             var videoType = args.FirstOrDefault(arg => arg.Key == "videoType").Value?.ToString();
 
             if (!string.IsNullOrEmpty(videoURL) && !string.IsNullOrEmpty(videoType))
-                BaseScript.TriggerServerEvent(ServerEvents.OnPlaybackReceived, videoURL, videoType);
+                TriggerServerEvent(ServerEvents.OnPlaybackReceived, videoURL, videoType);
 
             return callback;
         }
@@ -203,12 +203,9 @@
 
         private void AddChatMessage(string message, int[] color = null, bool multiline = true)
         {
-            if (color == null)
-            {
-                color = new[] { 0, 128, 128 };
-            }
+            if (color == null) color = new[] { 0, 128, 128 };
 
-            BaseScript.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
+            TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
         }
 
         private async Task OnClientResourceStart(string resourceName)
@@ -224,10 +221,12 @@
                 Debug.WriteLine(
                     "[Hypnonema]: Scaleform loading failed. Did you probably restart the resource without restarting the game?");
                 Debug.WriteLine($"Exception: {e.Message}");
-                this.AddChatMessage("Warning: Scaleform loading failed. A game restart may be required to actually view videos", new[] { 255, 255, 0 });
+                this.AddChatMessage(
+                    "Warning: Scaleform loading failed. A game restart may be required to actually view videos",
+                    new[] { 255, 255, 0 });
                 this.scaleform.Dispose();
             }
-            
+
             var numberFormat = new CultureInfo("en-US").NumberFormat;
             this.TxdName = Guid.NewGuid().ToString();
 
@@ -268,10 +267,10 @@
             var txn = Function.Call<long>(Hash.CREATE_RUNTIME_TEXTURE_FROM_DUI_HANDLE, txd, TxnName, dui);
 
             // the initialization state is saved because of the scaleform not being freed up from the game upon restart of the resource,
-            // often crashing at instantiating the new scaleform (with the name name obviously). this variable is checked before executing any code in the tick method.
+            // often crashing at instantiating the new scaleform (with the same name obviously). this variable is checked before executing any code in the tick method.
             this.initialized = true;
             Debug.WriteLine($"dui runtime texture handle: {txn}");
-            await BaseScript.Delay(0);
+            await Delay(0);
         }
 
         private async Task OnClientResourceStop(string resourceName)
@@ -285,17 +284,14 @@
                 this.txdHasBeenSet = false;
             }
 
-            if (this.scaleformTickActive)
-            {
-                this.Tick -= this.ShowVideo;
-            }
+            if (this.scaleformTickActive) this.Tick -= this.ShowVideo;
 
-            await BaseScript.Delay(0);
+            await Delay(0);
         }
 
         private async Task ShowVideo()
         {
-     
+            // draw call wrapped inside try block to be able to stop video playback on error
             try
             {
                 if (!this.initialized)
@@ -303,9 +299,12 @@
                     // we may only pass if we are fully initialized.
                     this.StopVideo();
                     this.Tick -= this.ShowVideo;
-                    this.AddChatMessage("Error: Aborting. Resource didn't fully initialize. A Game restart may be required.", new[] { 255, 0, 0});
+                    this.AddChatMessage(
+                        "Error: Aborting. Resource didn't fully initialize. A Game restart may be required.",
+                        new[] { 255, 0, 0 });
                     return;
                 }
+
                 if (this.scaleform.IsValid && !this.txdHasBeenSet)
                 {
                     this.scaleform.CallFunction("SET_TEXTURE", this.TxdName, TxnName, 0, 0, this.width, this.height);
@@ -314,24 +313,22 @@
 
                 if (this.scaleform.IsValid)
                 {
-                    // draw call wrapped inside try block to be able to stop video playback on error
-                   
-                        this.scaleform.Render3D(this.scaleformPos, this.scaleformRot, this.scaleformScale);
-                        var playerPos = Game.PlayerPed.Position;
-                        var distance = API.GetDistanceBetweenCoords(
-                            playerPos.X,
-                            playerPos.Y,
-                            playerPos.Z,
-                            this.scaleformPos.X,
-                            this.scaleformPos.Y,
-                            this.scaleformPos.Z,
-                            true);
+                    this.scaleform.Render3D(this.scaleformPos, this.scaleformRot, this.scaleformScale);
+                    var playerPos = Game.PlayerPed.Position;
+                    var distance = API.GetDistanceBetweenCoords(
+                        playerPos.X,
+                        playerPos.Y,
+                        playerPos.Z,
+                        this.scaleformPos.X,
+                        this.scaleformPos.Y,
+                        this.scaleformPos.Z,
+                        true);
 
-                        var sndFactor = this.CalculateSoundFactor(distance);
-                        var volume = sndFactor * this.sndGlobalVolume;
-                        API.SendDuiMessage(
-                            this.duiObj,
-                            JsonConvert.SerializeObject(new { type = "volume", volume = volume / 100 }));
+                    var sndFactor = this.CalculateSoundFactor(distance);
+                    var volume = sndFactor * this.sndGlobalVolume;
+                    API.SendDuiMessage(
+                        this.duiObj,
+                        JsonConvert.SerializeObject(new { type = "volume", volume = volume / 100 }));
                 }
             }
             catch (Exception e)
@@ -339,7 +336,6 @@
                 Debug.WriteLine($"[Hypnonema]: Exception occured at attempt to play video: {e.Message}");
                 this.StopVideo();
             }
-            
 
             await Task.FromResult(0);
         }

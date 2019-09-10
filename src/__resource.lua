@@ -8,12 +8,16 @@
         __/ | |                                           
        |___/|_|                                           
 
-Version: 1.0
+Version: 1.1
 
 ]]--
 
 -- the url to your webserver containing the corresponding html file for use in hypnonema (the index.html inside wwwroot)
 hypnonema_url 'http://localhost:9414/'
+
+-- the command someone needs to enter for opening the menu
+-- Hint: no spaces, no special characters!
+hypnonema_command_name 'hypnonema'
 
 -- whether to use the built-in http server or not. WARNING: FOR TESTING PURPOSES ONLY!
 hypnonema_http_server 'false'

@@ -8,7 +8,7 @@
   <meta name="description" content="hypnonema is a fivem cinema script resource">
   <meta name="author" content="">
 
-  <link href="https://vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
+  <link href="//vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
     <style type="text/css">
         html, body, div {
             height: 100%;
@@ -43,9 +43,9 @@
           </p>
         </video>
     
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/video.js/7.6.0/video.js" integrity="sha256-7lzgCgLtTkrv/wfhKOA51KlXkKCZfysuQHF5Vh711Ew=" crossorigin="anonymous"></script>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.0/Youtube.min.js" integrity="sha256-YJbYbf82My5W9mjSfNyUOnnhafQPNI/3b0wt3rFL/es=" crossorigin="anonymous"></script>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/video.js/7.6.0/video.js" integrity="sha256-7lzgCgLtTkrv/wfhKOA51KlXkKCZfysuQHF5Vh711Ew=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.0/Youtube.min.js" integrity="sha256-YJbYbf82My5W9mjSfNyUOnnhafQPNI/3b0wt3rFL/es=" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   
         <script>
             var splash_image = 'https://i.imgur.com/dPaIjEW.jpg';
@@ -83,11 +83,6 @@
                 if(event.data.type === 'resume') {
                     player.poster(splash_image);
                     player.play();
-                }
-
-                if(event.data.type === 'mute') {
-                    // TODO: Check if player is playing
-                    player.muted(true);
                 }
 
                 if(event.data.type === 'volume') {
