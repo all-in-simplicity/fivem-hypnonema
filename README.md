@@ -3,7 +3,7 @@
 
 Hypnonema is a Cinema Resource for FiveM.
 
-[![Hypnonema](https://i.imgur.com/eN4xKd5.png)](https://youtu.be/SkuMk_0vPp8 "Hypnonema")
+[![Hypnonema](https://i.imgur.com/fgkUFzN.png)](https://youtu.be/SkuMk_0vPp8 "Hypnonema")
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
@@ -14,6 +14,8 @@ Hypnonema is a Cinema Resource for FiveM.
   - [HTTP-Server](#http-server)
   - [(Optional) Example Map](#optional-example-map)
 - [Usage](#usage)
+- [Customization](#customization)
+  - [Change Splash-Screen (video-poster)](#change-splash-screen-video-poster)
 - [License](#license)
 - [Support](#support)
 
@@ -64,9 +66,11 @@ hypnonema_http_port '9414'
 ### (Optional) Example Map
 There is an example map included, just copy the folder **hypnonema-map** to your resource directory and add *start hypnonema-map* to your server.cfg.
 ## Usage
-Type ```/hypnonema``` in chat to open the NUI-Frontend.
+Type ```/hypnonema``` in chat to open the NUI-Frontend, paste your video link and choose either "auto" if its normal html5 video input eg. a mp4 or avi or "youTube" if its a youTube link.
 
-
+## Customization
+### Change Splash-Screen (video-poster)
+Open the ```index.html``` and change either splash_image or pause_image.
 ## License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE.md) file for details
