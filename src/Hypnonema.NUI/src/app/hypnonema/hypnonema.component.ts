@@ -16,6 +16,7 @@ export class HypnonemaComponent implements OnInit {
     customVideoType: new FormControl('')
   });
   public volume = 100;
+  public paused = false;
   public soundAttenuation = 10;
   public soundMinDistance = 10;
   constructor(private http: HttpClient) { }
@@ -39,6 +40,7 @@ export class HypnonemaComponent implements OnInit {
   }
 
   resume() {
+    this.paused = false;
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnResumeVideo`, {})
       .subscribe(() => {}, error => console.log(error));
   }
@@ -49,6 +51,7 @@ export class HypnonemaComponent implements OnInit {
   }
 
   pause() {
+    this.paused = true;
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnPause`, {})
       .subscribe(() => {}, error => console.log(error));
   }

@@ -36,6 +36,9 @@
 
         private bool scaleformTickActive = false;
 
+        private bool initialized = false;
+        
+
         private long duiObj = 0;
 
         private Scaleform scaleform;
@@ -205,12 +208,7 @@
                 color = new[] { 0, 128, 128 };
             }
 
-            BaseScript.TriggerEvent(
-                "chat:addMessage",
-                new
-                    {
-                        multiline, color, args = new[] { "[Hypnonema]", $"{message}" }
-                    });
+            BaseScript.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
         }
 
         private async Task OnClientResourceStart(string resourceName)
@@ -268,6 +266,10 @@
             var dui = API.GetDuiHandle(this.duiObj);
 
             var txn = Function.Call<long>(Hash.CREATE_RUNTIME_TEXTURE_FROM_DUI_HANDLE, txd, TxnName, dui);
+
+            // the initialization state is saved because of the scaleform not being freed up from the game upon restart of the resource,
+            // often crashing at instantiating the new scaleform (with the name name obviously). this variable is checked before executing any code in the tick method.
+            this.initialized = true;
             Debug.WriteLine($"dui runtime texture handle: {txn}");
             await BaseScript.Delay(0);
         }
@@ -283,45 +285,61 @@
                 this.txdHasBeenSet = false;
             }
 
+            if (this.scaleformTickActive)
+            {
+                this.Tick -= this.ShowVideo;
+            }
+
             await BaseScript.Delay(0);
         }
 
         private async Task ShowVideo()
         {
-            if (this.scaleform.IsValid && !this.txdHasBeenSet)
+     
+            try
             {
-                this.scaleform.CallFunction("SET_TEXTURE", this.TxdName, TxnName, 0, 0, this.width, this.height);
-                this.txdHasBeenSet = true;
-            }
-
-            if (this.scaleform.IsValid)
-            {
-                // draw call wrapped inside try block to be able to stop video playback on error
-                try
+                if (!this.initialized)
                 {
-                    this.scaleform.Render3D(this.scaleformPos, this.scaleformRot, this.scaleformScale);
-                    var playerPos = Game.PlayerPed.Position;
-                    var distance = API.GetDistanceBetweenCoords(
-                        playerPos.X,
-                        playerPos.Y,
-                        playerPos.Z,
-                        this.scaleformPos.X,
-                        this.scaleformPos.Y,
-                        this.scaleformPos.Z,
-                        true);
-
-                    var sndFactor = this.CalculateSoundFactor(distance);
-                    var volume = sndFactor * this.sndGlobalVolume;
-                    API.SendDuiMessage(
-                        this.duiObj,
-                        JsonConvert.SerializeObject(new { type = "volume", volume = volume / 100 }));
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine($"[Hypnonema]: Exception occured at attempt to play video: {e.Message}");
+                    // we may only pass if we are fully initialized.
                     this.StopVideo();
+                    this.Tick -= this.ShowVideo;
+                    this.AddChatMessage("Error: Aborting. Resource didn't fully initialize. A Game restart may be required.", new[] { 255, 0, 0});
+                    return;
+                }
+                if (this.scaleform.IsValid && !this.txdHasBeenSet)
+                {
+                    this.scaleform.CallFunction("SET_TEXTURE", this.TxdName, TxnName, 0, 0, this.width, this.height);
+                    this.txdHasBeenSet = true;
+                }
+
+                if (this.scaleform.IsValid)
+                {
+                    // draw call wrapped inside try block to be able to stop video playback on error
+                   
+                        this.scaleform.Render3D(this.scaleformPos, this.scaleformRot, this.scaleformScale);
+                        var playerPos = Game.PlayerPed.Position;
+                        var distance = API.GetDistanceBetweenCoords(
+                            playerPos.X,
+                            playerPos.Y,
+                            playerPos.Z,
+                            this.scaleformPos.X,
+                            this.scaleformPos.Y,
+                            this.scaleformPos.Z,
+                            true);
+
+                        var sndFactor = this.CalculateSoundFactor(distance);
+                        var volume = sndFactor * this.sndGlobalVolume;
+                        API.SendDuiMessage(
+                            this.duiObj,
+                            JsonConvert.SerializeObject(new { type = "volume", volume = volume / 100 }));
                 }
             }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"[Hypnonema]: Exception occured at attempt to play video: {e.Message}");
+                this.StopVideo();
+            }
+            
 
             await Task.FromResult(0);
         }

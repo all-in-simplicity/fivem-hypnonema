@@ -19,8 +19,9 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div>
-            <button class="controls" mat-fab color="primary" (click)="resume()"><mat-icon >play_arrow</mat-icon></button>
-            <button class="controls" mat-fab color="gray" (click)="pause()"><mat-icon >pause</mat-icon></button>
+
+            <button class="controls" *ngIf="paused" mat-fab color="primary" (click)="resume()"><mat-icon >play_arrow</mat-icon></button>
+            <button class="controls" *ngIf="!paused" mat-fab color="gray" (click)="pause()"><mat-icon >pause</mat-icon></button>
             <button mat-fab color="warn" (click)="stop()"><mat-icon style="color: black;">stop</mat-icon></button>
           </div>
         </mat-expansion-panel>
