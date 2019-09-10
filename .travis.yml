@@ -14,11 +14,10 @@ matrix:
         - cd src/Hypnonema.NUI
         - npm install -g @angular/cli
       script:
+        - npm install
         - ng lint
-        - ng build --prod --base-href ./ --output-hashing none
+        - npm run build
 
     - language: csharp
       solution: Hypnonema.sln
-      script:
-        - xbuild /P:Configuration=Release Hypnonema.sln 
      
