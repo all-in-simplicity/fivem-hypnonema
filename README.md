@@ -34,7 +34,7 @@ Hypnonema is a Cinema Resource for FiveM.
 
 Copy the **index.html** inside **wwwroot** to a directory on your webserver and edit the __resource.lua so that hypnonema_url points to the location on your webserver.
 ```
-hypnonema_url 'https://WEBSERVERADDRESS/hypnonema'
+hypnonema_url 'https://WEBSERVERADDRESS/hypnonema/index.html'
 ```
 
 Place "hypnonema" folder inside your fivem resources directory and append following line to your server.cfg
