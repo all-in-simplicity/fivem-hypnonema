@@ -16,7 +16,8 @@ Version: 1.0
 hypnonema_url 'http://localhost:9414/'
 
 -- whether to use the built-in http server or not. WARNING: FOR TESTING PURPOSES ONLY!
-hypnonema_http_server 'true'
+hypnonema_http_server 'false'
+hypnonema_listen_addr '0.0.0.0'
 hypnonema_http_port '9414'
 -- --------------------------------------------
 
