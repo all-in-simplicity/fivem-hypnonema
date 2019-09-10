@@ -1,0 +1,28 @@
+mat-slider {
+  width: 200px;
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.mat-card {
+  padding: 0px;
+}
+.hypnonema {
+  min-width: 600px;
+  max-width: 600px;
+  min-height: 600px;
+  max-height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.controls {
+  margin-right: 5px;
+}

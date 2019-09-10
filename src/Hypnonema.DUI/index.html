@@ -1,0 +1,100 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Hypnomena.DUI</title>
+  <meta name="description" content="hypnonema is a fivem cinema script resource">
+  <meta name="author" content="">
+
+  <link href="https://vjs.zencdn.net/7.6.0/video-js.css" rel="stylesheet">
+    <style type="text/css">
+        html, body, div {
+            height: 100%;
+          text-align: center;
+          overflow: hidden;
+          margin: 0;
+          padding:0;
+        }
+        #my-video {
+            width: 100vw; /*100% of horizontal viewport*/
+            height:100vh; /*100% of vertical viewport*/
+        }
+        .video-js.vjs-paused .vjs-poster {
+            display: block !important;
+        }
+        .video-js.vjs-ended .vjs-poster {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+
+
+        <video id='my-video' class='video-js vjs-fluid' preload='none'
+        poster='https://i.imgur.com/dPaIjEW.jpg' data-setup='{"techOrder": ["html5", "youtube" ]}'>
+          <source src='MY_VIDEO.mp4' type='video/mp4'>
+          <source src='MY_VIDEO.webm' type='video/webm'>
+          <p class='vjs-no-js'>
+            To view this video please enable JavaScript, and consider upgrading to a web browser that
+            <a href='https://videojs.com/html5-video-support/' target='_blank'>supports HTML5 video</a>
+          </p>
+        </video>
+    
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/video.js/7.6.0/video.js" integrity="sha256-7lzgCgLtTkrv/wfhKOA51KlXkKCZfysuQHF5Vh711Ew=" crossorigin="anonymous"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.6.0/Youtube.min.js" integrity="sha256-YJbYbf82My5W9mjSfNyUOnnhafQPNI/3b0wt3rFL/es=" crossorigin="anonymous"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        <script>
+            var player = videojs('my-video');
+            player.ready(function() {
+                // DEBUG
+            
+                //player.requestFullscreen();
+            })
+            player.on('ended', function () {
+                player.currentTime(0);
+                player.controlBar.hide();
+            });
+            player.on('play', function() {
+            });
+            $(window).on('message', function ($event) {
+                if(event.data.type === 'play') {
+                    if(event.data.src.type === 'auto') {
+                        player.src({src: event.data.src.url});
+                    } else {
+                        player.src({type: event.data.src.type, src: event.data.src.url});
+                    }
+                    player.play();
+                }
+
+                if(event.data.type === 'pause') {
+                    player.poster('https://i.imgur.com/aoz9sJn.jpg')
+                    player.pause();
+                }
+
+                if(event.data.type === 'stop') {
+                    player.pause();
+                    player.poster('https://i.imgur.com/dPaIjEW.jpg');
+                    player.currentTime(0);
+                }
+
+                if(event.data.type === 'resume') {
+                    player.poster('https://i.imgur.com/dPaIjEW.jpg');
+                    player.play();
+                }
+
+                if(event.data.type === 'mute') {
+                    // TODO: Check if player is playing
+                    player.muted(true);
+                }
+
+                if(event.data.type === 'volume') {
+                    player.volume(event.data.volume);
+                }
+            });
+        </script>
+  <!--<script src="js/scripts.js"></script>-->
+</body>
+</html>

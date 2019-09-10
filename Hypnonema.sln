@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2352065C-8C4F-4B62-A8D1-D0C4203DA633}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Client", "src\Hypnonema.Client\Hypnonema.Client.csproj", "{1CD2D941-2B99-420C-8C65-E03CCF275CAA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Server", "src\Hypnonema.Server\Hypnonema.Server.csproj", "{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Shared", "src\Hypnonema.Shared\Hypnonema.Shared.csproj", "{212DF026-E8BD-4E03-B197-3E1FD9DE7637}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1CD2D941-2B99-420C-8C65-E03CCF275CAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CD2D941-2B99-420C-8C65-E03CCF275CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CD2D941-2B99-420C-8C65-E03CCF275CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CD2D941-2B99-420C-8C65-E03CCF275CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{212DF026-E8BD-4E03-B197-3E1FD9DE7637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{212DF026-E8BD-4E03-B197-3E1FD9DE7637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{212DF026-E8BD-4E03-B197-3E1FD9DE7637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{212DF026-E8BD-4E03-B197-3E1FD9DE7637}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1CD2D941-2B99-420C-8C65-E03CCF275CAA} = {2352065C-8C4F-4B62-A8D1-D0C4203DA633}
+		{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0} = {2352065C-8C4F-4B62-A8D1-D0C4203DA633}
+		{212DF026-E8BD-4E03-B197-3E1FD9DE7637} = {2352065C-8C4F-4B62-A8D1-D0C4203DA633}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C4DC1F75-4972-4D93-8CB2-31304936C90F}
+	EndGlobalSection
+EndGlobal

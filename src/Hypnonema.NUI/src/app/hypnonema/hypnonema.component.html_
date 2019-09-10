@@ -1,0 +1,77 @@
+<div class="hypnonema" cdkDrag >
+    <mat-card>
+      <mat-card-title cdkDragHandle >
+        <mat-toolbar color="primary">
+          <span>Hypnonema</span>
+          <span class="spacer"></span>
+          <button mat-icon-button (click)="close()"><mat-icon>close</mat-icon></button>
+        </mat-toolbar>
+      </mat-card-title>
+    <mat-card-content>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Playback Controls</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <button mat-fab color="primary" (click)="resume()"><mat-icon>play_arrow</mat-icon></button>
+          <button mat-fab color="accent" (click)="pause()"><mat-icon>pause</mat-icon></button>
+          <button mat-fab color="warn" (click)="stop()"><mat-icon>stop</mat-icon></button>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Volume Settings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div>
+            <p>Global Volume</p>
+            <mat-slider (change)="volumeChange($event)" [(ngModel)]="volume" thumbLabel min="0" max="100" value="100" step="5"></mat-slider>
+            {{volume}}
+            <br />
+            <small><i>Note: This is the global volume which is used for the actual volume calculation. <br />(you may refer to it as max volume)</i></small>
+          </div>
+          <div>
+            <p>Sound Min Distance</p>
+            <mat-slider thumbLabel min="1" [(ngModel)]="soundMinDistance" (change)="soundMinDistanceChange($event)" max="100" value="15" step="1"></mat-slider>
+            {{soundMinDistance}}
+          </div>
+          <div>
+            <p>Sound Attenuation</p>
+            <mat-slider thumbLabel min="0" max="100" [(ngModel)]="soundAttenuation" (change)="soundAttenuationChange($event)" value="5" step="5"></mat-slider>
+            {{soundAttenuation}}
+          </div>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Playback</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="playForm" (ngSubmit)="play(playForm.value)">
+            <p>
+              <mat-form-field>
+                <input matInput required formControlName="videoURL" id="videoURL" placeholder="Enter Video URL">
+              </mat-form-field>
+            </p>
+            <p>
+              <mat-form-field>
+                <mat-select required formControlName="videoType" >
+                  <mat-option value="auto">Auto</mat-option>
+                  <mat-option value="video/youtube">YouTube</mat-option>
+                  <mat-option value="video/mp4">MP4</mat-option>
+                  <mat-option value="other">Other</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </p>
+            <p>
+              <mat-form-field>
+                <input required matInput formControlName="customVideoType" placeholder="Enter custom Video Type" [appEnableControl]="playForm.get('videoType').value === 'other'">
+              </mat-form-field>
+            </p>
+            <button mat-raised-button type="submit" matTooltip="Please recheck your input!" [matTooltipDisabled]="playForm.valid"  [disabled]="!playForm.valid" color="primary" >Play!</button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </mat-card-content>
+    </mat-card>
+  </div>
