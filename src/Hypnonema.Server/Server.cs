@@ -55,8 +55,15 @@
             if (this.useHttpServer)
             {
                 Log.WriteLine("Stopping HTTP-Server..");
-                this.server.Stop();
-                this.server.Dispose();
+                try
+                {
+                    this.server.Stop();
+                    this.server.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLine($"Error during shutdown of HTTP-Server: {e.Message}");
+                }
             }
         }
 
@@ -66,12 +73,33 @@
             {
                 return;
             }
-            
-            this.useHttpServer = bool.Parse(API.GetResourceMetadata(resourceName, "hypnonema_http_server", 0));
+
+            bool httpServer;
+            if (bool.TryParse(API.GetResourceMetadata(resourceName, "hypnonema_http_server", 0), out httpServer))
+            {
+                this.useHttpServer = httpServer;
+            }
+            else
+            {
+                this.useHttpServer = false;
+                Log.WriteLine($"^8Error: Failed to parse hypnonema_http_server. Using default value: {this.useHttpServer.ToString().ToLowerInvariant()}. Please recheck your config!");
+            }
+
             if (this.useHttpServer)
             {
-                var listenAddr = IPAddress.Parse(API.GetResourceMetadata(resourceName, "hypnonema_listen_addr", 0));
-                var port = int.Parse(API.GetResourceMetadata(resourceName, "hypnonema_listen_port", 0));
+                IPAddress listenAddr;
+                if (!IPAddress.TryParse(API.GetResourceMetadata(resourceName, "hypnonema_listen_addr", 0), out listenAddr))
+                {
+                    listenAddr = IPAddress.Loopback;
+                    Log.WriteLine($"^8Error: Failed to parse hypnonema_listen_addr. Using default value: {listenAddr.ToString()}. Please recheck your config!");
+                }
+
+                int port;
+                if (!int.TryParse(API.GetResourceMetadata(resourceName, "hypnonema_listen_port", 0), out port))
+                {
+                    port = 9414;
+                    Log.WriteLine($"^8Error: Failed to parse hypnonema_listen_port. Using default value: {port}. Please recheck your config!");
+                }
 
                 Log.WriteLine("^8Warning: Using the built-in HTTP-Server. DO NOT USE THIS FOR PRODUCTION!");
 
@@ -80,8 +108,17 @@
                                       EndPoint = new IPEndPoint(listenAddr, port)
                                   };
                 this.server.RequestReceived += this.ServerOnRequestReceived;
-                this.server.Start();
-                Log.WriteLine($"Listening on port {port}.");
+
+                try
+                {
+                    this.server.Start();
+                    Log.WriteLine($"Listening on port {port}.");
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLine("Error: Failed to start the HTTP-Server.");
+                    Log.WriteLine(e.Message);
+                }
             }
 
             API.RegisterCommand("hypnonema", new Action<int, List<object>, string>(this.OnHypnonemaCommand), true);
@@ -188,7 +225,7 @@
         private void OnHypnonemaCommand(int source, List<object> args, string raw)
         {
             var p = Players[source];
-            p.TriggerEvent("chat:addMessage", new { color = new[] { 255, 0, 0} , args = new[] { "[Hypnonema]", "Showing Hypnonema Window" } });
+            p.TriggerEvent("chat:addMessage", new { color = new[] { 0, 128, 128} , args = new[] { "[Hypnonema]", "Showing Hypnonema Window" } });
             p.TriggerEvent(ClientEvents.ShowNUI);
         }
         private void AddChatMessage(string source, string message, int[] color = null, bool multiline = true)

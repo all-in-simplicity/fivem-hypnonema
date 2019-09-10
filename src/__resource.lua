@@ -12,12 +12,12 @@ Version: 1.0
 
 ]]--
 
--- the url to your webserver containing the corresponding html file for use in hypnonema (the file inside wwwroot)
+-- the url to your webserver containing the corresponding html file for use in hypnonema (the index.html inside wwwroot)
 hypnonema_url 'http://localhost:9414/'
 
 -- whether to use the built-in http server or not. WARNING: FOR TESTING PURPOSES ONLY!
 hypnonema_http_server 'false'
-hypnonema_listen_addr '0.0.0.0'
+hypnonema_listen_addr '127.0.0.1'
 hypnonema_http_port '9414'
 -- --------------------------------------------
 
