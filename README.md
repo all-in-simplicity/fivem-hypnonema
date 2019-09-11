@@ -1,4 +1,4 @@
-<h1>Hypnonema 🎬 🎥🍿</h1>
+﻿<h1>Hypnonema 🎬 🎥🍿</h1>
 <h5>FiveM Cinema Resource</h5>
 
 Hypnonema is a Cinema Resource for FiveM.
@@ -16,6 +16,7 @@ Hypnonema is a Cinema Resource for FiveM.
 - [Usage](#usage)
 - [Customization](#customization)
   - [Change Splash-Screen (video-poster)](#change-splash-screen-video-poster)
+  - [Change command](#change-command)
 - [License](#license)
 - [Support](#support)
 
@@ -36,7 +37,7 @@ Hypnonema is a Cinema Resource for FiveM.
 
 Copy the **index.html** inside **wwwroot** to a directory on your webserver and edit the __resource.lua so that hypnonema_url points to the location on your webserver.
 ```
-hypnonema_url 'https://WEBSERVERADDRESS/hypnonema/index.html'
+hypnonema_url 'https://WEBSERVERADDRESS/hypnonema'
 ```
 
 Place "hypnonema" folder inside your fivem resources directory and append following line to your server.cfg
@@ -71,6 +72,11 @@ Type ```/hypnonema``` in chat to open the NUI-Frontend, paste your video link an
 ## Customization
 ### Change Splash-Screen (video-poster)
 Open the ```index.html``` and change either splash_image or pause_image.
+### Change command
+If you want to use your own command just edit the __resource.lua. Don't add preceding slashes or any special characters
+```
+hypnonema_command_name 'mynewcommand'
+```
 ## License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE.md) file for details
