@@ -35,9 +35,7 @@
         private bool txdHasBeenSet = false;
 
         private bool scaleformTickActive = false;
-
-        private bool initialized = false;
-
+        
         private long duiObj = 0;
 
         private Scaleform scaleform;
@@ -126,6 +124,12 @@
 
         private void ResumeVideo()
         {
+            // check scaleformTick, can be false after stop
+            if (!this.scaleformTickActive)
+            {
+                this.Tick += this.ShowVideo;
+            }
+
             API.SendDuiMessage(this.duiObj, JsonConvert.SerializeObject(new { type = "resume" }));
         }
 
@@ -156,12 +160,6 @@
         {
             API.SendNuiMessage(JsonConvert.SerializeObject(new { type = "HypnonemaNUI.ShowUI" }));
             API.SetNuiFocus(true, true);
-        }
-
-        private async Task NuiFocusTick()
-        {
-            API.SetNuiFocus(true, true);
-            await Task.FromResult(0);
         }
 
         private CallbackDelegate OnHideNUI(IDictionary<string, object> args, CallbackDelegate callback)
@@ -201,31 +199,13 @@
             await Task.FromResult(0);
         }
 
-        private void AddChatMessage(string message, int[] color = null, bool multiline = true)
-        {
-            if (color == null) color = new[] { 0, 128, 128 };
-
-            TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
-        }
-
         private async Task OnClientResourceStart(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
 
-            try
-            {
-                this.scaleform = new Scaleform(SfName);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(
-                    "[Hypnonema]: Scaleform loading failed. Did you probably restart the resource without restarting the game?");
-                Debug.WriteLine($"Exception: {e.Message}");
-                this.AddChatMessage(
-                    "Warning: Scaleform loading failed. A game restart may be required to actually view videos",
-                    new[] { 255, 255, 0 });
-                this.scaleform.Dispose();
-            }
+            Debug.WriteLine("creating new scaleform");
+            this.scaleform = new Scaleform(SfName);
+            Debug.WriteLine("loaded new scaleform");
 
             var numberFormat = new CultureInfo("en-US").NumberFormat;
             this.TxdName = Guid.NewGuid().ToString();
@@ -266,9 +246,6 @@
 
             var txn = Function.Call<long>(Hash.CREATE_RUNTIME_TEXTURE_FROM_DUI_HANDLE, txd, TxnName, dui);
 
-            // the initialization state is saved because of the scaleform not being freed up from the game upon restart of the resource,
-            // often crashing at instantiating the new scaleform (with the same name obviously). this variable is checked before executing any code in the tick method.
-            this.initialized = true;
             Debug.WriteLine($"dui runtime texture handle: {txn}");
             await Delay(0);
         }
@@ -284,8 +261,6 @@
                 this.txdHasBeenSet = false;
             }
 
-            if (this.scaleformTickActive) this.Tick -= this.ShowVideo;
-
             await Delay(0);
         }
 
@@ -294,17 +269,6 @@
             // draw call wrapped inside try block to be able to stop video playback on error
             try
             {
-                if (!this.initialized)
-                {
-                    // we may only pass if we are fully initialized.
-                    this.StopVideo();
-                    this.Tick -= this.ShowVideo;
-                    this.AddChatMessage(
-                        "Error: Aborting. Resource didn't fully initialize. A Game restart may be required.",
-                        new[] { 255, 0, 0 });
-                    return;
-                }
-
                 if (this.scaleform.IsValid && !this.txdHasBeenSet)
                 {
                     this.scaleform.CallFunction("SET_TEXTURE", this.TxdName, TxnName, 0, 0, this.width, this.height);

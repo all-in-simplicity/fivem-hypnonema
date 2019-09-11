@@ -17,7 +17,7 @@ export class HypnonemaComponent implements OnInit {
   });
   public volume = 100;
   public paused = false;
-  public soundAttenuation = 10;
+  public soundAttenuation = 5;
   public soundMinDistance = 10;
   constructor(private http: HttpClient) { }
 
@@ -46,6 +46,7 @@ export class HypnonemaComponent implements OnInit {
   }
 
   stop() {
+    this.paused = true;
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnStopVideo`, {})
       .subscribe(() => {}, error => console.log(error));
   }
@@ -58,7 +59,7 @@ export class HypnonemaComponent implements OnInit {
 
   close() {
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnHideNUI`, {})
-      .subscribe(() => {}, error => console.log(JSON.stringify(error)));
+      .subscribe(() => {}, error => console.log(error));
   }
   play($event: any) {
     let videoType = $event.videoType;
@@ -68,7 +69,6 @@ export class HypnonemaComponent implements OnInit {
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnPlay`, {videoURL: $event.videoURL, videoType})
       .subscribe(() => {}, error => {
         console.log(`${$event.videoType}/${$event.videoURL}`);
-        console.log(JSON.stringify(error));
         console.log(error);
       });
   }
