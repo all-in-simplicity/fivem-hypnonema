@@ -32,7 +32,7 @@ ui_page 'client/html/index.html'
 client_script 'client/Hypnonema.Client.net.dll'
 
 files {
-    'client/Newtonsoft.Json.dll',
+    'client/Newtonsoft.json.dll',
     'client/html/index.html',
     'client/html/main-es5.js',
     'client/html/main-es2015.js',
