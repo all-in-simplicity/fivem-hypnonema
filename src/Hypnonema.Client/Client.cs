@@ -35,7 +35,11 @@
         private bool txdHasBeenSet = false;
 
         private bool scaleformTickActive = false;
-        
+
+        private bool isAceAllowed = false;
+
+        private bool isInitialized = false;
+
         private long duiObj = 0;
 
         private Scaleform scaleform;
@@ -59,7 +63,11 @@
             this.RegisterEventHandler(ClientEvents.ShowNUI, new Action(this.OnShowNUI));
             this.RegisterEventHandler(ClientEvents.SetSoundAttenuation, new Action<float>(this.SetSoundAttenuation));
             this.RegisterEventHandler(ClientEvents.SetSoundMinDistance, new Action<float>(this.SetSoundMinDistance));
+            this.RegisterEventHandler(
+                ClientEvents.UpdateState,
+                new Action<bool, float, float, float, string, string>(this.UpdateState));
 
+            this.RegisterNuiCallback(ClientEvents.OnStateTick, this.OnStateTick);
             this.RegisterNuiCallback(ClientEvents.OnPlay, this.OnPlay);
             this.RegisterNuiCallback(ClientEvents.OnPause, this.OnPause);
             this.RegisterNuiCallback(ClientEvents.OnHideNUI, this.OnHideNUI);
@@ -68,6 +76,80 @@
             this.RegisterNuiCallback(ClientEvents.OnVolumeChange, this.OnVolumeChange);
             this.RegisterNuiCallback(ClientEvents.OnSoundMinDistanceChange, this.OnSoundMinDistanceChange);
             this.RegisterNuiCallback(ClientEvents.OnSoundAttuenationChange, this.OnSoundAttenuationChange);
+        }
+
+        private void UpdateState(
+            bool paused,
+            float currentTime,
+            float duration,
+            float remainingTime,
+            string currentSource,
+            string currentType)
+        {
+            if (!this.scaleformTickActive && !paused && this.isInitialized)
+            {
+                Debug.WriteLine("synchronizing playback state..");
+                API.SendDuiMessage(
+                    this.duiObj,
+                    JsonConvert.SerializeObject(
+                        new { type = "update", currentTime, src = new { type = currentType, url = currentSource } }));
+                this.scaleformTickActive = true;
+                this.Tick += this.ShowVideo;
+            }
+        }
+
+        private CallbackDelegate OnStateTick(IDictionary<string, object> args, CallbackDelegate callback)
+        {
+
+            // TODO: try to keep packets send to the server as low as possible by
+            // finding a way to make IsAceAllowed work, so we basically only send state ticks from allowed users
+            // if (API.IsAceAllowed($"command.{cmdName}"))
+            var paused = args.FirstOrDefault(arg => arg.Key == "paused").Value as bool?;
+            if (paused == null)
+            {
+                return callback;
+            }
+
+            var currentTime = args.FirstOrDefault(arg => arg.Key == "currentTime").Value?.ToString();
+            if (string.IsNullOrEmpty(currentTime))
+            {
+                return callback;
+            }
+
+            var duration = args.FirstOrDefault(arg => arg.Key == "duration").Value?.ToString();
+            if (string.IsNullOrEmpty(duration))
+            {
+                return callback;
+            }
+
+            var remainingTime = args.FirstOrDefault(arg => arg.Key == "remainingTime").Value?.ToString();
+            if (string.IsNullOrEmpty(remainingTime))
+            {
+                return callback;
+            }
+
+            var currentSource = args.FirstOrDefault(arg => arg.Key == "currentSource").Value?.ToString();
+            if (string.IsNullOrEmpty(currentSource))
+            {
+                return callback;
+            }
+
+            var currentType = args.FirstOrDefault(arg => arg.Key == "currentType").Value?.ToString();
+            if (string.IsNullOrEmpty(currentType))
+            {
+                return callback;
+            }
+
+            TriggerServerEvent(
+                ServerEvents.OnStateTick,
+                paused,
+                currentTime,
+                duration,
+                remainingTime,
+                currentSource,
+                currentType);
+
+            return callback;
         }
 
         private CallbackDelegate OnSoundAttenuationChange(IDictionary<string, object> args, CallbackDelegate callback)
@@ -128,6 +210,7 @@
             if (!this.scaleformTickActive)
             {
                 this.Tick += this.ShowVideo;
+                this.scaleformTickActive = true;
             }
 
             API.SendDuiMessage(this.duiObj, JsonConvert.SerializeObject(new { type = "resume" }));
@@ -246,6 +329,9 @@
 
             var txn = Function.Call<long>(Hash.CREATE_RUNTIME_TEXTURE_FROM_DUI_HANDLE, txd, TxnName, dui);
 
+            this.isInitialized = true;
+            this.isAceAllowed = API.IsAceAllowed(
+                $"command.{API.GetResourceMetadata(resourceName, "hypnonema_command_name", 0)}");
             Debug.WriteLine($"dui runtime texture handle: {txn}");
             await Delay(0);
         }

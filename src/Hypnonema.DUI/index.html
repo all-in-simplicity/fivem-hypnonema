@@ -48,12 +48,30 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   
         <script>
+            var interval = 5000;
             var splash_image = 'https://i.imgur.com/dPaIjEW.jpg';
             var pause_image = 'https://i.imgur.com/aoz9sJn.jpg';
 
             var player = videojs('my-video');
             player.ready(function() {
                 player.poster(splash_image);
+
+                setInterval(function() {
+                    if(!player.paused()) {
+                        fetch('https://hypnonema/Hypnonema.StateTick', {
+                            headers: {'content-type': 'application/json; charset=UTF-8'},
+                            body: JSON.stringify({
+                                paused: player.paused(),
+                                currentTime: player.currentTime(),
+                                duration: player.duration(),
+                                remainingTime: player.remainingTime(),
+                                currentSource: player.currentSource().src,
+                                currentType: player.currentType(),
+                            }),
+                            method: 'POST'
+                        }).catch(error => console.log(error));
+                    }
+                }, interval);
             });
             player.on('ended', function () {
                 player.currentTime(0);
@@ -66,7 +84,12 @@
                     } else {
                         player.src({type: event.data.src.type, src: event.data.src.url});
                     }
+                    player.play();
+                }
 
+                if(event.data.type === 'update') {
+                    player.src({type: event.data.src.type, src: event.data.src.url})
+                    player.currentTime(event.data.currentTime);
                     player.play();
                 }
 

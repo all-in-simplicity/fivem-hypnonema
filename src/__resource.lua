@@ -8,7 +8,7 @@
         __/ | |                                           
        |___/|_|                                           
 
-Version: 1.1
+Version: 1.2
 
 ]]--
 
@@ -22,7 +22,7 @@ hypnonema_command_name 'hypnonema'
 -- whether to use the built-in http server or not. WARNING: FOR TESTING PURPOSES ONLY!
 hypnonema_http_server 'false'
 hypnonema_listen_addr '127.0.0.1'
-hypnonema_http_port '9414'
+hypnonema_listen_port '9414'
 -- --------------------------------------------
 
 resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'

@@ -33,5 +33,9 @@
         public const string SetSoundAttenuation = "Hypnonema.SetSoundAttenuation";
 
         public const string SetSoundMinDistance = "Hypnonema.SetSoundMinDistance";
+
+        public const string OnStateTick = "Hypnonema.StateTick";
+
+        public const string UpdateState = "Hypnonema.UpdateState";
     }
 }

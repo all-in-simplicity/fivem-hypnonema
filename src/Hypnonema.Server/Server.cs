@@ -148,6 +148,8 @@
             this.EventHandlers[ServerEvents.OnStopVideo] += new Action<Player>(this.OnStopVideo);
             this.EventHandlers[ServerEvents.OnResumeVideo] += new Action<Player>(this.OnResumeVideo);
             this.EventHandlers[ServerEvents.OnSetVolume] += new Action<Player, string>(this.OnSetVolume);
+            this.EventHandlers[ServerEvents.OnStateTick] +=
+                new Action<Player, bool, float, float, float, string, string>(this.OnStateTick);
             this.EventHandlers[ServerEvents.OnSetSoundAttenuation] +=
                 new Action<Player, float>(this.OnSetSoundAttenuation);
             this.EventHandlers[ServerEvents.OnSetSoundMinDistance] +=
@@ -214,6 +216,29 @@
                     new[] { 255, 0, 0 });
         }
 
+        private void OnStateTick(
+            [FromSource] Player player,
+            bool paused,
+            float currentTime,
+            float duration,
+            float remainingTime,
+            string currentSource,
+            string currentType)
+        {
+            // we already checked it on client-side, but just to be sure.
+            if (this.IsPlayerAllowed(player))
+            {
+                TriggerClientEvent(
+                    ClientEvents.UpdateState,
+                    paused,
+                    currentTime,
+                    duration,
+                    remainingTime,
+                    currentSource,
+                    currentType);
+            }
+        }
+
         private void OnPlaybackReceived([FromSource] Player player, string videoURL, string videoType)
         {
             if (this.IsPlayerAllowed(player))
@@ -235,14 +260,6 @@
             var p = this.Players[source];
             this.AddChatMessage(p, "Showing Hypnonema Window");
             p.TriggerEvent(ClientEvents.ShowNUI);
-        }
-
-        private void AddChatMessage(int source, string message, int[] color = null, bool multiline = true)
-        {
-            if (color == null) color = new[] { 0, 128, 128 };
-
-            var p = this.Players[source];
-            this.AddChatMessage(p, message, color, multiline);
         }
 
         private void AddChatMessage(Player player, string message, int[] color = null, bool multiline = true)

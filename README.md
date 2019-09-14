@@ -67,7 +67,7 @@ hypnonema_http_port '9414'
 ### (Optional) Example Map
 There is an example map included, just copy the folder **hypnonema-map** to your resource directory and add *start hypnonema-map* to your server.cfg.
 ## Usage
-Type ```/hypnonema``` in chat to open the NUI-Frontend, paste your video link and choose either "auto" if its normal html5 video input eg. a mp4 or avi or "youTube" if its a youTube link.
+Type ```/hypnonema``` in chat to open the NUI-Frontend, paste your video link and choose either "auto" if its normal html5 video input eg. a mp4 or "youTube" if its a youTube link.
 
 ## Customization
 ### Change Splash-Screen (video-poster)
