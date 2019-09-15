@@ -1,9 +1,13 @@
 import { TestBed, async } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule
+      ],
       declarations: [
         AppComponent
       ],
@@ -16,16 +20,16 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have as title 'Hypnonema'`, () => {
+  it(`should have as title 'HypnonemaNUI'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('Hypnonema');
+    expect(app.title).toEqual('HypnonemaNUI');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('Hypnonema app is running!');
+    expect(compiled.querySelector('.content span').textContent).toContain('HypnonemaNUI app is running!');
   });
 });

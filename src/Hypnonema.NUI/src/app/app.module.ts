@@ -1,49 +1,37 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
+import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HypnonemaComponent } from './hypnonema/hypnonema.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-  MatButtonModule, MatCardModule, MatExpansionModule,
-  MatFormFieldModule,
-  MatIconModule,
-  MatInputModule, MatListModule,
-  MatSelectModule,
-  MatSliderModule,
-  MatToolbarModule, MatTooltipModule
-} from '@angular/material';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { HeaderComponent } from './layout/header/header.component';
+import { BodyComponent } from './layout/body/body.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EnableControlDirective } from './shared/enable-control.directive';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FooterComponent } from './layout/footer/footer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HypnonemaComponent,
-    EnableControlDirective
+    HeaderComponent,
+    BodyComponent,
+    FooterComponent,
+
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
-    BrowserAnimationsModule,
+    FontAwesomeModule,
     HttpClientModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSliderModule,
-    MatCardModule,
-    DragDropModule,
     ReactiveFormsModule,
-    MatTooltipModule,
-    FormsModule,
-    MatExpansionModule,
-    MatListModule
+    NgbModule,
   ],
   providers: [],
+  exports: [
+
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

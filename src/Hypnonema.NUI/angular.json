@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Hypnonema": {
+    "HypnonemaNUI": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/Hypnonema",
+            "outputPath": "dist/HypnonemaNUI",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -28,9 +28,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/bootstrap-slider/dist/css/bootstrap-slider.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap-slider/dist/bootstrap-slider.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -43,7 +46,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": false,
+              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
@@ -54,30 +57,35 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
                 }
               ]
             }
           }
         },
         "serve": {
-          "builder": "ngx-build-plus:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "Hypnonema:build"
+            "browserTarget": "HypnonemaNUI:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "Hypnonema:build:production"
+              "browserTarget": "HypnonemaNUI:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Hypnonema:build"
+            "browserTarget": "HypnonemaNUI:build"
           }
         },
         "test": {
-          "builder": "ngx-build-plus:karma",
+          "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
@@ -88,6 +96,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -110,16 +119,15 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "Hypnonema:serve"
+            "devServerTarget": "HypnonemaNUI:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "Hypnonema:serve:production"
+              "devServerTarget": "HypnonemaNUI:serve:production"
             }
           }
         }
       }
-    }
-  },
-  "defaultProject": "Hypnonema"
+    }},
+  "defaultProject": "HypnonemaNUI"
 }

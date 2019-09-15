@@ -1,0 +1,16 @@
+<h3 class="text-center">Settings</h3>
+  <div class="clearfix">
+    <strong class="float-left">Global Volume</strong>
+    <mv-slider class="float-right" [(value)]="volume" [min]="1" [max]="100" (slideStop)="volumeChange()" tooltip="always"></mv-slider>
+  </div>
+<small>Hint: This is the global volume which is used for the actual volume calculation. </small>
+<div class="clearfix pt-4">
+  <strong class="float-left">Sound Min Distance </strong>
+  <mv-slider class="float-right" [(value)]="soundMinDistance" [min]="1" [max]="100" (slideStop)="soundMinDistanceChange()" tooltip="always"></mv-slider>
+</div>
+<small>Hint: The minimum distance is the distance under which the sound will be heard at its maximum volume.</small>
+<div class="clearfix pt-4">
+  <strong class="float-left">Sound Attenuation</strong>
+  <mv-slider class="float-right" [(value)]="soundAttenuation" [min]="5" [max]="100" (slideStop)="soundAttenuationChange()" tooltip="always"></mv-slider>
+</div>
+<small>Hint: The greater the attenuation, the less it will be heard when the sound moves away from the listener.</small>

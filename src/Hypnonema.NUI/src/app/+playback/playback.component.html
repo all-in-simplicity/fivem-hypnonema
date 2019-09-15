@@ -1,0 +1,22 @@
+<h3 class="text-center">Play new Video</h3>
+<form [formGroup]="playForm" (ngSubmit)="play(playForm.value)">
+  <div class="form-group">
+    <label for="videoURL">Video-URL</label>
+    <input required type="url" class="form-control" id="videoURL" formControlName="videoURL" aria-describedby="videoHelp" placeholder="Enter URL">
+    <small id="videoHelp" class="form-text text-muted"></small>
+  </div>
+  <div class="form-group">
+    <label for="videoType">Video-Type</label>
+    <select required class="form-control" formControlName="videoType" aria-describedby="videoTypeHelp" id="videoType">
+      <option value="auto">Auto</option>
+      <option value="video/youtube">YouTube</option>
+      <option value="other">Custom</option>
+    </select>
+    <small id="videoTypeHelp" class="form-text text-muted pb-2">Hint: Auto won't work with YouTube!</small>
+    <input formControlName="customVideoType" required [hidden]="playForm.get('videoType').value !== 'other'"
+           [appEnableControl]="playForm.get('videoType').value === 'other'"
+           placeholder="Enter custom Video Type" type="text" class="form-control" id="customVideoType"
+    >
+  </div>
+  <button type="submit" [disabled]="!playForm.valid" class="btn btn-primary">Play!</button>
+</form>

@@ -1,0 +1,26 @@
+.footer {
+  background: rgb(21,21,21);
+  background: linear-gradient(0deg, rgba(21,21,21,1) 0%, rgba(36,36,36,1) 100%);
+  min-width: 640px;
+  max-width: 640px;
+  min-height: 84px;
+  max-height: 84px;
+}
+.btn-circle.btn-xl {
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  border-radius: 35px;
+  font-size: 24px;
+  line-height: 1.33;
+}
+
+.btn-circle {
+  width: 30px;
+  height: 30px;
+  padding: 6px 0px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.42857;
+}

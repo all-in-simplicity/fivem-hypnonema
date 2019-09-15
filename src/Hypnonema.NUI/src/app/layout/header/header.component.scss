@@ -1,0 +1,92 @@
+.header {
+  background: rgb(0,126,255);
+  background: linear-gradient(180deg, rgba(0,126,255,1) 0%, rgba(0,79,125,1) 100%);
+  height: 127px;
+  width: 640px;
+}
+
+.header .status {
+  height: 21px;
+}
+div .status {
+  display: inline;
+}
+.status-connectivity {
+  display: inline-block;
+  min-height: 21px;
+  max-height: 21px;
+  min-width: 98px;
+  max-width: 98px;
+  float: left;
+  background-image: url('../../../assets/status_connectivity.png');
+  background-repeat: no-repeat;
+}
+
+.status-battery {
+  display: inline-block;
+  float: right;
+  min-height: 18px;
+  max-height: 18px;
+  max-width: 111px;
+  min-width: 111px;
+  background-image: url('../../../assets/status_battery.png');
+  background-repeat: no-repeat;
+}
+button .app-button {
+  border-radius: 0;
+}
+.status-title {
+  margin-top: -40px;
+  min-height: 57px;
+  max-height: 57px;
+  min-width: 266px;
+  max-width: 266px;
+  background-image: url('../../../assets/status_title.png');
+}
+
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  z-index: 9999;
+}
+#dismiss {
+  width: 35px;
+  height: 35px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+#close {
+  width: 40px;
+  height: 40px;
+  display: inline-block;
+  top: 10px;
+  right: 10px;
+}
+.overlay {
+  // display: none;
+  position: fixed;
+  /* full screen */
+  width: 640px;
+  height: 600px;
+  /* transparent black */
+  background: rgba(0, 0, 0, 0.7);
+  /* middle layer, i.e. appears below the sidebar */
+  z-index: 998;
+  opacity: 0;
+  /* animate the transition */
+  transition: all 0.5s ease-in-out;
+}
+
+.overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.sidebar-header {
+
+}

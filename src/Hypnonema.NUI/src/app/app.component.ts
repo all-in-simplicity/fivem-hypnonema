@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { environment } from '../environments/environment';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -9,21 +9,18 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent {
   appVisible = !environment.production;
-  title = 'Hypnonema';
+  title = 'HypnonemaNUI';
 
-
-
-  constructor() {}
+  constructor(private router: Router) {}
   @HostListener('window:message', ['$event'])
   handleNuiMessage(event: any) {
     if (!event) { return; }
-    switch (event.data.type) {
-      case 'HypnonemaNUI.ShowUI':
-        this.appVisible = true;
-        break;
-      case 'HypnonemaNUI.HideUI':
-        this.appVisible = false;
-        break;
+    if (event.data.type === 'HypnonemaNUI.ShowUI') {
+      this.router.navigateByUrl('playback');
+      this.appVisible = true;
+    }
+    if (event.data.type === 'HypnonemaNUI.HideUI') {
+      this.appVisible = false;
     }
   }
 }
