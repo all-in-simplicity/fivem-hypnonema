@@ -45,8 +45,10 @@ button .app-button {
 }
 
 #sidebar {
+  background-color: #0f0f0f;
   min-width: 250px;
   max-width: 250px;
+  max-height: 600px;
   height: 100vh;
   position: fixed;
   left: 0;
