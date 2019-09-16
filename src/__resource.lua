@@ -51,7 +51,6 @@ files {
     'client/html/status_title.png'
 }
 
-
 -- Only change if you know what you are doing!
 hypnonema_position { '-1678.949', '-928.3431', '20.6290932' }
 hypnonema_rotation { '0.0', '0.0', '-140.0' }

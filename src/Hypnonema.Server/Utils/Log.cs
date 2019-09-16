@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Server
+﻿namespace Hypnonema.Server.Utils
 {
     using System;
 
@@ -11,6 +11,5 @@
             Debug.Write($"^4[Hypnonema] [{DateTime.Now.ToShortTimeString()}]: ");
             Debug.WriteLine($"{data}^7");
         }
-
     }
 }

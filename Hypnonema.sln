@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Client", "src\Hyp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Server", "src\Hypnonema.Server\Hypnonema.Server.csproj", "{3EA2FBDC-2ED7-4872-9C2D-B1176D196EF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hypnonema.Shared", "src\Hypnonema.Shared\Hypnonema.Shared.csproj", "{212DF026-E8BD-4E03-B197-3E1FD9DE7637}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hypnonema.Shared", "src\Hypnonema.Shared\Hypnonema.Shared.csproj", "{212DF026-E8BD-4E03-B197-3E1FD9DE7637}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

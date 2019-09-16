@@ -233,6 +233,12 @@
             API.SendDuiMessage(this.duiObj, JsonConvert.SerializeObject(new { type = "stop" }));
         }
 
+        private string GetHypnonemaVersion()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            return assembly.GetName().Version.ToString();
+        }
+
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
         {
             TriggerServerEvent(ServerEvents.OnPause);
@@ -241,7 +247,7 @@
 
         private void OnShowNUI()
         {
-            API.SendNuiMessage(JsonConvert.SerializeObject(new { type = "HypnonemaNUI.ShowUI" }));
+            API.SendNuiMessage(JsonConvert.SerializeObject(new { type = "HypnonemaNUI.ShowUI", hypnonemaVersion = this.GetHypnonemaVersion() }));
             API.SetNuiFocus(true, true);
         }
 
@@ -285,6 +291,8 @@
         private async Task OnClientResourceStart(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
+
+            Debug.WriteLine($"Using hypnonema version: {this.GetHypnonemaVersion()}");
 
             Debug.WriteLine("creating new scaleform");
             this.scaleform = new Scaleform(SfName);

@@ -8,9 +8,10 @@ import { BodyComponent } from './layout/body/body.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
-import { EnableControlDirective } from './shared/enable-control.directive';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FooterComponent } from './layout/footer/footer.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -18,15 +19,16 @@ import { FooterComponent } from './layout/footer/footer.component';
     HeaderComponent,
     BodyComponent,
     FooterComponent,
-
   ],
   imports: [
     AppRoutingModule,
     BrowserModule,
+    BrowserAnimationsModule,
     FontAwesomeModule,
     HttpClientModule,
     ReactiveFormsModule,
     NgbModule,
+    ToastrModule.forRoot()
   ],
   providers: [],
   exports: [
