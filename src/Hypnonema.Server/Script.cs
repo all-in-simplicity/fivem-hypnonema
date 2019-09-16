@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Reflection;
     using System.Threading;
@@ -24,7 +25,7 @@
     public class Script : BaseScript
     {
         private string cmdName = "hypnonema";
-
+        
         #region HTTP-Server related
 
         private bool useHttpServer = false;
@@ -121,7 +122,11 @@
 
         private string GetHypnonemaVersion()
         {
-           return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            var attribute = (AssemblyFileVersionAttribute)Assembly
+               .GetExecutingAssembly()
+               .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true)
+               .Single();
+           return attribute.Version;
         }
 
 

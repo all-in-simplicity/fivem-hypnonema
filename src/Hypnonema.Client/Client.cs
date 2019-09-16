@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Dynamic;
     using System.Globalization;
     using System.Linq;
@@ -104,7 +103,6 @@
 
         private CallbackDelegate OnStateTick(IDictionary<string, object> args, CallbackDelegate callback)
         {
-
             // TODO: try to keep packets send to the server as low as possible by
             // finding a way to make IsAceAllowed work, so we basically only send state ticks from allowed users
             // if (API.IsAceAllowed($"command.{cmdName}"))
@@ -239,7 +237,9 @@
 
         private string GetHypnonemaVersion()
         {
-            return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+            var attribute = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true).Single();
+            return attribute.Version;
         }
 
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
@@ -250,7 +250,9 @@
 
         private void OnShowNUI()
         {
-            API.SendNuiMessage(JsonConvert.SerializeObject(new { type = "HypnonemaNUI.ShowUI", hypnonemaVersion = this.GetHypnonemaVersion() }));
+            API.SendNuiMessage(
+                JsonConvert.SerializeObject(
+                    new { type = "HypnonemaNUI.ShowUI", hypnonemaVersion = this.GetHypnonemaVersion() }));
             API.SetNuiFocus(true, true);
         }
 
