@@ -2,8 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -119,9 +121,7 @@
 
         private string GetHypnonemaVersion()
         {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            return assembly.GetName().Version.ToString();
+           return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         }
 
 

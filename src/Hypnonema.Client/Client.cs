@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Dynamic;
     using System.Globalization;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     using CitizenFX.Core;
@@ -13,6 +15,8 @@
     using Hypnonema.Shared;
 
     using Newtonsoft.Json;
+
+    using Debug = CitizenFX.Core.Debug;
 
     public class Client : BaseScript
     {
@@ -235,8 +239,7 @@
 
         private string GetHypnonemaVersion()
         {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            return assembly.GetName().Version.ToString();
+            return FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
         }
 
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
