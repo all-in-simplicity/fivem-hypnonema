@@ -37,5 +37,9 @@
         public const string OnStateTick = "Hypnonema.StateTick";
 
         public const string UpdateState = "Hypnonema.UpdateState";
+
+        public const string OnToggleReplay = "Hypnonema.OnToggleReplay";
+
+        public const string ToggleReplay = "Hypnonema.ToggleReplay";
     }
 }

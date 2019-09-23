@@ -46,7 +46,7 @@
         private long duiObj = 0;
 
         private Scaleform scaleform;
-
+        
         private Vector3 scaleformPos = new Vector3(-1678.949f, -928.3431f, 20.6290932f);
 
         private Vector3 scaleformRot = new Vector3(0f, 0f, -140f);
@@ -69,6 +69,7 @@
             this.RegisterEventHandler(
                 ClientEvents.UpdateState,
                 new Action<bool, float, float, float, string, string>(this.UpdateState));
+            this.RegisterEventHandler(ClientEvents.ToggleReplay, new Action<bool>(this.ToggleReplay));
 
             this.RegisterNuiCallback(ClientEvents.OnStateTick, this.OnStateTick);
             this.RegisterNuiCallback(ClientEvents.OnPlay, this.OnPlay);
@@ -79,6 +80,25 @@
             this.RegisterNuiCallback(ClientEvents.OnVolumeChange, this.OnVolumeChange);
             this.RegisterNuiCallback(ClientEvents.OnSoundMinDistanceChange, this.OnSoundMinDistanceChange);
             this.RegisterNuiCallback(ClientEvents.OnSoundAttuenationChange, this.OnSoundAttenuationChange);
+            this.RegisterNuiCallback(ClientEvents.OnToggleReplay, this.OnToggleReplay);
+        }
+
+        private void ToggleReplay(bool replay)
+        {
+            API.SendDuiMessage(this.duiObj, JsonConvert.SerializeObject(new { type = "toggleReplay", value = replay }));
+        }
+
+        private CallbackDelegate OnToggleReplay(IDictionary<string, object> args, CallbackDelegate callback)
+        {
+            var replay = args.FirstOrDefault(arg => arg.Key == "replay").Value as bool?;
+            if (replay == null)
+            {
+                return callback;
+            }
+
+            TriggerServerEvent(ServerEvents.OnToggleReplay, replay);
+
+            return callback;
         }
 
         private void UpdateState(
@@ -377,6 +397,7 @@
                 if (this.scaleform.IsValid)
                 {
                     this.scaleform.Render3D(this.scaleformPos, this.scaleformRot, this.scaleformScale);
+                    //this.scaleform2.Render3D(this.scaleformPos + (Vector3.UnitX * 20), this.scaleformRot, this.scaleformScale);
                     var playerPos = Game.PlayerPed.Position;
                     var distance = API.GetDistanceBetweenCoords(
                         playerPos.X,

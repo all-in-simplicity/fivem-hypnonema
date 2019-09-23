@@ -16,6 +16,10 @@ export class FooterComponent implements OnInit {
   faStop = faStop;
   constructor(private http: HttpClient) { }
 
+  toggleReplay($event) {
+    this.http.post(`http://${environment.resourceName}/Hypnonema.OnToggleReplay`, {replay: $event})
+      .subscribe(() => {}, error => console.log(error));
+  }
   ngOnInit() {
   }
   resume() {

@@ -1,0 +1,23 @@
+<h3 class="text-center">History</h3>
+
+<table class="table">
+  <thead>
+  <tr>
+    <th scope="col"></th>
+    <th scope="col">Type</th>
+    <th scope="col">URL</th>
+    <th scope="col">When</th>
+  </tr>
+  </thead>
+  <tbody>
+  <ng-container *ngFor="let entry of (history$ | async)">
+    <tr>
+      <td><button class="btn btn-success btn-circle btn-circle-sm" (click)="playAgain(entry)" ngbTooltip="Play again"><fa-icon [icon]="faPlay"></fa-icon></button> </td>
+      <td>{{entry.video.type}}</td>
+      <td>{{entry.video.url}}
+        <button ngbTooltip="Copied!"  triggers="click:blur" [closeDelay]="3000" [autoClose]="true" class="btn btn-sm btn-outline-primary" (click)="copyToClipboard(entry.video.url)"><fa-icon [icon]="faClipboard"></fa-icon> Copy</button> </td>
+      <td>{{fromNow(entry.time)}}</td>
+    </tr>
+  </ng-container>
+  </tbody>
+</table>

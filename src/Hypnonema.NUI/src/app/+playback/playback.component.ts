@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { Store } from '@ngxs/store';
+import { AddHistoryEntry } from '@hypnonema/+history/history-state';
+
 
 @Component({
   selector: 'app-playback',
@@ -14,7 +17,7 @@ export class PlaybackComponent implements OnInit {
     videoType: new FormControl('auto'),
     customVideoType: new FormControl('')
   });
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private store: Store) { }
   play($event: any) {
     let videoType = $event.videoType;
     if (this.playForm.get('videoType').value === 'other') {
@@ -22,10 +25,12 @@ export class PlaybackComponent implements OnInit {
     }
 
     this.http.post(`http://${environment.resourceName}/Hypnonema.OnPlay`, {videoURL: $event.videoURL, videoType})
-      .subscribe(() => {}, error => {
+      .subscribe(() => {
+      }, error => {
         console.log(`error sending ${$event.videoType}/${$event.videoURL}`);
         console.log(error);
       });
+    this.store.dispatch(new AddHistoryEntry(videoType, $event.videoURL));
   }
   ngOnInit() {
   }

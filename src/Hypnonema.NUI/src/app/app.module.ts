@@ -13,6 +13,18 @@ import { FooterComponent } from './layout/footer/footer.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
+import { CommonModule } from '@angular/common';
+
+import { environment } from '../environments/environment';
+import { NgxsModule } from '@ngxs/store';
+import { HistoryState } from '@hypnonema/+history/history-state';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
+import { AngularDraggableModule } from 'angular2-draggable';
+import { PlaybackState } from '@hypnonema/+playback/playback-state';
+import { UiSwitchModule } from 'ngx-toggle-switch';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,6 +35,20 @@ import { ToastrModule } from 'ngx-toastr';
   imports: [
     AppRoutingModule,
     BrowserModule,
+    CommonModule,
+    UiSwitchModule,
+    AngularDraggableModule,
+    NgxsModule.forRoot([
+      HistoryState, PlaybackState
+    ], {
+      developmentMode: !environment.production,
+    }),
+    NgxsReduxDevtoolsPluginModule.forRoot({
+      disabled: environment.production
+    }),
+    NgxsLoggerPluginModule.forRoot({
+      disabled: environment.production
+    }),
     BrowserAnimationsModule,
     FontAwesomeModule,
     HttpClientModule,

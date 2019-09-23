@@ -33,22 +33,13 @@ client_script 'client/Hypnonema.Client.net.dll'
 
 files {
     'client/Newtonsoft.Json.dll',
+    'client/Hypnonema.Shared.dll',
     'client/html/index.html',
-    'client/html/5-es5.js',
-    'client/html/5-es2015.js',
-    'client/html/6-es5.js',
-    'client/html/6-es2015.js',
-    'client/html/main-es5.js',
-    'client/html/main-es2015.js',
-    'client/html/polyfills-es5.js',
-    'client/html/polyfills-es2015.js',
-    'client/html/runtime-es2015.js',
-    'client/html/runtime-es5.js',
-    'client/html/styles.css',
-    'client/html/scripts.js',
     'client/html/status_battery.png',
     'client/html/status_connectivity.png',
-    'client/html/status_title.png'
+    'client/html/status_title.png',
+    'client/html/styles.css',
+    'client/html/*.js'
 }
 
 -- Only change if you know what you are doing!

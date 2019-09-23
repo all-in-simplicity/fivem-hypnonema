@@ -1,0 +1,21 @@
+
+.collapsible-link {
+  width: 100%;
+  position: relative;
+  text-align: left;
+}
+
+.collapsible-link::before {
+  content: '\f107';
+  position: absolute;
+  top: 50%;
+  right: 0.8rem;
+  transform: translateY(-50%);
+  display: block;
+  font-family: 'FontAwesome';
+  font-size: 1.1rem;
+}
+
+.collapsible-link[aria-expanded='true']::before {
+  content: '\f106';
+}

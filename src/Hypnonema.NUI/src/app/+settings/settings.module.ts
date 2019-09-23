@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SettingsComponent } from './settings.component';
 import { SettingsRoutingModule } from './settings-routing.module';
-import { NgxBootstrapSliderModule } from 'ngx-bootstrap-slider';
 
+import { NouisliderModule } from 'ng2-nouislider';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -11,7 +12,8 @@ import { NgxBootstrapSliderModule } from 'ngx-bootstrap-slider';
   imports: [
     CommonModule,
     SettingsRoutingModule,
-    NgxBootstrapSliderModule
+    NouisliderModule,
+    FormsModule
   ]
 })
 export class SettingsModule { }

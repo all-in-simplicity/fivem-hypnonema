@@ -6,12 +6,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { EnableControlDirective } from '../shared/enable-control.directive';
+import { CurrentlyPlayingComponent } from './currently-playing/currently-playing.component';
 
 
 @NgModule({
   declarations: [
     PlaybackComponent,
-    EnableControlDirective
+    EnableControlDirective,
+    CurrentlyPlayingComponent
   ],
   imports: [
     CommonModule,

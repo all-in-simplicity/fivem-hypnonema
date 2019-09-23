@@ -7,6 +7,7 @@ import { faCogs } from '@fortawesome/free-solid-svg-icons/faCogs';
 import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { faHistory } from '@fortawesome/free-solid-svg-icons/faHistory';
 
 @Component({
   selector: 'app-header',
@@ -18,6 +19,7 @@ export class HeaderComponent implements OnInit {
   faFilm = faFilm;
   faHome = faHome;
   faCogs = faCogs;
+  faHistory = faHistory;
   faClose = faWindowClose;
 
   faArrowLeft = faArrowLeft;

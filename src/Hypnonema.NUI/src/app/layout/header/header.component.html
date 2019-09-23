@@ -42,7 +42,12 @@
           <fa-icon [icon]="faCogs"></fa-icon>
           Settings</a>
       </li>
-
+      <li>
+        <a class="btn btn-link btn-lg" routerLink="/history" (click)="isNavbarCollapsed=!isNavbarCollapsed">
+          <fa-icon [icon]="faHistory"></fa-icon>
+          History
+        </a>
+      </li>
     </ul>
   </nav>
 

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -44,7 +44,6 @@
 
         public Script()
         {
-            Logger.UnregisterLogger<ConsoleLogger>(); // EmbedIO Logger
             this.EventHandlers["onResourceStart"] += new Action<string>(this.OnResourceStart);
             this.EventHandlers["onResourceStop"] += new Action<string>(this.OnResourceStop);
 
@@ -80,7 +79,8 @@
                 .Replace(" ", string.Empty);
 
             if (this.useHttpServer)
-            { 
+            {
+                Logger.UnregisterLogger<ConsoleLogger>(); // unregister EmbedIO Logger
                 var listenAddr = ConfigReader.GetConfigKeyValue<string>(
                     resourceName,
                     "hypnonema_listen_addr",
@@ -108,6 +108,7 @@
             this.RegisterEventHandler(ServerEvents.OnStopVideo, new Action<Player>(this.OnStopVideo));
             this.RegisterEventHandler(ServerEvents.OnResumeVideo, new Action<Player>(this.OnResumeVideo));
             this.RegisterEventHandler(ServerEvents.OnSetVolume, new Action<Player, string>(this.OnSetVolume));
+            this.RegisterEventHandler(ServerEvents.OnToggleReplay, new Action<Player, bool>(this.OnToggleReplay));
 
             this.RegisterEventHandler(
                 ServerEvents.OnStateTick,
@@ -118,6 +119,19 @@
             this.RegisterEventHandler(
                 ServerEvents.OnSetSoundMinDistance,
                 new Action<Player, float>(this.OnSetSoundMinDistance));
+        }
+
+        private void OnToggleReplay([FromSource] Player player, bool replay)
+        {
+            if (this.IsPlayerAllowed(player))
+            {
+                TriggerClientEvent(ClientEvents.ToggleReplay, replay);
+            }
+            else
+                this.AddChatMessage(
+                    player,
+                    $"Error: You don't have permissions for: command.{this.cmdName}",
+                    new[] { 255, 0, 0 });
         }
 
         private string GetHypnonemaVersion()

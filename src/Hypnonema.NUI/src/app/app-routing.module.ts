@@ -10,6 +10,10 @@ const routes: Routes = [
   {
     path: 'settings',
     loadChildren: './+settings/settings.module#SettingsModule'
+  },
+  {
+    path: 'history',
+    loadChildren: './+history/history.module#HistoryModule'
   }];
 
 @NgModule({

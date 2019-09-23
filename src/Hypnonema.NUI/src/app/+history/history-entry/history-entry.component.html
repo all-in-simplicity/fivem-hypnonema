@@ -1,0 +1,15 @@
+<div class="card">
+  <div class="card-header bg-gray shadow-sm border-0">
+    <div class="clearfix">
+      <h5 class="float-left">{{history.video.url}}</h5>
+      <button class="btn btn-success btn-circle btn-circle-sm m-1 float-right" (click)="isCollapsed=!isCollapsed"><fa-icon [icon]="faCaretDown"></fa-icon></button>
+    </div>
+    <p>{{fromNow(history.time)}}</p>
+  </div>
+  <div class="collapse" [ngbCollapse]="isCollapsed">
+    <div class="card-body p-5">
+      <p class="font-weight-light m-0">Link: {{history.video.url}}</p>
+      <p class="font-weight-light m-0">Type: {{history.video.type}}</p>
+    </div>
+  </div>
+</div>
