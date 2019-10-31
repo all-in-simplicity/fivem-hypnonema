@@ -31,7 +31,7 @@
 
         void Stop();
 
-        void SynchronizeState(bool paused, float currentTime, string currentType, string currentSource);
+        void SynchronizeState(bool paused, float currentTime, string currentSource);
 
         void ToggleReplay(bool replay);
     }

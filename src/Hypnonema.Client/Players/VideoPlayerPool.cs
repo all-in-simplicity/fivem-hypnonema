@@ -204,7 +204,7 @@
             }
 
             Debug.WriteLine("Synchronizing..");
-            player.SynchronizeState(state.IsPaused, state.CurrentTime, string.Empty, state.CurrentSource);
+            player.SynchronizeState(state.IsPaused, state.CurrentTime, state.CurrentSource);
             this.VideoPlayers.Add(player);
         }
     }

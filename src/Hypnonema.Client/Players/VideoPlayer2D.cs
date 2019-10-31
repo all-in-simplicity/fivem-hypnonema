@@ -112,9 +112,9 @@
             this.Browser.SendStop();
         }
 
-        public void SynchronizeState(bool paused, float currentTime, string currentType, string currentSource)
+        public void SynchronizeState(bool paused, float currentTime, string currentSource)
         {
-            this.Browser.SendUpdate(paused, currentTime, currentType, currentSource);
+            this.Browser.SendUpdate(paused, currentTime, currentSource);
         }
 
         public void ToggleReplay(bool replay)

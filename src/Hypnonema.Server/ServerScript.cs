@@ -29,6 +29,8 @@
 
         private LiteDatabase database;
 
+        private List<ScreenDuiState> lastKnownState;
+
         private LiteCollection<Screen> screenCollection;
 
         public ServerScript()
@@ -58,21 +60,18 @@
             }
             catch (Exception e)
             {
-                Logger.WriteLine($"failed to register the command {cmdName}. Error: {e.Message}", Logger.LogLevel.Error);
+                Logger.WriteLine(
+                    $"failed to register the command {cmdName}. Error: {e.Message}",
+                    Logger.LogLevel.Error);
                 throw;
             }
         }
 
         private void AddChatMessage(Player player, string message, int[] color = null)
         {
-            if (color == null)
-            {
-                color = new[] { 0, 128, 128 };
-            }
+            if (color == null) color = new[] { 0, 128, 128 };
 
-            player.TriggerEvent(
-                "chat:addMessage",
-                new { color, args = new[] { "[Hypnonema]", $"{message}" } });
+            player.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
         }
 
         private bool IsPlayerAllowed(Player player)
@@ -100,11 +99,18 @@
                 }
                 else
                 {
-                    Logger.WriteLine($"Failed to read stream directory at path \"{streamDirectory}\".", Logger.LogLevel.Warning);
+                    Logger.WriteLine(
+                        $"Failed to read stream directory at path \"{streamDirectory}\".",
+                        Logger.LogLevel.Warning);
                 }
 
                 var q = this.screenCollection.Find(s => s.AlwaysOn);
-                p.TriggerEvent(ClientEvents.Initialize, JsonConvert.SerializeObject(q), filesCount);
+                p.TriggerEvent(
+                    ClientEvents.Initialize,
+                    JsonConvert.SerializeObject(q),
+                    filesCount,
+                    this.IsPlayerAllowed(p),
+                    JsonConvert.SerializeObject(this.lastKnownState));
             }
             catch (Exception e)
             {
@@ -163,7 +169,7 @@
 
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             var success = this.screenCollection.Delete(screen?.Id);
-            
+
             if (success) TriggerClientEvent(ClientEvents.DeletedScreen, screenName);
             else this.AddChatMessage(p, $"Error: Screen \"{screenName}\" not found.", new[] { 255, 0, 0 });
         }
@@ -175,13 +181,8 @@
             var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
 
             if (this.screenCollection.Update(screen))
-            {
                 TriggerClientEvent(ClientEvents.EditedScreen, JsonConvert.SerializeObject(screen));
-            }
-            else
-            {
-                this.AddChatMessage(p, "Error: screen not found.");
-            }
+            else this.AddChatMessage(p, "Error: screen not found.");
         }
 
         private void OnHypnonemaCommand(int source, List<object> args, string raw)
@@ -216,10 +217,7 @@
             TriggerClientEvent(ClientEvents.PauseVideo, screenName);
         }
 
-        private void OnPlaybackReceived(
-            [FromSource] Player p,
-            string videoUrl,
-            string screenName)
+        private void OnPlaybackReceived([FromSource] Player p, string videoUrl, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
             {
@@ -250,10 +248,7 @@
                 return;
             }
 
-            TriggerClientEvent(
-                ClientEvents.PlayVideo,
-                videoUrl,
-                JsonConvert.SerializeObject(screen));
+            TriggerClientEvent(ClientEvents.PlayVideo, videoUrl, JsonConvert.SerializeObject(screen));
 
             Logger.WriteLine($"playing {videoUrl} on screen {screenName}", Logger.LogLevel.Information);
         }
@@ -287,11 +282,7 @@
                     $"Using {this.cmdName} as command name. Type /{this.cmdName} to open the NUI window.",
                     Logger.LogLevel.Information);
 
-            var loggingEnabled = ConfigReader.GetConfigKeyValue(
-                resourceName,
-                "hypnonema_logging_enabled",
-                0,
-                false);
+            var loggingEnabled = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_logging_enabled", 0, false);
             IsLoggingEnabled = loggingEnabled;
 
             RegisterCommand(this.cmdName, new Action<int, List<object>, string>(this.OnHypnonemaCommand), true);
@@ -322,17 +313,15 @@
 
         private void OnStateTick([FromSource] Player p, string jsonState)
         {
-            if (this.IsPlayerAllowed(p))
-            {
-                var state = JsonConvert.DeserializeObject<DuiState>(jsonState);
-                var screen = this.screenCollection.FindOne(s => s.Name == state.ScreenName);
+            if (!this.IsPlayerAllowed(p)) return;
 
-                if (screen != null)
-                    TriggerClientEvent(
-                        ClientEvents.UpdateState,
-                        JsonConvert.SerializeObject(state),
-                        JsonConvert.SerializeObject(screen));
-            }
+            var states = JsonConvert.DeserializeObject<List<DuiState>>(jsonState);
+            var lastState = (from duiState in states
+                             let screen = this.screenCollection.FindOne(s => s.Name == duiState.ScreenName)
+                             where screen != null
+                             select new ScreenDuiState { Screen = screen, State = duiState }).ToList();
+
+            if (lastState.Any()) this.lastKnownState = lastState;
         }
 
         private void OnStopVideo([FromSource] Player p, string screenName)

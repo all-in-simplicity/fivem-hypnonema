@@ -141,10 +141,10 @@
             this.SendMessage(new { type = "toggleReplay", value = toggle });
         }
 
-        public void SendUpdate(bool paused, float currentTime, string currentType, string currentSource)
+        public void SendUpdate(bool paused, float currentTime, string currentSource)
         {
             this.SendMessage(
-                new { type = "update", paused, currentTime, src = new { type = currentType, url = currentSource } });
+                new { type = "update", paused, currentTime, src = currentSource });
         }
 
         public void SendVolume(float volume)

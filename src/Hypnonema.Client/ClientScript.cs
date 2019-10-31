@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using System.Threading;
 
     using CitizenFX.Core;
     using CitizenFX.Core.Native;
@@ -23,6 +24,8 @@
         private VideoPlayerPool playerPool;
 
         private bool isInitialized;
+        
+        private int syncInterval = 10000;
 
         public ClientScript()
         {
@@ -33,7 +36,7 @@
                 ClientEvents.PlayVideo,
                 new Func<string, string, Task>(this.OnPlay));
             this.RegisterEventHandler(ClientEvents.ShowNUI, new Action<bool, string>(this.OnShowNUI));
-            this.RegisterEventHandler(ClientEvents.Initialize, new Func<string, int, Task>(this.OnInitialize));
+            this.RegisterEventHandler(ClientEvents.Initialize, new Func<string, int, bool, string, Task>(this.OnInitialize));
             this.RegisterEventHandler(ClientEvents.SetVolume, new Action<float, string>(this.SetVolume));
             this.RegisterEventHandler(ClientEvents.StopVideo, new Action<string>(this.StopVideo));
             this.RegisterEventHandler(ClientEvents.CloseScreen, new Action<string>(this.CloseScreen));
@@ -42,7 +45,8 @@
             this.RegisterEventHandler(ClientEvents.DeletedScreen, new Action<string>(this.DeletedScreen));
             this.RegisterEventHandler(ClientEvents.PauseVideo, new Action<string>(this.PauseVideo));
             this.RegisterEventHandler(ClientEvents.ResumeVideo, new Action<string>(this.ResumeVideo));
-            this.RegisterEventHandler(ClientEvents.UpdateState, new Func<string, string, Task>(this.StateTick));
+            // this.RegisterEventHandler(ClientEvents.UpdateState, new Func<string, string, Task>(this.StateTick));
+            this.RegisterEventHandler(ClientEvents.OnStateTick, new Func<Task>(this.OnStateTick));
 
             this.RegisterNuiCallback(ClientEvents.OnPlay, this.OnPlay);
             this.RegisterNuiCallback(ClientEvents.OnStopVideo, this.OnStopVideo);
@@ -57,7 +61,7 @@
             this.RegisterNuiCallback(ClientEvents.OnPause, this.OnPause);
             this.RegisterNuiCallback(ClientEvents.OnResumeVideo, this.OnResume);
             this.RegisterNuiCallback(ClientEvents.OnSeek, this.OnSeek);
-            this.RegisterNuiCallback(ClientEvents.OnStateTick, this.OnStateTick);
+            // this.RegisterNuiCallback(ClientEvents.OnStateTick, this.OnStateTick);
         }
 
         protected void RegisterNuiCallback(
@@ -159,6 +163,12 @@
 
             var url = API.GetResourceMetadata(resourceName, "hypnonema_url", 0);
 
+            if (!double.TryParse(
+                    API.GetResourceMetadata(API.GetCurrentResourceName(), "hypnonema_sync_interval", 0),
+                    out var syncInterval))
+            {
+                this.syncInterval = 10000;
+            }
             this.playerPool = new VideoPlayerPool(url);
             this.Tick += this.OnFirstTick;
             this.Tick += this.OnTick;
@@ -505,7 +515,7 @@
             return callback;
         }
 
-        private async Task OnInitialize(string jsonScreens, int rendererLimit)
+        private async Task OnInitialize(string jsonScreens, int rendererLimit, bool isAceAllowed, string lastKnownState)
         {
             TextureRendererPool.MaxActiveScaleforms = rendererLimit;
 
@@ -516,8 +526,33 @@
                 this.playerPool.VideoPlayers?.Add(player);
             }
 
+            if (isAceAllowed)
+            {
+                this.TriggerStateTick();
+            }
+
+            var state = JsonConvert.DeserializeObject<List<ScreenDuiState>>(lastKnownState);
+            if (state != null)
+            {
+                await BaseScript.Delay(5000);
+                foreach (var screenDuiState in state)
+                {
+                    await this.playerPool.SynchronizeState(screenDuiState.State, screenDuiState.Screen);
+                }
+            }
+
             Debug.WriteLine("Initialized..");
             this.isInitialized = true;
+        }
+
+        private async Task TriggerStateTick()
+        {
+            while (true)
+            {
+                TriggerEvent(ClientEvents.OnStateTick);
+
+                await BaseScript.Delay(this.syncInterval);
+            }
         }
 
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
@@ -628,6 +663,35 @@
                                 isAceAllowed
                             }));
             API.SetNuiFocus(true, true);
+        }
+
+        private async Task OnStateTick()
+        {
+            if (!this.isInitialized || this.playerPool?.VideoPlayers?.Count == 0)
+            {
+                return;
+            }
+
+            var stateList = new List<DuiState>();
+            var videoPlayers = this.playerPool?.VideoPlayers;
+
+            if (videoPlayers != null)
+            {
+                foreach (var player in videoPlayers)
+                {
+                    player.Browser.SendGetState();
+                    var duiState = await BrowserStateHelperScript.GetLastState();
+                    if (duiState == null)
+                    {
+                        continue;
+                    }
+
+                    stateList.Add(duiState);
+                }
+
+                TriggerServerEvent(ServerEvents.OnStateTick, JsonConvert.SerializeObject(stateList));
+            }
+            
         }
 
         private CallbackDelegate OnStateTick(IDictionary<string, object> args, CallbackDelegate callback)
