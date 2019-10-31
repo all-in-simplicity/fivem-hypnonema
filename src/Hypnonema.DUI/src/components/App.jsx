@@ -25,7 +25,6 @@ class App extends Component {
         loaded: 0,
         duration: 0,
         playbackRate: 1.0,
-        intervalId: 0,
         loop: false,
         screenName: '',
         tickInterval: 10000,
@@ -219,13 +218,10 @@ class App extends Component {
 
     componentDidMount() {
         window.addEventListener('message', this.handleMessage, false);
-        const intervalId = setInterval(this.handleStateTick, this.state.tickInterval);
-        this.setState({intervalId: intervalId});
     }
 
     componentWillUnmount() {
         window.removeEventListener('message', this.handleMessage, false);
-        clearInterval(this.state.intervalId);
     }
 
     render() {
