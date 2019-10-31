@@ -1,0 +1,23 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.screens-table {
+  height: 390px;
+}
+
+.fab-container {
+  flex-grow: 1;
+}
+
+.md-fab-right {
+  left: 550px;
+  position: relative !important;
+  top: -15px;
+}
+
+table {
+  width: 100%;
+}

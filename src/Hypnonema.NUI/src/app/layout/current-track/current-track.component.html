@@ -1,0 +1,36 @@
+<section class="current-track" *ngIf="(screens$ | async)">
+  <ng-template [ngIf]="(screen$ | async)">
+    <div class="current-track__actions">
+
+      <a class="stop" (click)="stop(selectedScreenName)" mat-icon-button>
+        <mat-icon>stop</mat-icon>
+      </a>
+      <a *ngIf="!(screen$ | async)?.isPaused" class="play" mat-icon-button aria-label="Pause or Resume" (click)="resumeOrPause(this.isPaused)">
+          <mat-icon>pause</mat-icon>
+      </a>
+      <a *ngIf="(screen$ | async)?.isPaused" class="play" mat-icon-button aria-label="Resume" (click)="resumeOrPause(this.isPaused)">
+        <mat-icon>play_arrow</mat-icon>
+      </a>
+    </div>
+    <div class="current-track__progress">
+      <div class="current-track__progress__start">
+        {{getHours(startCurrentTime+ticks)}}:{{getMinutes(startCurrentTime+ticks)}}
+        :{{getSeconds(startCurrentTime+ticks)}}</div>
+      <div class="current-track__progress__bar">
+        <mat-slider [displayWith]="formatSliderLabel" color="primary"  min="0" [max]="sliderCap" step="1" thumbLabel
+                    [(ngModel)]="startCurrentTime+ticks" (change)="onSliderChange($event)"></mat-slider>
+      </div>
+      <div class="current-track__progress__finish">{{(screen$ | async)?.duration | minuteSeconds}}</div>
+    </div>
+  </ng-template>
+  <div class="current-track__screenCtrl">
+    <mat-form-field>
+      <mat-label>Selected Screen</mat-label>
+    <mat-select [(ngModel)]="selectedScreenName" name="screen" (ngModelChange)="onSelectionChange($event)">
+      <mat-option *ngFor="let screen of screens$ | async" [value]="screen.screenName">
+        {{screen.screenName}}
+      </mat-option>
+    </mat-select>
+    </mat-form-field>
+  </div>
+</section>

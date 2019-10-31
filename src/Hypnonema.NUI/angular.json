@@ -28,8 +28,8 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss",
-              "node_modules/nouislider/distribute/nouislider.min.css"
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
+              "src/styles.scss"
             ],
             "scripts": []
           },
@@ -55,6 +55,11 @@
                   "type": "initial",
                   "maximumWarning": "2mb",
                   "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
                 }
               ]
             }
@@ -78,7 +83,7 @@
           }
         },
         "test": {
-          "builder": "@@angular-devkit/build-angular:karma",
+          "builder": "@angular-devkit/build-angular:karma",
           "options": {
             "main": "src/test.ts",
             "polyfills": "src/polyfills.ts",
@@ -89,7 +94,7 @@
               "src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "./node_modules/@angular/material/prebuilt-themes/purple-green.css",
               "src/styles.scss"
             ],
             "scripts": []

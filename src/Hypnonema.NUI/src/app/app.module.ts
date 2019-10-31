@@ -3,62 +3,68 @@ import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeaderComponent } from './layout/header/header.component';
-import { BodyComponent } from './layout/body/body.component';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
-import { FooterComponent } from './layout/footer/footer.component';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ToastrModule } from 'ngx-toastr';
+import { SideNavComponent } from './layout/side-nav/side-nav.component';
+import { LayoutModule } from '@angular/cdk/layout';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 
-import { CommonModule } from '@angular/common';
-
-import { environment } from '../environments/environment';
+import { AppHeaderComponent } from './layout/header/app-header.component';
+import { CurrentTrackComponent } from './layout/current-track/current-track.component';
+import { MatOptionModule, MatSelectModule, MatSliderModule, MatSnackBarModule } from '@angular/material';
 import { NgxsModule } from '@ngxs/store';
-import { HistoryState } from '@hypnonema/+history/history-state';
+import { environment } from '../environments/environment';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
-import { AngularDraggableModule } from 'angular2-draggable';
-import { PlaybackState } from '@hypnonema/+playback/playback-state';
-import { UiSwitchModule } from 'ngx-toggle-switch';
-
+import { HttpClientModule } from '@angular/common/http';
+import { AppState } from './app-state';
+import { FormsModule } from '@angular/forms';
+import { StatusComponent } from './modules/status/status.component';
+import { MinuteSecondsPipe } from './shared/pipes/minute-seconds.pipe';
+import { SharedModule } from './shared/shared.module';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    BodyComponent,
-    FooterComponent,
+    SideNavComponent,
+    AppHeaderComponent,
+    CurrentTrackComponent
   ],
   imports: [
+    SharedModule,
     AppRoutingModule,
     BrowserModule,
-    CommonModule,
-    UiSwitchModule,
-    AngularDraggableModule,
+    BrowserAnimationsModule,
+    HttpClientModule,
+    ToastrModule.forRoot(),
+    LayoutModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatListModule,
+    MatSnackBarModule,
+    MatSliderModule,
     NgxsModule.forRoot([
-      HistoryState, PlaybackState
-    ], {
-      developmentMode: !environment.production,
-    }),
+      AppState
+    ], {developmentMode: !environment.production}),
     NgxsReduxDevtoolsPluginModule.forRoot({
-      disabled: environment.production
+      //TODO: disabled: environment.production
     }),
     NgxsLoggerPluginModule.forRoot({
       disabled: environment.production
     }),
-    BrowserAnimationsModule,
-    FontAwesomeModule,
-    HttpClientModule,
-    ReactiveFormsModule,
-    NgbModule,
-    ToastrModule.forRoot()
+    FormsModule,
+    MatOptionModule,
+    MatSelectModule
   ],
   providers: [],
   exports: [
-
   ],
   bootstrap: [AppComponent]
 })

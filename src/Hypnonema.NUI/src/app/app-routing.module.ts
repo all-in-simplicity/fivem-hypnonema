@@ -4,17 +4,18 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   {
-  path: 'playback',
-  loadChildren: './+playback/playback.module#PlaybackModule'
+    path: 'quick-play',
+    loadChildren: './modules/quick-play/quick-play.module#QuickPlayModule'
   },
   {
-    path: 'settings',
-    loadChildren: './+settings/settings.module#SettingsModule'
+    path: 'screens',
+    loadChildren: './modules/screens/screens.module#ScreensModule'
   },
   {
-    path: 'history',
-    loadChildren: './+history/history.module#HistoryModule'
-  }];
+    path: 'status',
+    loadChildren: './modules/status/status.module#StatusModule'
+  }
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, { useHash: true })],

@@ -1,0 +1,33 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Quick Play</mat-card-title>
+    <mat-card-subtitle>Play quickly videos from various sources</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="form-container">
+      <form [formGroup]="playForm" class="quick-play-form" (ngSubmit)="submit()">
+        <div>
+          <mat-form-field>
+            <input matInput placeholder="URL" formControlName="url" type="url" required>
+            <mat-error *ngIf="playForm.hasError('required', 'url')">Please enter a valid url</mat-error>
+          </mat-form-field>
+
+        </div>
+
+        <div>
+          <mat-form-field>
+            <mat-select required formControlName="screen" placeholder="Screen" [(ngModel)]="selectedScreen">
+              <mat-option *ngFor="let screen of screens$ | async" [value]="screen">{{screen.name}}</mat-option>
+            </mat-select>
+            <mat-hint>You may have to create a Screen first.</mat-hint>
+            <mat-error *ngIf="playForm.hasError('required', 'screen')">Please select a screen.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div style="padding-top: 10px;">
+          <button type="submit" mat-raised-button>Play</button>
+        </div>
+      </form>
+    </div>
+  </mat-card-content>
+</mat-card>

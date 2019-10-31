@@ -1,0 +1,64 @@
+{
+  "name": "hypnonema-dui",
+  "version": "1.0.0",
+  "description": "Hypnonema DUI",
+  "main": "index.js",
+  "repository": "https://github.com/thiago-dev/fivem-hypnonema.git",
+  "author": "thiago-dev",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-dev-server --config=config/webpack.dev.js --hot",
+    "start:reload": "webpack-dev-server --config=config/webpack.dev.js",
+    "start:style": "cross-env MAP_STYLE=true webpack-dev-server --config=config/webpack.dev.js --hot",
+    "build": "webpack --config=config/webpack.prod.js",
+    "analyze": "cross-env ENABLE_ANALYZER=true yarn build",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "prop-types": "^15.6.2",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-player": "^1.13.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "clean-webpack-plugin": "^0.1.19",
+    "cross-env": "^5.2.0",
+    "css-loader": "^1.0.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "enzyme-to-json": "^3.3.4",
+    "file-loader": "^1.1.11",
+    "html-inline-css-webpack-plugin": "^1.8.0",
+    "html-webpack-inline-source-plugin": "0.0.10",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^23.4.1",
+    "mini-css-extract-plugin": "^0.4.1",
+    "node-sass": "^4.9.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.0",
+    "react-test-renderer": "^16.4.1",
+    "sass-loader": "^7.0.3",
+    "style-loader": "^0.21.0",
+    "url-loader": "^1.0.1",
+    "webpack": "^4.16.0",
+    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.4",
+    "webpack-manifest-plugin": "^2.0.3",
+    "webpack-merge": "^4.1.3"
+  },
+  "jest": {
+    "setupTestFrameworkScriptFile": "<rootDir>/config/setupTests.js",
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css)$": "<rootDir>/src/utils/empty-module.js"
+    }
+  }
+}

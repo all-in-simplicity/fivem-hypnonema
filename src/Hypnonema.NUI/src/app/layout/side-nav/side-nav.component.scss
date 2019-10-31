@@ -1,0 +1,75 @@
+.sidenav-container {
+  max-height: 460px;
+  min-height: 460px;
+}
+
+.sidenav {
+  width: 200px;
+  background: #282828;
+
+}
+
+.sidenav .mat-toolbar {
+  background: inherit;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.playing {
+
+  & {
+    background:  rgb(40, 40, 40);
+
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  &__art {
+
+    img {
+      width: 50px;
+      height: 50px;
+    }
+
+  }
+
+  &__song {
+    color: rgb(170, 170, 170);
+    padding-left: 15px;
+
+    display: flex;
+    flex-flow: column wrap;
+
+    a {
+      color: rgb(170, 170, 170);
+
+      &:hover {
+        color: rgb(255, 255, 255);
+        cursor: pointer;
+      }
+    }
+
+  }
+
+  &__add {
+    margin-left: auto;
+    padding-right: 15px;
+    color: rgb(170, 170, 170);
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .playing {
+    border-top: 1px solid rgb(24, 24, 24);
+  }
+
+}

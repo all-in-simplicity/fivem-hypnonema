@@ -1,0 +1,36 @@
+<div class="wrapper">
+  <div class="screens-table">
+    <h3>Screens</h3>
+    <table mat-table [dataSource]="screens$" class="mat-elevation-z8">
+      <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let screen">
+        <button mat-icon-button color="accent" aria-label="Edit Screen" (click)="editScreen(screen)" matTooltip="Edit Screen"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="warn" aria-label="Delete Screen" (click)="deleteScreen(screen)" matTooltip="Delete Screen"><mat-icon>delete</mat-icon></button>
+      </ng-container>
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let screen">{{screen.name}}</td>
+      </ng-container>
+      <ng-container matColumnDef="alwaysOn">
+        <th mat-header-cell *matHeaderCellDef>Always On</th>
+        <td mat-cell *matCellDef="let screen">{{screen["alwaysOn"]}}</td>
+      </ng-container>
+      <ng-container matColumnDef="modelName">
+        <th mat-header-cell *matHeaderCellDef>Model-Name</th>
+        <td mat-cell *matCellDef="let screen">{{screen.targetSettings?.modelName}}</td>
+      </ng-container>
+      <ng-container matColumnDef="targetName">
+        <th mat-header-cell *matHeaderCellDef>RenderTarget Name</th>
+        <td mat-cell *matCellDef="let screen">{{screen.targetSettings?.renderTargetName}}</td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+  <div class="fab-container">
+    <button mat-fab class="md-fab-right" matTooltip="create a new Screen" routerLink="/screens/create-new-screen" color="primary">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>

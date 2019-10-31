@@ -1,0 +1,54 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav"
+      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+      [mode]="(isHandset$ | async) ? 'over' : 'side'"
+      [opened]="(isHandset$ | async) === false">
+
+    <mat-nav-list style="padding-bottom: 45px">
+
+      <!--
+      <a mat-list-item href="#">
+        <i><mat-icon>history</mat-icon></i>
+        History
+      </a>-->
+      <mat-divider></mat-divider>
+    <h2 matSubheader>Admin</h2>
+      <a mat-list-item routerLink="/status" href="#">
+        <i><mat-icon>data_usage</mat-icon></i>
+        Status</a>
+      <a routerLink="/quick-play" mat-list-item href="#">
+        <i><mat-icon>add_to_queue</mat-icon></i>
+        Quick Play
+      </a>
+
+      <a mat-list-item routerLink="/screens" href="#">
+        <i><mat-icon>list</mat-icon></i>
+        Screens</a>
+      <!--
+    <a mat-list-item href="#">
+      <i><mat-icon></mat-icon></i>
+      Help
+    </a>-->
+    </mat-nav-list>
+    <mat-nav-list>
+
+      <section class="playing">
+        <div class="playing__art">
+          <!--<mat-icon>volume_up</mat-icon>-->
+          <!--<img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/7022/cputh.jpg" alt="Album Art">-->
+        </div>
+        <div class="playing__song">
+          <!--<mat-slider (valueChange)="setVolume()" [ngModel]="volume" min="1" thumbLabel max="100"></mat-slider>-->
+          <!--<a class="playing__song__name">Feuer Frei</a>
+          <a class="playing__song__artist">Rammstein</a>-->
+        </div>
+      </section>
+
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div style="padding: 10px;max-height: 420px">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
