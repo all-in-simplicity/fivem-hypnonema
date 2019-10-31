@@ -29,6 +29,9 @@ hypnonema_db_connString "Filename=hypnonema.db;Flush=true"
 -- Whether logging is enabled or not
 hypnonema_logging_enabled 'false'
 
+-- The sync interval in ms
+hypnonema_sync_interval '5000'
+
 --------------------------------------------
 --------------------------------------------
 

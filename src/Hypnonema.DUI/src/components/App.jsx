@@ -60,13 +60,16 @@ class App extends Component {
             display: none;
         }
         `;
-        const iframeRef = document.getElementsByTagName('iframe')[0].contentDocument;
-        const head = iframeRef.getElementsByTagName('head')[0];
-        const style = iframeRef.createElement('style');
-        head.appendChild(style);
 
-        style.setAttribute('type', 'text/css');
-        style.appendChild(iframeRef.createTextNode(css));
+        const iframeRef = document.getElementsByTagName('iframe')[0];
+        if (typeof(iframeRef) !== 'undefined' && iframeRef !== null) {
+            const head = iframeRef.getElementsByTagName('head')[0];
+            const style = iframeRef.createElement('style');
+            head.appendChild(style);
+
+            style.setAttribute('type', 'text/css');
+            style.appendChild(iframeRef.createTextNode(css));
+        }
     };
 
     loadAndPlay = url => {
