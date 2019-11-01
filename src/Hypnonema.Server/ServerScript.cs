@@ -29,9 +29,12 @@
 
         private LiteDatabase database;
 
-        private List<ScreenDuiState> lastKnownState;
+        private ScreenDuiStateList lastKnownState = new ScreenDuiStateList();
+
+        private int syncInterval = 5000;
 
         private LiteCollection<Screen> screenCollection;
+
 
         public ServerScript()
         {
@@ -105,12 +108,19 @@
                 }
 
                 var q = this.screenCollection.Find(s => s.AlwaysOn);
+
+                // if we didn't receive a syncInterval for 3 times, we flush the lastKnownState
+                if (DateTime.UtcNow > (this.lastKnownState.Timestamp + new TimeSpan(0,0,0,0, this.syncInterval*3)))
+                {
+                    this.lastKnownState = new ScreenDuiStateList();
+                }
+
                 p.TriggerEvent(
                     ClientEvents.Initialize,
                     JsonConvert.SerializeObject(q),
                     filesCount,
                     this.IsPlayerAllowed(p),
-                    JsonConvert.SerializeObject(this.lastKnownState));
+                    JsonConvert.SerializeObject(this.lastKnownState.StateList));
             }
             catch (Exception e)
             {
@@ -277,6 +287,8 @@
             this.cmdName = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_command_name", 0, "hypnonema")
                 .Replace(" ", string.Empty);
 
+            this.syncInterval = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_sync_interval", 0, 5000);
+
             if (this.cmdName != "hypnonema")
                 Logger.WriteLine(
                     $"Using {this.cmdName} as command name. Type /{this.cmdName} to open the NUI window.",
@@ -321,7 +333,11 @@
                              where screen != null
                              select new ScreenDuiState { Screen = screen, State = duiState }).ToList();
 
-            if (lastState.Any()) this.lastKnownState = lastState;
+            if (lastState.Any())
+            {
+                this.lastKnownState.StateList = lastState;
+                this.lastKnownState.Timestamp = DateTime.UtcNow;
+            }
         }
 
         private void OnStopVideo([FromSource] Player p, string screenName)
