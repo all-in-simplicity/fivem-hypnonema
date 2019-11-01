@@ -55,9 +55,15 @@
             this.Draw();
 
             var entity = GetClosestObjectOfType(this.SoundMaxDistance, (uint)this.RenderTarget.Hash);
+            if (entity == null)
+            {
+                this.Browser.SendVolume(0f);
+                return;
+            }
+
             var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
 
-            if (distance >= this.SoundMaxDistance || entity == null)
+            if (distance >= this.SoundMaxDistance)
             {
                 this.Browser.SendVolume(0f);
             }
