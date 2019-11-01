@@ -33,8 +33,8 @@ export class UpdateCheckService {
   check(currentVersion) {
     this.getLatestRelease().subscribe((data: ReleaseResponse) => {
       if (compareVersions.compare(data.tag_name, currentVersion, '>')) {
-        this.toastr.info('There is a new Update available. You may want to check it out if you want new features.',
-          `Hypnonema Update ${data.tag_name} available!`, { timeOut: 8000});
+        this.toastr.warning('There is a new Update available. You may want to check it out if you want new features.',
+          `Hypnonema Update ${data.tag_name} available!`, { timeOut: 8000, positionClass: 'toast-top-right'});
       }
     });
   }
