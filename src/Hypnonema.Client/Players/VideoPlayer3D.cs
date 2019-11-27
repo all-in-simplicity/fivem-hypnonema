@@ -61,15 +61,13 @@
             // TODO: Implement better Mute/Unmute if out of range
             this.Browser.SendVolume(this.GlobalVolume);
 
-            // still needs improvement
-            // Orientation needs to be calculated or user specified!
             var tickData = new AudioTickData
                                {
                                    ListenerForward = Game.PlayerPed.ForwardVector,
                                    ListenerUp = Game.PlayerPed.UpVector,
                                    PositionListener = Game.PlayerPed.Position,
                                    PositionPanner = this.textureRenderer.Position - Game.PlayerPed.Position,
-                                   OrientationPanner = Vector3.ForwardRH
+                                   OrientationPanner = GameMath.RotationToDirection(this.textureRenderer.Rotation)
                                };
             this.Browser.SendTick(tickData);
      
@@ -110,6 +108,5 @@
         {
             this.Browser.SendToggleReplay(replay);
         }
-
     }
 }

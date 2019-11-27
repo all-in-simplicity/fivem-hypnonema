@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using System.Threading;
 
     using CitizenFX.Core;
     using CitizenFX.Core.Native;
@@ -21,10 +20,10 @@
 
     public class ClientScript : BaseScript
     {
+        private bool isInitialized;
+
         private VideoPlayerPool playerPool;
 
-        private bool isInitialized;
-        
         private int syncInterval = 10000;
 
         public ClientScript()
@@ -32,11 +31,11 @@
             this.RegisterEventHandler("onClientResourceStart", new Action<string>(this.OnClientResourceStart));
             this.RegisterEventHandler("onClientResourceStop", new Action<string>(this.OnResourceStop));
 
-            this.RegisterEventHandler(
-                ClientEvents.PlayVideo,
-                new Func<string, string, Task>(this.OnPlay));
+            this.RegisterEventHandler(ClientEvents.PlayVideo, new Func<string, string, Task>(this.OnPlay));
             this.RegisterEventHandler(ClientEvents.ShowNUI, new Action<bool, string>(this.OnShowNUI));
-            this.RegisterEventHandler(ClientEvents.Initialize, new Func<string, int, bool, string, Task>(this.OnInitialize));
+            this.RegisterEventHandler(
+                ClientEvents.Initialize,
+                new Func<string, int, bool, string, Task>(this.OnInitialize));
             this.RegisterEventHandler(ClientEvents.SetVolume, new Action<float, string>(this.SetVolume));
             this.RegisterEventHandler(ClientEvents.StopVideo, new Action<string>(this.StopVideo));
             this.RegisterEventHandler(ClientEvents.CloseScreen, new Action<string>(this.CloseScreen));
@@ -45,6 +44,7 @@
             this.RegisterEventHandler(ClientEvents.DeletedScreen, new Action<string>(this.DeletedScreen));
             this.RegisterEventHandler(ClientEvents.PauseVideo, new Action<string>(this.PauseVideo));
             this.RegisterEventHandler(ClientEvents.ResumeVideo, new Action<string>(this.ResumeVideo));
+
             // this.RegisterEventHandler(ClientEvents.UpdateState, new Func<string, string, Task>(this.StateTick));
             this.RegisterEventHandler(ClientEvents.OnStateTick, new Func<Task>(this.OnStateTick));
 
@@ -61,6 +61,7 @@
             this.RegisterNuiCallback(ClientEvents.OnPause, this.OnPause);
             this.RegisterNuiCallback(ClientEvents.OnResumeVideo, this.OnResume);
             this.RegisterNuiCallback(ClientEvents.OnSeek, this.OnSeek);
+
             // this.RegisterNuiCallback(ClientEvents.OnStateTick, this.OnStateTick);
         }
 
@@ -135,7 +136,7 @@
                 // stateResponse can be null ( eg. if waiting time exceeded 5500ms)
                 if (state != null)
                 {
-                    await BaseScript.Delay(500);
+                    await Delay(500);
                     player.Browser.SendMessage(
                         new
                             {
@@ -169,6 +170,7 @@
             {
                 this.syncInterval = 10000;
             }
+
             this.playerPool = new VideoPlayerPool(url);
             this.Tick += this.OnFirstTick;
             this.Tick += this.OnTick;
@@ -534,7 +536,7 @@
             var state = JsonConvert.DeserializeObject<List<ScreenDuiState>>(lastKnownState);
             if (state != null)
             {
-                await BaseScript.Delay(5000);
+                await Delay(5000);
                 foreach (var screenDuiState in state)
                 {
                     await this.playerPool.SynchronizeState(screenDuiState.State, screenDuiState.Screen);
@@ -543,16 +545,6 @@
 
             Debug.WriteLine("Initialized..");
             this.isInitialized = true;
-        }
-
-        private async Task TriggerStateTick()
-        {
-            while (true)
-            {
-                TriggerEvent(ClientEvents.OnStateTick);
-
-                await BaseScript.Delay(this.syncInterval);
-            }
         }
 
         private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
@@ -574,7 +566,7 @@
         {
             var videoUrl = args.FirstOrDefault(arg => arg.Key == "videoUrl").Value?.ToString();
             var screen = args.FirstOrDefault(arg => arg.Key == "screen").Value?.ToString();
-            
+
             if (!string.IsNullOrEmpty(videoUrl) && !string.IsNullOrEmpty(screen))
                 TriggerServerEvent(ServerEvents.OnPlaybackReceived, videoUrl, screen);
 
@@ -691,49 +683,6 @@
 
                 TriggerServerEvent(ServerEvents.OnStateTick, JsonConvert.SerializeObject(stateList));
             }
-            
-        }
-
-        private CallbackDelegate OnStateTick(IDictionary<string, object> args, CallbackDelegate callback)
-        {
-            if (!bool.TryParse(
-                    args.FirstOrDefault(arg => arg.Key == "paused").Value?.ToString(),
-                    out var paused)) return callback;
-
-            if (!float.TryParse(
-                    args.FirstOrDefault(arg => arg.Key == "currentTime").Value?.ToString(),
-                    out var currentTime)) return callback;
-
-            if (!float.TryParse(
-                    args.FirstOrDefault(arg => arg.Key == "duration").Value?.ToString(),
-                    out var duration)) return callback;
-
-            var currentSource = args.FirstOrDefault(arg => arg.Key == "currentSource").Value?.ToString();
-            if (string.IsNullOrEmpty(currentSource)) return callback;
-
-            if (!bool.TryParse(
-                    args.FirstOrDefault(arg => arg.Key == "ended").Value?.ToString(),
-                    out var ended)) return callback;
-
-            var screenName = args.FirstOrDefault(arg => arg.Key == "screenName").Value?.ToString();
-            if (string.IsNullOrEmpty(screenName))
-            {
-                Debug.WriteLine("warning: received empty screenName on state tick");
-                return callback;
-            }
-            var duiState = new DuiState
-                               {
-                                   CurrentTime = currentTime,
-                                   ScreenName = screenName,
-                                   Ended = ended,
-                                   IsPaused = paused,
-                                   CurrentSource = currentSource,
-                                   Duration = duration
-                               };
-            
-            TriggerServerEvent(ServerEvents.OnStateTick, JsonConvert.SerializeObject(duiState));
-
-            return callback;
         }
 
         private CallbackDelegate OnStopVideo(IDictionary<string, object> args, CallbackDelegate callback)
@@ -779,22 +728,19 @@
             this.playerPool.SetVolume(screenName, volume);
         }
 
-        private async Task StateTick(string jsonState, string jsonScreen)
-        {
-            if (!this.isInitialized)
-            {
-                return;
-            }
-
-            var state = JsonConvert.DeserializeObject<DuiState>(jsonState);
-            var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
-
-            await this.playerPool.SynchronizeState(state, screen);
-        }
-
         private void StopVideo(string screenName)
         {
             this.playerPool.StopVideo(screenName);
+        }
+
+        private async Task TriggerStateTick()
+        {
+            while (true)
+            {
+                TriggerEvent(ClientEvents.OnStateTick);
+
+                await Delay(this.syncInterval);
+            }
         }
     }
 }
