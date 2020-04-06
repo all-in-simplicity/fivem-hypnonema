@@ -55,7 +55,7 @@
             Debug.WriteLine($"Closed screen: {screenName}");
         }
 
-        // TODO: Still needs more refactoring => currently way too long
+        // TODO: Still needs more refactoring => currently too long
         public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Models.Screen screen)
         {
             RenderTarget renderTarget;

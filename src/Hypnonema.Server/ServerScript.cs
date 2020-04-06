@@ -33,7 +33,7 @@
 
         private int syncInterval = 5000;
 
-        private LiteCollection<Screen> screenCollection;
+        private ILiteCollection<Screen> screenCollection;
 
 
         public ServerScript()
