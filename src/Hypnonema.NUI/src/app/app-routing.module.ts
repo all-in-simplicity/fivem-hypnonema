@@ -5,15 +5,15 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
   {
     path: 'quick-play',
-    loadChildren: './modules/quick-play/quick-play.module#QuickPlayModule'
+    loadChildren: () => import('./modules/quick-play/quick-play.module').then(m => m.QuickPlayModule)
   },
   {
     path: 'screens',
-    loadChildren: './modules/screens/screens.module#ScreensModule'
+    loadChildren: () => import('./modules/screens/screens.module').then(m => m.ScreensModule)
   },
   {
     path: 'status',
-    loadChildren: './modules/status/status.module#StatusModule'
+    loadChildren: () => import('./modules/status/status.module').then(m => m.StatusModule)
   }
 ];
 

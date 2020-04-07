@@ -6,7 +6,7 @@ import { AppState, SetControlledScreen } from '../../app-state';
 import { Observable, Subscription, timer as ObservableTimer } from 'rxjs';
 import { ScreenStatus } from '../../screen-model';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { MatSliderChange } from '@angular/material';
+import { MatSliderChange } from '@angular/material/slider';
 import { NuiService } from '../../modules/core/nui.service';
 
 @Component({

@@ -14,7 +14,7 @@ import {
   UpdateStatuses
 } from './app-state';
 import { ScreenModel, ScreenStatus } from './screen-model';
-import { MatSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { UpdateCheckService } from './modules/core/update-check.service';
 
 @Component({

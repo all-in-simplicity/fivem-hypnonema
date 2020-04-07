@@ -15,7 +15,10 @@ import { MatListModule } from '@angular/material/list';
 
 import { AppHeaderComponent } from './layout/header/app-header.component';
 import { CurrentTrackComponent } from './layout/current-track/current-track.component';
-import { MatOptionModule, MatSelectModule, MatSliderModule, MatSnackBarModule } from '@angular/material';
+import { MatOptionModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgxsModule } from '@ngxs/store';
 import { environment } from '../environments/environment';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
@@ -54,7 +57,7 @@ import { ToastrModule } from 'ngx-toastr';
       AppState
     ], {developmentMode: !environment.production}),
     NgxsReduxDevtoolsPluginModule.forRoot({
-      //TODO: disabled: environment.production
+      // TODO: disabled: environment.production
     }),
     NgxsLoggerPluginModule.forRoot({
       disabled: environment.production

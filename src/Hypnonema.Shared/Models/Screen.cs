@@ -1,7 +1,5 @@
 ﻿namespace Hypnonema.Shared.Models
 {
-    using System.Collections.Generic;
-
     public class Screen
     {
         public int Id { get; set; }
