@@ -291,6 +291,10 @@
                     args.FirstOrDefault(arg => arg.Key == "soundMaxDistance").Value?.ToString(),
                     out var soundMaxDistance)) soundMaxDistance = 100.0f;
 
+            if (!bool.TryParse(
+                    args.FirstOrDefault(arg => arg.Key == "is3DAudioEnabled").Value?.ToString(),
+                    out var is3DAudioEnabled)) is3DAudioEnabled = false;
+
             var screen = new Screen
                              {
                                  AlwaysOn = alwaysOn,
@@ -302,7 +306,8 @@
                                              GlobalVolume = globalVolume,
                                              SoundMaxDistance = soundMaxDistance,
                                              SoundMinDistance = soundMinDistance,
-                                             SoundAttenuation = soundAttenuation
+                                             SoundAttenuation = soundAttenuation,
+                                             Is3DAudioEnabled = is3DAudioEnabled,
                                          },
                                  PositionalSettings = is3DRendered
                                                           ? new PositionalSettings
@@ -461,6 +466,11 @@
                 return callback;
             }
 
+            if (!bool.TryParse(args.FirstOrDefault(arg => arg.Key == "is3DAudioEnabled").Value?.ToString(), out var is3DAudioEnabled))
+            {
+                is3DAudioEnabled = false;
+            }
+
             var screen = new Screen
                              {
                                  Id = id,
@@ -473,7 +483,8 @@
                                              GlobalVolume = globalVolume,
                                              SoundMaxDistance = soundMaxDistance,
                                              SoundAttenuation = soundAttenuation,
-                                             SoundMinDistance = soundMinDistance
+                                             SoundMinDistance = soundMinDistance,
+                                             Is3DAudioEnabled = is3DAudioEnabled,
                                          },
                                  TargetSettings =
                                      is3DRendered
@@ -579,7 +590,7 @@
 
             foreach (var player in this.playerPool.VideoPlayers)
             {
-                player.Browser.SendGetState();
+                player.Browser.GetState();
                 var state = await BrowserStateHelperScript.GetLastState();
                 if (state == null)
                 {
@@ -671,7 +682,7 @@
             {
                 foreach (var player in videoPlayers)
                 {
-                    player.Browser.SendGetState();
+                    player.Browser.GetState();
                     var duiState = await BrowserStateHelperScript.GetLastState();
                     if (duiState == null)
                     {

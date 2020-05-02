@@ -128,6 +128,10 @@
             {{soundForm.get('globalVolume').value}}
           </div>
           <div>
+            <mat-checkbox formControlName="is3DAudioEnabled">Use 3D Audio</mat-checkbox>
+          </div>
+          <div *ngIf="soundForm.get('is3DAudioEnabled').value === false">
+          <div>
             <em>Sound Attenuation</em>
             <mat-slider [max]="100" [min]="1" thumbLabel step="1" value="5"
                         formControlName="soundAttenuation"></mat-slider>
@@ -144,6 +148,7 @@
             <mat-slider [min]="1" [max]="1000" step="10" thumbLabel value="100"
                         formControlName="soundMaxDistance"></mat-slider>
             {{soundForm.get('soundMaxDistance').value}}
+          </div>
           </div>
           <div>
             <button mat-button matStepperPrevious>Back</button>

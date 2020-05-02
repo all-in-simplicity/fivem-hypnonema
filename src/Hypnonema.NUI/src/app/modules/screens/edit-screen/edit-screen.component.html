@@ -102,19 +102,24 @@
           {{screenForm.get('globalVolume').value}}
         </div>
         <div>
-          <mat-label>Sound-Attenuation</mat-label>
-          <mat-slider [min]="0" [max]="100" [step]="1" thumbLabel formControlName="soundAttenuation"></mat-slider>
-          {{screenForm.get('soundAttenuation').value}}
+          <mat-checkbox style="margin-left: 10px" formControlName="is3DAudioEnabled">Enable 3D Audio</mat-checkbox>
         </div>
-        <div>
-          <mat-label>Sound Min. Distance</mat-label>
-          <mat-slider [min]="1" [max]="200" [step]="1" thumbLabel formControlName="soundMinDistance"></mat-slider>
-          {{screenForm.get('soundMinDistance').value}}
-        </div>
-        <div>
-          <mat-label>Sound Max. Distance</mat-label>
-          <mat-slider [min]="1" [max]="1000" [step]="10" thumbLabel formControlName="soundMaxDistance"></mat-slider>
-          {{screenForm.get('soundMaxDistance').value}}
+        <div *ngIf="screenForm.get('is3DAudioEnabled').value === false">
+          <div>
+            <mat-label>Sound-Attenuation</mat-label>
+            <mat-slider [min]="0" [max]="100" [step]="1" thumbLabel formControlName="soundAttenuation"></mat-slider>
+            {{screenForm.get('soundAttenuation').value}}
+          </div>
+          <div>
+            <mat-label>Sound Min. Distance</mat-label>
+            <mat-slider [min]="1" [max]="200" [step]="1" thumbLabel formControlName="soundMinDistance"></mat-slider>
+            {{screenForm.get('soundMinDistance').value}}
+          </div>
+          <div>
+            <mat-label>Sound Max. Distance</mat-label>
+            <mat-slider [min]="1" [max]="1000" [step]="10" thumbLabel formControlName="soundMaxDistance"></mat-slider>
+            {{screenForm.get('soundMaxDistance').value}}
+          </div>
         </div>
         <div>
 

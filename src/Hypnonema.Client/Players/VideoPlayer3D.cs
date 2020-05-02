@@ -27,6 +27,8 @@
 
         public float GlobalVolume { get; set; }
 
+        public bool Is3DAudioEnabled { get; set; } = true;
+
         public string ScreenName { get; }
 
         public float SoundAttenuation { get; set; }
@@ -35,6 +37,44 @@
 
         public float SoundMinDistance { get; set; }
 
+        public void CalculateVolume()
+        {
+            var distance = this.textureRenderer.GetDistanceToPlayer();
+            if (distance >= this.SoundMaxDistance)
+            {
+                this.Browser.SetVolume(0f);
+                return;
+            }
+
+            if (this.Is3DAudioEnabled)
+            {
+                this.Browser.SetVolume(this.GlobalVolume);
+                var tickData = new AudioTickData
+                                   {
+                                       ListenerForward = Game.PlayerPed.ForwardVector,
+                                       ListenerUp = Game.PlayerPed.UpVector,
+                                       PositionListener = Game.PlayerPed.Position,
+                                       PositionPanner = this.textureRenderer.Position - Game.PlayerPed.Position,
+                                       OrientationPanner = GameMath.RotationToDirection(this.textureRenderer.Rotation)
+                                   };
+                this.Browser.Tick(tickData);
+            }
+            else
+            {
+                this.Browser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
+            }
+        }
+
+        public void Toggle3DAudio(bool value)
+        {
+            this.Browser.Toggle3DAudio(value);
+        }
+
+        private float GetSoundFactor(float distance)
+        {
+            return this.SoundMinDistance / (this.SoundMinDistance + this.SoundAttenuation
+                                            * (Math.Max(distance, this.SoundMinDistance) - this.SoundMinDistance));
+        }
         public void Dispose()
         {
             if (this.Browser.IsValid) this.Browser.Dispose();
@@ -52,61 +92,44 @@
         {
             this.Draw();
 
-            if (this.textureRenderer.GetDistanceToPlayer() >= this.SoundMaxDistance)
-            {
-                this.Browser.SendVolume(0f);
-                return;
-            }
-            
-            // TODO: Implement better Mute/Unmute if out of range
-            this.Browser.SendVolume(this.GlobalVolume);
+            this.CalculateVolume();
 
-            var tickData = new AudioTickData
-                               {
-                                   ListenerForward = Game.PlayerPed.ForwardVector,
-                                   ListenerUp = Game.PlayerPed.UpVector,
-                                   PositionListener = Game.PlayerPed.Position,
-                                   PositionPanner = this.textureRenderer.Position - Game.PlayerPed.Position,
-                                   OrientationPanner = GameMath.RotationToDirection(this.textureRenderer.Rotation)
-                               };
-            this.Browser.SendTick(tickData);
-     
             await Task.FromResult(0);
         }
 
         public void Pause()
         {
-            this.Browser.SendPause();
+            this.Browser.Pause();
         }
 
         public void Play(string url)
         {
-            this.Browser.SendPlay(url);
+            this.Browser.Play(url);
         }
 
         public void Resume()
         {
-            this.Browser.SendResume();
+            this.Browser.Resume();
         }
 
         public void Seek(float time)
         {
-            this.Browser.SendSeek(time);
+            this.Browser.Seek(time);
         }
 
         public void Stop()
         {
-            this.Browser.SendStop();
+            this.Browser.Stop();
         }
 
         public void SynchronizeState(bool paused, float currentTime, string currentSource)
         {
-            this.Browser.SendUpdate(paused, currentTime, currentSource);
+            this.Browser.Update(paused, currentTime, currentSource);
         }
 
         public void ToggleReplay(bool replay)
         {
-            this.Browser.SendToggleReplay(replay);
+            this.Browser.ToggleReplay(replay);
         }
     }
 }

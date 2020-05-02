@@ -31,10 +31,9 @@
 
         private ScreenDuiStateList lastKnownState = new ScreenDuiStateList();
 
+        private LiteCollection<Screen> screenCollection;
+
         private int syncInterval = 5000;
-
-        private ILiteCollection<Screen> screenCollection;
-
 
         public ServerScript()
         {
@@ -110,10 +109,8 @@
                 var q = this.screenCollection.Find(s => s.AlwaysOn);
 
                 // if we didn't receive a syncInterval for 3 times, we flush the lastKnownState
-                if (DateTime.UtcNow > (this.lastKnownState.Timestamp + new TimeSpan(0,0,0,0, this.syncInterval*3)))
-                {
+                if (DateTime.UtcNow > this.lastKnownState.Timestamp + new TimeSpan(0, 0, 0, 0, this.syncInterval * 3))
                     this.lastKnownState = new ScreenDuiStateList();
-                }
 
                 p.TriggerEvent(
                     ClientEvents.Initialize,

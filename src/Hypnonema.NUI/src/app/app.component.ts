@@ -47,6 +47,7 @@ export class AppComponent implements OnInit {
           soundAttenuation: 5,
           soundMinDistance: 3,
           soundMaxDistance: 10,
+          is3DAudioEnabled: true,
         },
         positionalSettings: null,
       };

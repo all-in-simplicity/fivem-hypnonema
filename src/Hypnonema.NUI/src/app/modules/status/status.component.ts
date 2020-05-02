@@ -29,6 +29,7 @@ export class StatusComponent implements OnInit {
 
   suspendScreen(screen: ScreenStatus) {
     this.nuiService.closeScreen(screen.screenName);
+    this.refresh();
   }
 
   refresh() {

@@ -16,6 +16,7 @@ class App extends Component {
         poster: 'https://i.imgur.com/dPaIjEW.jpg',
         pausePoster: 'https://i.imgur.com/aoz9sJn.jpg',
         showPoster: true,
+        is3DAudioEnabled: false,
         pip: false,
         playing: true,
         controls: false,
@@ -113,6 +114,10 @@ class App extends Component {
         this.setState({screenName: screenName, poster: posterUrl})
     };
 
+    enable3DAudio = (value) => {
+      this.setState({is3DAudioEnabled: value})
+    };
+
     sendDuiResponse = (url, body) => {
         fetch(url, {
             headers: {'content-type': 'application/json; charset=UTF-8'},
@@ -136,7 +141,7 @@ class App extends Component {
         const newURL = new URL(this.state.url);
         const source = this.getSource();
 
-        if (this.state.previousHost !== newURL.host) {
+        if (this.state.previousHost !== newURL.host && this.state.is3DAudioEnabled) {
             this.adsSuck();
             this.audio3D.init(this.state.panningOpts, source);
             this.setState({previousHost: newURL.host});
@@ -176,6 +181,9 @@ class App extends Component {
                 break;
             case 'play':
                 this.loadAndPlay(ev.data.src.url);
+                break;
+            case 'toggle3DAudio':
+                this.enable3DAudio(ev.data.enabled);
                 break;
             case 'tick':
                 this.handleTick(ev.data.listenerObj, ev.data.pannerObj);

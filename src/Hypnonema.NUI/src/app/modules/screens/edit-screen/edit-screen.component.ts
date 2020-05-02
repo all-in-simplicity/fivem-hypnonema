@@ -24,6 +24,7 @@ export class EditScreenComponent implements OnInit {
       modelName: ['', [Validators.required]],
       renderTargetName: ['', [Validators.required]],
       soundAttenuation: [5],
+      is3DAudioEnabled: [false],
       soundMaxDistance: [100],
       soundMinDistance: [10],
       globalVolume: [100],
@@ -64,6 +65,7 @@ export class EditScreenComponent implements OnInit {
           scaleX: screen.is3DRendered ?  screen.positionalSettings.scaleX : 0,
           scaleY: screen.is3DRendered ? screen.positionalSettings.scaleY : 0,
           scaleZ: screen.is3DRendered ? screen.positionalSettings.scaleZ : 0,
+          is3DAudioEnabled: screen.browserSettings.is3DAudioEnabled,
         });
       }
     });
@@ -96,10 +98,12 @@ export class EditScreenComponent implements OnInit {
     });
   }
   submit() {
-    this.nuiService.editScreen(this.screenForm.get('screenName').value, this.screenId, this.screenForm.get('is3DRendered').value, this.screenForm.get('alwaysOn').value,
-      this.screenForm.get('modelName').value, this.screenForm.get('renderTargetName').value, this.screenForm.get('globalVolume').value,
-      this.screenForm.get('soundAttenuation').value, this.screenForm.get('soundMinDistance').value, this.screenForm.get('soundMaxDistance').value, this.screenForm.get('positionX').value,
-      this.screenForm.get('positionY').value, this.screenForm.get('positionZ').value, this.screenForm.get('rotationX').value, this.screenForm.get('rotationY').value,
-      this.screenForm.get('rotationZ').value, this.screenForm.get('scaleX').value, this.screenForm.get('scaleY').value, this.screenForm.get('scaleZ').value);
+    this.nuiService.editScreen(this.screenForm.get('screenName').value, this.screenId, this.screenForm.get('is3DRendered').value,
+      this.screenForm.get('alwaysOn').value, this.screenForm.get('modelName').value, this.screenForm.get('renderTargetName').value,
+      this.screenForm.get('globalVolume').value, this.screenForm.get('soundAttenuation').value,
+      this.screenForm.get('soundMinDistance').value, this.screenForm.get('soundMaxDistance').value, this.screenForm.get('positionX').value,
+      this.screenForm.get('positionY').value, this.screenForm.get('positionZ').value, this.screenForm.get('rotationX').value,
+      this.screenForm.get('rotationY').value, this.screenForm.get('rotationZ').value, this.screenForm.get('scaleX').value,
+      this.screenForm.get('scaleY').value, this.screenForm.get('scaleZ').value, this.screenForm.get('is3DAudioEnabled').value);
   }
 }

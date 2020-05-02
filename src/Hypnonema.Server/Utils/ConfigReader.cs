@@ -18,7 +18,9 @@
             }
             catch (Exception)
             {
-                Logger.WriteLine($"Error: Failed to parse {metadataKey}. Using default value {defaultValue}", Logger.LogLevel.Error);
+                Logger.WriteLine(
+                    $"Error: Failed to parse {metadataKey}. Using default value {defaultValue}",
+                    Logger.LogLevel.Error);
             }
 
             return result;

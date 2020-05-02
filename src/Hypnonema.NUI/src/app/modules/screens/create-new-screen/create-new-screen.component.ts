@@ -83,6 +83,10 @@ export class CreateNewScreenComponent implements OnInit {
     return this.soundForm.get('soundAttenuation').value;
   }
 
+  get is3DAudioEnabled(): boolean {
+    return this.soundForm.get('is3DAudioEnabled').value;
+  }
+
   get alwaysOn(): boolean {
     return this.screenForm.get('alwaysOn').value;
   }
@@ -110,7 +114,8 @@ export class CreateNewScreenComponent implements OnInit {
       globalVolume: [100],
       soundAttenuation: [5],
       soundMinDistance: [15],
-      soundMaxDistance: [100]
+      soundMaxDistance: [100],
+      is3DAudioEnabled: [true],
     });
     this.renderTargetForm.get('is3DRendered').valueChanges.subscribe(checked => {
       if (checked) {
@@ -144,7 +149,7 @@ export class CreateNewScreenComponent implements OnInit {
 
   createScreen() {
     this.nuiService.createScreen(this.screenName, this.alwaysOn, this.globalVolume, this.soundAttenuation, this.soundMinDistance,
-      this.soundMaxDistance, this.is3DRendered, this.modelName, this.renderTargetName, this.positionX, this.positionY, this.positionZ,
-      this.rotationX, this.rotationY, this.rotationZ, this.scaleX, this.scaleY, this.scaleZ);
+      this.soundMaxDistance, this.is3DRendered, this.is3DAudioEnabled, this.modelName, this.renderTargetName, this.positionX,
+      this.positionY, this.positionZ, this.rotationX, this.rotationY, this.rotationZ, this.scaleX, this.scaleY, this.scaleZ);
   }
 }

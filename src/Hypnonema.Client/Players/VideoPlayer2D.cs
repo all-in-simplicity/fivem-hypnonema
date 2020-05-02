@@ -26,6 +26,8 @@
 
         public float GlobalVolume { get; set; } = 100f;
 
+        public bool Is3DAudioEnabled { get; set; } = true;
+
         public RenderTarget RenderTarget { get; }
 
         public string ScreenName { get; }
@@ -35,6 +37,47 @@
         public float SoundMaxDistance { get; set; } = 300f;
 
         public float SoundMinDistance { get; set; } = 10f;
+
+        public void CalculateVolume()
+        {
+            var entity = GetClosestObjectOfType(this.SoundMaxDistance, (uint)this.RenderTarget.Hash);
+            if (entity == null)
+            {
+                this.Browser.SetVolume(0f);
+                return;
+            }
+
+            var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
+
+            if (distance >= this.SoundMaxDistance)
+            {
+                this.Browser.SetVolume(0f);
+            }
+            else
+            {
+                if (entity.IsOccluded) this.Browser.SetVolume(this.GlobalVolume / 2);
+                else this.Browser.SetVolume(this.GlobalVolume);
+
+                if (this.Is3DAudioEnabled)
+                {
+                    var tickData = new AudioTickData
+                                       {
+                                           ListenerForward = Game.PlayerPed.ForwardVector,
+                                           ListenerUp = Game.PlayerPed.UpVector,
+                                           PositionListener = Game.PlayerPed.Position,
+                                           PositionPanner =
+                                               entity.Position - Game.PlayerPed.Position, // relative to player
+                                           OrientationPanner = entity.ForwardVector
+                                       };
+
+                    this.Browser.Tick(tickData);
+                }
+                else
+                {
+                    this.Browser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
+                }
+            }
+        }
 
         public void Dispose()
         {
@@ -54,78 +97,49 @@
         {
             this.Draw();
 
-            var entity = GetClosestObjectOfType(this.SoundMaxDistance, (uint)this.RenderTarget.Hash);
-            if (entity == null)
-            {
-                this.Browser.SendVolume(0f);
-                return;
-            }
-
-            var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
-
-            if (distance >= this.SoundMaxDistance)
-            {
-                this.Browser.SendVolume(0f);
-            }
-            else
-            {
-                if (entity.IsOccluded)
-                {
-                    this.Browser.SendVolume(this.GlobalVolume / 2);
-                }
-                else
-                {
-                    this.Browser.SendVolume(this.GlobalVolume);
-                }
-                
-                var tickData = new AudioTickData
-                                   {
-                                       ListenerForward = Game.PlayerPed.ForwardVector,
-                                       ListenerUp = Game.PlayerPed.UpVector,
-                                       PositionListener = Game.PlayerPed.Position,
-                                       PositionPanner = entity.Position - Game.PlayerPed.Position, // relative to player
-                                       OrientationPanner = entity.ForwardVector
-                                   };
-
-                this.Browser.SendTick(tickData);
-            }
+            this.CalculateVolume();
 
             await Task.FromResult(0);
         }
 
         public void Pause()
         {
-            this.Browser.SendPause();
+            this.Browser.Pause();
         }
 
         public void Play(string url)
         {
-            this.Browser.SendPlay(url);
+            this.Browser.Play(url);
         }
 
         public void Resume()
         {
-            this.Browser.SendResume();
+            this.Browser.Resume();
         }
 
         public void Seek(float time)
         {
-            this.Browser.SendSeek(time);
+            this.Browser.Seek(time);
         }
 
         public void Stop()
         {
-            this.Browser.SendStop();
+            this.Browser.Stop();
         }
 
         public void SynchronizeState(bool paused, float currentTime, string currentSource)
         {
-            this.Browser.SendUpdate(paused, currentTime, currentSource);
+            this.Browser.Update(paused, currentTime, currentSource);
+        }
+
+        public void Toggle3DAudio(bool value)
+        {
+            this.Browser.Toggle3DAudio(value);
         }
 
         public void ToggleReplay(bool replay)
         {
-            this.Browser.SendToggleReplay(replay);
+            this.Browser.ToggleReplay(replay);
         }
 
         private static Prop GetClosestObjectOfType(float radius, uint modelHash)
@@ -142,6 +156,12 @@
                 false);
 
             return entity == 0 ? null : new Prop(entity);
+        }
+
+        private float GetSoundFactor(float distance)
+        {
+            return this.SoundMinDistance / (this.SoundMinDistance + this.SoundAttenuation
+                                            * (Math.Max(distance, this.SoundMinDistance) - this.SoundMinDistance));
         }
     }
 }

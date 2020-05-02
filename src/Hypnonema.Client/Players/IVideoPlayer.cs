@@ -17,6 +17,8 @@
 
         float SoundMinDistance { get; set; }
 
+        void CalculateVolume();
+
         void Draw();
 
         Task OnTick();

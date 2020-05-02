@@ -3,7 +3,7 @@
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.74">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.1.91">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

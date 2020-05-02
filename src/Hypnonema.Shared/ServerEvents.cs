@@ -17,7 +17,7 @@
         public const string OnPlaybackReceived = "Hypnonema.OnPlaybackReceived";
 
         public const string OnResumeVideo = "Hypnonema.OnResumeVideo";
-        
+
         public const string OnSetVolume = "Hypnonema.OnSetVolume";
 
         public const string OnStateTick = "Hypnonema.OnStateTick";

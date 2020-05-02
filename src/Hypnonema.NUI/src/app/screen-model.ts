@@ -8,6 +8,7 @@ export interface DuiBrowserSettings {
   soundAttenuation: number;
   soundMinDistance: number;
   soundMaxDistance: number;
+  is3DAudioEnabled: boolean;
 }
 
 export interface PositionalSettings {

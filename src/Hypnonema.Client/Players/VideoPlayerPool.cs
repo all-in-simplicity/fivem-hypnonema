@@ -20,7 +20,7 @@
 
         private readonly int duiWidth = (int)Screen.Width;
 
-        private readonly string posterUrl = "";
+        private readonly string posterUrl = string.Empty;
 
         public VideoPlayerPool(string duiUrl, int duiWidth = 1280, int duiHeight = 720)
         {
@@ -55,68 +55,21 @@
             Debug.WriteLine($"Closed screen: {screenName}");
         }
 
-        // TODO: Still needs more refactoring => currently too long
         public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Models.Screen screen)
         {
-            RenderTarget renderTarget;
-            TextureRenderer textureRenderer;
-
             var browser = new DuiBrowser(this.duiUrl, this.duiWidth, this.duiHeight);
-            while (!API.IsDuiAvailable(browser.NativeValue)) await BaseScript.Delay(1);
+            while (!API.IsDuiAvailable(browser.NativeValue)) await BaseScript.Delay(5);
 
             browser.CreateRuntimeTexture();
-            await BaseScript.Delay(750);
+            await BaseScript.Delay(1000);
 
             Debug.WriteLine("sending init..");
-            browser.SendInit(screen.Name, this.posterUrl);
+            browser.Init(screen.Name, this.posterUrl);
 
             if (!screen.Is3DRendered)
-            {
-                renderTarget = new RenderTarget(
-                    screen.TargetSettings.ModelName,
-                    screen.TargetSettings.RenderTargetName);
-                var player = new VideoPlayer2D(browser, renderTarget, screen.Name)
-                                 {
-                                     GlobalVolume = screen.BrowserSettings.GlobalVolume,
-                                     SoundMinDistance = screen.BrowserSettings.SoundMinDistance,
-                                     SoundAttenuation = screen.BrowserSettings.SoundAttenuation,
-                                     SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance
-                                 };
-                return player;
-            }
-            else
-            {
-                var position = new Vector3(
-                    screen.PositionalSettings.PositionX,
-                    screen.PositionalSettings.PositionY,
-                    screen.PositionalSettings.PositionZ);
-                var rotation = new Vector3(
-                    screen.PositionalSettings.RotationX,
-                    screen.PositionalSettings.RotationY,
-                    screen.PositionalSettings.RotationZ);
-                var scale = new Vector3(
-                    screen.PositionalSettings.ScaleX,
-                    screen.PositionalSettings.ScaleY,
-                    screen.PositionalSettings.ScaleZ);
+                return CreateVideoPlayer2D(browser, screen);
 
-                textureRenderer = await TextureRendererPool.Instance.CreateTextureRenderer(position, rotation, scale);
-                if (textureRenderer == null)
-                {
-                    Debug.WriteLine("failed to create scaleform.");
-                    return null;
-                }
-
-                textureRenderer.SetTexture(browser.TxdName, browser.TxnName);
-
-                var player = new VideoPlayer3D(browser, textureRenderer, screen.Name)
-                                 {
-                                     GlobalVolume = screen.BrowserSettings.GlobalVolume,
-                                     SoundMinDistance = screen.BrowserSettings.SoundMinDistance,
-                                     SoundAttenuation = screen.BrowserSettings.SoundAttenuation,
-                                     SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance
-                                 };
-                return player;
-            }
+            return await this.CreateVideoPlayer3D(browser, screen);
         }
 
         public void Dispose()
@@ -182,17 +135,16 @@
         {
             var screen = this.VideoPlayers?.FirstOrDefault(s => s.ScreenName == screenName);
 
-            screen?.Browser.SendMessage(new { type = "stop" });
+            screen?.Browser.Stop();
         }
 
         public async Task SynchronizeState(DuiState state, Shared.Models.Screen screen)
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
             if (player != null)
-            {
+
                 // Player exists. No need to synchronize.
                 return;
-            }
 
             player = await this.CreateVideoPlayerAsync(screen);
             if (player == null)
@@ -206,6 +158,61 @@
             Debug.WriteLine("Synchronizing..");
             player.SynchronizeState(state.IsPaused, state.CurrentTime, state.CurrentSource);
             this.VideoPlayers.Add(player);
+        }
+
+        private static VideoPlayer2D CreateVideoPlayer2D(DuiBrowser browser, Shared.Models.Screen screen)
+        {
+            var renderTarget = new RenderTarget(
+                screen.TargetSettings.ModelName,
+                screen.TargetSettings.RenderTargetName);
+            var player = new VideoPlayer2D(browser, renderTarget, screen.Name)
+                             {
+                                 GlobalVolume = screen.BrowserSettings.GlobalVolume,
+                                 Is3DAudioEnabled = screen.BrowserSettings.Is3DAudioEnabled,
+                                 SoundAttenuation = screen.BrowserSettings.SoundAttenuation,
+                                 SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance,
+                                 SoundMinDistance = screen.BrowserSettings.SoundMinDistance
+                             };
+
+            player.Toggle3DAudio(screen.BrowserSettings.Is3DAudioEnabled);
+
+            return player;
+        }
+
+        private async Task<VideoPlayer3D> CreateVideoPlayer3D(DuiBrowser browser, Shared.Models.Screen screen)
+        {
+            var position = new Vector3(
+                screen.PositionalSettings.PositionX,
+                screen.PositionalSettings.PositionY,
+                screen.PositionalSettings.PositionZ);
+            var rotation = new Vector3(
+                screen.PositionalSettings.RotationX,
+                screen.PositionalSettings.RotationY,
+                screen.PositionalSettings.RotationZ);
+            var scale = new Vector3(
+                screen.PositionalSettings.ScaleX,
+                screen.PositionalSettings.ScaleY,
+                screen.PositionalSettings.ScaleZ);
+
+            var textureRenderer = await TextureRendererPool.Instance.CreateTextureRenderer(position, rotation, scale);
+            if (textureRenderer == null)
+            {
+                Debug.WriteLine("failed to create scaleform.");
+                return null;
+            }
+
+            textureRenderer.SetTexture(browser.TxdName, browser.TxnName);
+
+            var player = new VideoPlayer3D(browser, textureRenderer, screen.Name)
+                             {
+                                 GlobalVolume = screen.BrowserSettings.GlobalVolume,
+                                 SoundMinDistance = screen.BrowserSettings.SoundMinDistance,
+                                 SoundAttenuation = screen.BrowserSettings.SoundAttenuation,
+                                 SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance,
+                                 Is3DAudioEnabled = screen.BrowserSettings.Is3DAudioEnabled
+                             };
+            player.Toggle3DAudio(screen.BrowserSettings.Is3DAudioEnabled);
+            return player;
         }
     }
 }

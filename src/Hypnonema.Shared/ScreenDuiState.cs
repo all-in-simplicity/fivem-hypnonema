@@ -7,9 +7,9 @@
 
     public class ScreenDuiState
     {
-        public DuiState State { get; set; }
-
         public Screen Screen { get; set; }
+
+        public DuiState State { get; set; }
     }
 
     public class ScreenDuiStateList

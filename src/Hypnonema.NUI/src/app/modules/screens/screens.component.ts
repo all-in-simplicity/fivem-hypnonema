@@ -4,11 +4,6 @@ import { AppState, DeleteScreen, SetSelectedScreen } from '../../app-state';
 import { Observable } from 'rxjs';
 import { ScreenModel } from '../../screen-model';
 import { Router } from '@angular/router';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { FormBuilder } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { NuiService } from '../core/nui.service';
 
 @Component({
