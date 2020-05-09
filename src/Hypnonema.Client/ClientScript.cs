@@ -166,10 +166,7 @@
 
             if (!double.TryParse(
                     API.GetResourceMetadata(API.GetCurrentResourceName(), "hypnonema_sync_interval", 0),
-                    out var syncInterval))
-            {
-                this.syncInterval = 10000;
-            }
+                    out var syncInterval)) this.syncInterval = 10000;
 
             this.playerPool = new VideoPlayerPool(url);
             this.Tick += this.OnFirstTick;
@@ -307,7 +304,7 @@
                                              SoundMaxDistance = soundMaxDistance,
                                              SoundMinDistance = soundMinDistance,
                                              SoundAttenuation = soundAttenuation,
-                                             Is3DAudioEnabled = is3DAudioEnabled,
+                                             Is3DAudioEnabled = is3DAudioEnabled
                                          },
                                  PositionalSettings = is3DRendered
                                                           ? new PositionalSettings
@@ -466,10 +463,9 @@
                 return callback;
             }
 
-            if (!bool.TryParse(args.FirstOrDefault(arg => arg.Key == "is3DAudioEnabled").Value?.ToString(), out var is3DAudioEnabled))
-            {
-                is3DAudioEnabled = false;
-            }
+            if (!bool.TryParse(
+                    args.FirstOrDefault(arg => arg.Key == "is3DAudioEnabled").Value?.ToString(),
+                    out var is3DAudioEnabled)) is3DAudioEnabled = false;
 
             var screen = new Screen
                              {
@@ -484,7 +480,7 @@
                                              SoundMaxDistance = soundMaxDistance,
                                              SoundAttenuation = soundAttenuation,
                                              SoundMinDistance = soundMinDistance,
-                                             Is3DAudioEnabled = is3DAudioEnabled,
+                                             Is3DAudioEnabled = is3DAudioEnabled
                                          },
                                  TargetSettings =
                                      is3DRendered
@@ -539,19 +535,14 @@
                 this.playerPool.VideoPlayers?.Add(player);
             }
 
-            if (isAceAllowed)
-            {
-                this.TriggerStateTick();
-            }
+            if (isAceAllowed) this.TriggerStateTick();
 
             var state = JsonConvert.DeserializeObject<List<ScreenDuiState>>(lastKnownState);
             if (state != null)
             {
                 await Delay(5000);
                 foreach (var screenDuiState in state)
-                {
                     await this.playerPool.SynchronizeState(screenDuiState.State, screenDuiState.Screen);
-                }
             }
 
             Debug.WriteLine("Initialized..");
@@ -670,10 +661,7 @@
 
         private async Task OnStateTick()
         {
-            if (!this.isInitialized || this.playerPool?.VideoPlayers?.Count == 0)
-            {
-                return;
-            }
+            if (!this.isInitialized || this.playerPool?.VideoPlayers?.Count == 0) return;
 
             var stateList = new List<DuiState>();
             var videoPlayers = this.playerPool?.VideoPlayers;
@@ -684,10 +672,7 @@
                 {
                     player.Browser.GetState();
                     var duiState = await BrowserStateHelperScript.GetLastState();
-                    if (duiState == null)
-                    {
-                        continue;
-                    }
+                    if (duiState == null) continue;
 
                     stateList.Add(duiState);
                 }

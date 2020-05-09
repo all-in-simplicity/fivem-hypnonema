@@ -74,7 +74,7 @@
         {
             this.SendMessage(new { type = "init", screenName, posterUrl });
         }
-
+ 
         public void Pause()
         {
             this.SendMessage(new { type = "pause" });
