@@ -127,9 +127,9 @@
             this.Browser.Stop();
         }
 
-        public void SynchronizeState(bool paused, float currentTime, string currentSource)
+        public void SynchronizeState(bool paused, float currentTime, string currentSource, bool repeat)
         {
-            this.Browser.Update(paused, currentTime, currentSource);
+            this.Browser.Update(paused, currentTime, currentSource, repeat);
         }
 
         public void Toggle3DAudio(bool value)
@@ -137,9 +137,9 @@
             this.Browser.Toggle3DAudio(value);
         }
 
-        public void ToggleReplay(bool replay)
+        public void ToggleRepeat()
         {
-            this.Browser.ToggleReplay(replay);
+            this.Browser.ToggleRepeat();
         }
 
         private static Prop GetClosestObjectOfType(float radius, uint modelHash)

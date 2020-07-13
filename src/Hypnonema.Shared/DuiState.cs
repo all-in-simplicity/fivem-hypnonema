@@ -13,5 +13,7 @@
         public bool IsPaused { get; set; }
 
         public string ScreenName { get; set; }
+
+        public bool Repeat { get; set; }
     }
 }

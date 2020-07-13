@@ -58,7 +58,8 @@ mat-form-field {
 
   &__progress {
     &__start {
-      width: 15%;
+      width: 10%;
+      padding-left: 8%;
       display: flex;
     }
     & {
@@ -74,7 +75,7 @@ mat-form-field {
     }
 
     &__bar {
-      width: 100%;
+      width: 80%;
       padding: 0 15px;
     }
     mat-slider {

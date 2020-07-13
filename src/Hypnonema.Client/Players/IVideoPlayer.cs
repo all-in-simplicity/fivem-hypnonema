@@ -33,8 +33,8 @@
 
         void Stop();
 
-        void SynchronizeState(bool paused, float currentTime, string currentSource);
+        void SynchronizeState(bool paused, float currentTime, string currentSource, bool repeat);
 
-        void ToggleReplay(bool replay);
+        void ToggleRepeat();
     }
 }

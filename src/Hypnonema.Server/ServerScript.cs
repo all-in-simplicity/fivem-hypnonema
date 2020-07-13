@@ -35,25 +35,6 @@
 
         private int syncInterval = 5000;
 
-        public ServerScript()
-        {
-            this.RegisterEventHandler("onResourceStart", new Action<string>(this.OnResourceStart));
-            this.RegisterEventHandler("onResourceStop", new Action<string>(this.OnResourceStop));
-            this.RegisterEventHandler(ServerEvents.OnInitialize, new Action<Player>(this.OnClientInitialize));
-            this.RegisterEventHandler(ServerEvents.OnEditScreen, new Action<Player, string>(this.OnEditScreen));
-            this.RegisterEventHandler(ServerEvents.OnCloseScreen, new Action<Player, string>(this.OnCloseScreen));
-            this.RegisterEventHandler(ServerEvents.OnDeleteScreen, new Action<Player, string>(this.OnDeleteScreen));
-            this.RegisterEventHandler(ServerEvents.OnPause, new Action<Player, string>(this.OnPause));
-            this.RegisterEventHandler(ServerEvents.OnStateTick, new Action<Player, string>(this.OnStateTick));
-            this.RegisterEventHandler(ServerEvents.OnResumeVideo, new Action<Player, string>(this.OnResume));
-            this.RegisterEventHandler(
-                ServerEvents.OnPlaybackReceived,
-                new Action<Player, string, string>(this.OnPlaybackReceived));
-            this.RegisterEventHandler(ServerEvents.OnCreateScreen, new Action<Player, string>(this.OnCreateScreen));
-            this.RegisterEventHandler(ServerEvents.OnSetVolume, new Action<Player, float, string>(this.OnSetVolume));
-            this.RegisterEventHandler(ServerEvents.OnStopVideo, new Action<Player, string>(this.OnStopVideo));
-        }
-
         private static void RegisterCommand(string cmdName, InputArgument handler, bool restricted)
         {
             try
@@ -86,6 +67,7 @@
         ///     Triggered from Client at the first Tick.
         /// </summary>
         /// <param name="p"></param>
+        [EventHandler(ServerEvents.OnInitialize)]
         private void OnClientInitialize([FromSource] Player p)
         {
             try
@@ -125,6 +107,7 @@
             }
         }
 
+        [EventHandler(ServerEvents.OnCloseScreen)]
         private void OnCloseScreen([FromSource] Player p, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
@@ -136,6 +119,7 @@
             TriggerClientEvent(ClientEvents.CloseScreen, screenName);
         }
 
+        [EventHandler(ServerEvents.OnCreateScreen)]
         private void OnCreateScreen([FromSource] Player p, string jsonScreen)
         {
             if (!this.IsPlayerAllowed(p))
@@ -166,6 +150,7 @@
             }
         }
 
+        [EventHandler(ServerEvents.OnDeleteScreen)]
         private void OnDeleteScreen([FromSource] Player p, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
@@ -181,6 +166,7 @@
             else this.AddChatMessage(p, $"Error: Screen \"{screenName}\" not found.", new[] { 255, 0, 0 });
         }
 
+        [EventHandler(ServerEvents.OnEditScreen)]
         private void OnEditScreen([FromSource] Player p, string jsonScreen)
         {
             if (!this.IsPlayerAllowed(p)) return;
@@ -213,6 +199,7 @@
             this.AddChatMessage(p, "Showing Window");
         }
 
+        [EventHandler(ServerEvents.OnPause)]
         private void OnPause([FromSource] Player p, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
@@ -224,6 +211,7 @@
             TriggerClientEvent(ClientEvents.PauseVideo, screenName);
         }
 
+        [EventHandler(ServerEvents.OnPlaybackReceived)]
         private void OnPlaybackReceived([FromSource] Player p, string videoUrl, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
@@ -260,6 +248,7 @@
             Logger.WriteLine($"playing {videoUrl} on screen {screenName}", Logger.LogLevel.Information);
         }
 
+        [EventHandler("onResourceStart")]
         private void OnResourceStart(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
@@ -297,6 +286,7 @@
             RegisterCommand(this.cmdName, new Action<int, List<object>, string>(this.OnHypnonemaCommand), true);
         }
 
+        [EventHandler("onResourceStop")]
         private void OnResourceStop(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
@@ -304,6 +294,7 @@
             this.database?.Dispose();
         }
 
+        [EventHandler(ServerEvents.OnResumeVideo)]
         private void OnResume([FromSource] Player p, string screenName)
         {
             if (!this.IsPlayerAllowed(p))
@@ -315,11 +306,13 @@
             TriggerClientEvent(ClientEvents.ResumeVideo, screenName);
         }
 
+        [EventHandler(ServerEvents.OnSetVolume)]
         private void OnSetVolume([FromSource] Player p, float volume, string screenName)
         {
             if (this.IsPlayerAllowed(p)) TriggerClientEvent(ClientEvents.SetVolume, volume, screenName);
         }
 
+        [EventHandler(ServerEvents.OnStateTick)]
         private void OnStateTick([FromSource] Player p, string jsonState)
         {
             if (!this.IsPlayerAllowed(p)) return;
@@ -337,14 +330,16 @@
             }
         }
 
+        [EventHandler(ServerEvents.OnStopVideo)]
         private void OnStopVideo([FromSource] Player p, string screenName)
         {
             if (this.IsPlayerAllowed(p)) TriggerClientEvent(ClientEvents.StopVideo, screenName);
         }
 
-        private void RegisterEventHandler(string eventName, Delegate actionDelegate)
+        [EventHandler(ServerEvents.OnToggleRepeat)]
+        private void OnToggleRepeat([FromSource] Player p, string screenName)
         {
-            this.EventHandlers.Add(eventName, actionDelegate);
+            if (this.IsPlayerAllowed(p)) TriggerClientEvent(ClientEvents.ToggleRepeat, screenName);
         }
     }
 }

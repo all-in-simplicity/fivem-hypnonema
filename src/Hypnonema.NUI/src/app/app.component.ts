@@ -58,6 +58,7 @@ export class AppComponent implements OnInit {
         isPaused: false,
         currentSource: 'https://youtube.com/blablabla',
         ended: false,
+        repeat: false,
       };
 
       screenStatus = [testStatus];

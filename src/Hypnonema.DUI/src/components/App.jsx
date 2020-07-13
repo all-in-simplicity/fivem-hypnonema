@@ -47,7 +47,7 @@ class App extends Component {
             played: 0,
             loaded: 0,
             pip: false,
-        })
+        });
     };
 
     // although not very nice, this method removes branding and stuff..
@@ -63,7 +63,7 @@ class App extends Component {
         `;
 
         const iframeRef = document.getElementsByTagName('iframe')[0];
-        if (typeof(iframeRef) !== 'undefined' && iframeRef !== null) {
+        if (typeof (iframeRef) !== 'undefined' && iframeRef !== null) {
             const head = iframeRef.contentDocument.getElementsByTagName('head')[0];
             const style = iframeRef.contentDocument.createElement('style');
             head.appendChild(style);
@@ -103,7 +103,21 @@ class App extends Component {
     };
 
     handleVolume = (volume) => {
-        this.setState({volume: parseFloat(volume)})
+        const vol = parseFloat(volume);
+
+        // twitch requires currently to be manually muted.
+        const url = new URL(this.state.url);
+        if (url.hostname.includes('twitch')) {
+            const currentPlayer = this.player.getInternalPlayer();
+
+            if (vol > 0) {
+                currentPlayer.setMuted(false);
+            } else {
+                currentPlayer.setMuted(true);
+            }
+        }
+
+        this.setState({volume: vol});
     };
 
     handleSeek = (time) => {
@@ -115,7 +129,7 @@ class App extends Component {
     };
 
     enable3DAudio = (value) => {
-      this.setState({is3DAudioEnabled: value})
+        this.setState({is3DAudioEnabled: value})
     };
 
     sendDuiResponse = (url, body) => {
@@ -133,7 +147,8 @@ class App extends Component {
             duration: this.state.duration,
             currentSource: this.state.url,
             ended: this.player.getCurrentTime() === this.player.getDuration(),
-            screenName: this.state.screenName
+            screenName: this.state.screenName,
+            repeat: this.state.loop,
         }
     };
 
@@ -169,8 +184,38 @@ class App extends Component {
         this.sendDuiResponse(url, body);
     };
 
+    handleMute = (muted) => {
+        if (this.state.playing && (this.player !== null && this.player !== undefined)) {
+            this.setState({muted: muted});
+        }
+    };
+
     handleTick = (listenerObj, pannerObj) => {
         this.audio3D.onTick(listenerObj, pannerObj);
+    };
+
+    handleReady = () => {
+        const url = new URL(this.state.url);
+
+        // twitch mature audience fix
+        if (url.hostname.includes('twitch')) {
+
+            const iframeRef = document.getElementsByTagName('iframe')[0];
+            if (typeof (iframeRef) !== 'undefined' && iframeRef !== null) {
+
+                // selects the accept button
+                const elements = iframeRef.contentDocument.querySelectorAll('[data-a-target="player-overlay-mature-accept"]');
+                if (elements.length !== 0) {
+                    elements[0].click();
+                }
+
+                // unmute player if muted
+                const twitchPlayer = this.player.getInternalPlayer();
+                if (twitchPlayer.getMuted()) {
+                    twitchPlayer.setMuted(false);
+                }
+            }
+        }
     };
 
     handleMessage = (ev) => {
@@ -181,6 +226,9 @@ class App extends Component {
                 break;
             case 'play':
                 this.loadAndPlay(ev.data.src.url);
+                break;
+            case 'mute':
+                this.handleMute(ev.data.muted);
                 break;
             case 'toggle3DAudio':
                 this.enable3DAudio(ev.data.enabled);
@@ -196,6 +244,7 @@ class App extends Component {
                 }
 
                 this.handleSeek(ev.data.currentTime);
+                this.setState({loop: ev.data.repeat});
                 break;
             case 'seek':
                 this.handleSeek(ev.data.time);
@@ -215,7 +264,7 @@ class App extends Component {
             case 'volume':
                 this.handleVolume(ev.data.volume);
                 break;
-            case 'toggleReplay':
+            case 'toggleRepeat':
                 this.handleToggleLoop();
                 break;
             default:
@@ -257,6 +306,7 @@ class App extends Component {
                         volume={volume}
                         muted={muted}
                         onPlay={this.handlePlay}
+                        onReady={this.handleReady}
                         onPause={this.handlePause}
                         onEnded={this.handleEnded}
                         onStart={this.handleStart}
@@ -269,6 +319,12 @@ class App extends Component {
                                 playerVars: {
                                     autoplay: true,
                                 }
+                            },
+                            twitch: {
+                              options: {
+                                  autoplay: true,
+                                  muted: false
+                              }
                             },
                         }}
                     />

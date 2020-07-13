@@ -38,7 +38,7 @@
 
         public const string OnStopVideo = "Hypnonema.OnStopVideo";
 
-        public const string OnToggleReplay = "Hypnonema.OnToggleReplay";
+        public const string OnToggleRepeat = "Hypnonema.OnToggleRepeat";
 
         public const string OnVolumeChange = "Hypnonema.OnVolumeChange";
 
@@ -54,7 +54,7 @@
 
         public const string StopVideo = "Hypnonema.StopVideo";
 
-        public const string ToggleReplay = "Hypnonema.ToggleReplay";
+        public const string ToggleRepeat = "Hypnonema.ToggleRepeat";
 
         public const string UpdateState = "Hypnonema.UpdateState";
     }

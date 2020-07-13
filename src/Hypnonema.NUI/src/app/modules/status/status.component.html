@@ -21,7 +21,12 @@
         <td mat-cell *matCellDef="let screen">
           <mat-chip-list>
             <ng-template [ngIf]="!screen.isPaused && !screen.ended" [ngIfElse]="elseBlock">
-            <mat-chip style="background-color: forestgreen;">Playing</mat-chip>
+              <ng-template [ngIf]="!screen.repeat" [ngIfElse]="repeatBlock">
+                <mat-chip style="background-color: forestgreen;">Playing</mat-chip>
+              </ng-template>
+              <ng-template #repeatBlock>
+                <mat-chip style="background-color: forestgreen;">Repeating</mat-chip>
+              </ng-template>
             </ng-template>
             <ng-template #elseBlock>
               <ng-template [ngIf]="screen.isPaused && !screen.ended" [ngIfElse]="elseBlock2">

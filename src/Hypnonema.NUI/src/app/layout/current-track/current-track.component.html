@@ -2,6 +2,15 @@
   <ng-template [ngIf]="(screen$ | async)">
     <div class="current-track__actions">
 
+      <a class="repeat" (click)="repeat(selectedScreenName)" mat-icon-button>
+        <ng-template [ngIf]="(screen$ | async)?.repeat" [ngIfElse]="isNotRepeated">
+          <mat-icon color="accent">repeat</mat-icon>
+        </ng-template>
+        <ng-template #isNotRepeated>
+          <mat-icon>repeat</mat-icon>
+        </ng-template>
+      </a>
+
       <a class="stop" (click)="stop(selectedScreenName)" mat-icon-button>
         <mat-icon>stop</mat-icon>
       </a>
