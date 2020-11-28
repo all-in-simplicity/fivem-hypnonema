@@ -70,9 +70,9 @@
             this.SendMessage(new { type = "getState" });
         }
 
-        public void Init(string screenName, string posterUrl)
+        public void Init(string screenName, string posterUrl, string resourceName)
         {
-            this.SendMessage(new { type = "init", screenName, posterUrl });
+            this.SendMessage(new { type = "init", screenName, posterUrl, resourceName });
         }
 
         public void Pause()

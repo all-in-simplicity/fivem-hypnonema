@@ -12,6 +12,7 @@ class App extends Component {
 
     state = {
         url: '',
+        resourceName: 'hypnonema',
         previousHost: '',
         poster: 'https://i.imgur.com/dPaIjEW.jpg',
         pausePoster: 'https://i.imgur.com/aoz9sJn.jpg',
@@ -90,6 +91,10 @@ class App extends Component {
         this.setState({playing: true})
     };
 
+    getUrl = () => {
+        return 'https://' + this.state.resourceName;
+    };
+
     handlePause = () => {
         this.setState({playing: false})
     };
@@ -124,8 +129,8 @@ class App extends Component {
         this.player.seekTo(time, 'seconds');
     };
 
-    handleInit = (screenName, posterUrl) => {
-        this.setState({screenName: screenName, poster: posterUrl})
+    handleInit = (screenName, posterUrl, resourceName) => {
+        this.setState({screenName: screenName, poster: posterUrl, resourceName: resourceName})
     };
 
     enable3DAudio = (value) => {
@@ -173,13 +178,13 @@ class App extends Component {
     };
 
     handleStateTick = () => {
-        const url = 'https://hypnonema/Hypnonema.StateTick';
+        const url = this.getUrl() + '/Hypnonema.StateTick';
         const body = this.getPlayerState();
         this.sendDuiResponse(url, body);
     };
 
     handleGetState = () => {
-        const url = 'https://hypnonema/Hypnonema.GetStateResponse';
+        const url = this.getUrl() + '/Hypnonema.GetStateResponse';
         const body = this.getPlayerState();
         this.sendDuiResponse(url, body);
     };
@@ -222,7 +227,7 @@ class App extends Component {
         switch (ev.data.type) {
             case 'init':
                 // TODO: Implement panningVars send from Client
-                this.handleInit(ev.data.screenName, ev.data.posterUrl);
+                this.handleInit(ev.data.screenName, ev.data.posterUrl, ev.data.resourceName);
                 break;
             case 'play':
                 this.loadAndPlay(ev.data.src.url);

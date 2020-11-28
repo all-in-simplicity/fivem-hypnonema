@@ -10,7 +10,7 @@ export class NuiService {
   }
 
   public repeatVideo(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnToggleRepeat`, {
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnToggleRepeat`, {
       screenName
     }).subscribe(() => {
     }, error => console.log(error.toString()));
@@ -20,7 +20,7 @@ export class NuiService {
                     renderTargetName: string, globalVolume: number, soundAttenuation: number, soundMinDistance: number,
                     soundMaxDistance: number, positionX: number, positionY: number, positionZ: number, rotationX: number,
                     rotationY: number, rotationZ: number, scaleX: number, scaleY: number, scaleZ: number, is3DAudioEnabled: boolean) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnEditScreen`, {
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnEditScreen`, {
       id: screenId,
       is3DRendered,
       screenName,
@@ -46,13 +46,13 @@ export class NuiService {
   }
 
   public closeScreen(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnCloseScreen`, {screenName})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnCloseScreen`, {screenName})
       .subscribe(() => {
       }, error => console.log(JSON.stringify(error)));
   }
 
   public stopVideo(screenName) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnStopVideo`, {
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnStopVideo`, {
       screenName
     })
       .subscribe(() => {
@@ -62,7 +62,7 @@ export class NuiService {
   }
 
   public hideNUI() {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnHideNUI`, {})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnHideNUI`, {})
       .subscribe(() => {
       }, error => {
         console.log(error);
@@ -70,25 +70,25 @@ export class NuiService {
   }
 
   public resumeVideo(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnResume`, {screenName})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnResume`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public pauseVideo(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnPause`, {screenName})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnPause`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public requestDuiState(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnRequestState`, {})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnRequestState`, {})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public deleteScreen(screenName: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnDeleteScreen`, {screenName})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnDeleteScreen`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
@@ -98,7 +98,7 @@ export class NuiService {
                       renderTargetName?: string, positionX?: number, positionY?: number, positionZ?: number,
                       rotationX?: number, rotationY?: number, rotationZ?: number, scaleX?: number, scaleY?: number, scaleZ?: number,
                      ) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnCreateScreen`, {
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnCreateScreen`, {
       screenName,
       alwaysOn,
       modelName,
@@ -126,7 +126,7 @@ export class NuiService {
   }
 
   public playVideo(screenName: string, videoUrl: string) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnPlay`, {
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnPlay`, {
       videoUrl, screen: screenName
     }).subscribe(() => {
     }, error => {
@@ -135,7 +135,7 @@ export class NuiService {
   }
 
   public setVideoTime(screenName: string, time: number) {
-    this.http.post(`http://${environment.resourceName}/Hypnonema.OnSeek`, {screenName, time})
+    this.http.post(`http://${window.location.hostname}/Hypnonema.OnSeek`, {screenName, time})
       .subscribe(() => {
       }, error => console.log(error));
   }

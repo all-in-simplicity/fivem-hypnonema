@@ -18,6 +18,8 @@
 
         private readonly string duiUrl = "http://localhost:9414";
 
+        private readonly string resourceName = string.Empty;
+
         private readonly int duiWidth = (int)Screen.Width;
 
         private readonly string posterUrl = string.Empty;
@@ -27,7 +29,8 @@
             this.duiUrl = duiUrl;
             this.duiWidth = duiWidth;
             this.duiHeight = duiHeight;
-            this.posterUrl = API.GetResourceMetadata(API.GetCurrentResourceName(), "hypnonema_poster_url", 0);
+            this.resourceName = API.GetCurrentResourceName();
+            this.posterUrl = API.GetResourceMetadata(this.resourceName, "hypnonema_poster_url", 0);
         }
 
         ~VideoPlayerPool()
@@ -64,7 +67,7 @@
             await BaseScript.Delay(1000);
 
             // Debug.WriteLine("sending init..");
-            browser.Init(screen.Name, this.posterUrl);
+            browser.Init(screen.Name, this.posterUrl, this.resourceName);
 
             if (!screen.Is3DRendered)
                 return CreateVideoPlayer2D(browser, screen);

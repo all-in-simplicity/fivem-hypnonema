@@ -23,28 +23,28 @@
         {
             if (!IsLoggingEnabled()) return;
 
-            var prefix = $"[Hypnonema] [{DateTime.Now.ToShortTimeString()}]";
+            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}]^7";
 
             switch (logLevel)
             {
                 case LogLevel.Warning:
-                    prefix = $"{prefix} [WARN]";
+                    prefix = $"{prefix} ^3[WARN]";
                     break;
                 case LogLevel.Debug:
                     prefix = $"{prefix} [DEBUG]";
                     break;
                 case LogLevel.Error:
-                    prefix = $"{prefix} [ERROR]";
+                    prefix = $"{prefix} ^1[ERROR]";
                     break;
                 case LogLevel.Information:
-                    prefix = $"{prefix} [INFO]";
+                    prefix = $"{prefix} ^5[INFO]";
                     break;
                 case LogLevel.Verbose:
                     prefix = $"{prefix} ";
                     break;
             }
 
-            Debug.WriteLine($"{prefix} {message}");
+            Debug.WriteLine($"{prefix} {message} ^7");
         }
 
         private static bool IsLoggingEnabled()
