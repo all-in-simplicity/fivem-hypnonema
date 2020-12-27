@@ -11,7 +11,7 @@ class App extends Component {
     }
 
     state = {
-        url: '',
+        url: 'https://thiago-dev.github.io/fivem-hypnonema', // valid url required
         resourceName: 'hypnonema',
         previousHost: '',
         poster: 'https://i.imgur.com/dPaIjEW.jpg',
