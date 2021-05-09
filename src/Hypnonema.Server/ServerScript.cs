@@ -59,7 +59,7 @@
 
         private bool IsPlayerAllowed(Player player)
         {
-            return API.IsPlayerAceAllowed(player.Handle, $"command.{this.cmdName}");
+            return true; // API.IsPlayerAceAllowed(player.Handle, $"command.{this.cmdName}");
         }
 
         /// <summary>
@@ -345,7 +345,28 @@
             if (this.IsPlayerAllowed(p)) TriggerClientEvent(ClientEvents.ToggleRepeat, screenName);
         }
 
-        private void PopulateDatabaseIfEmpty()
+        [EventHandler("Hypnonema.OnOpen")]
+        private void OnOpen([FromSource] Player p)
+        {
+            var isAceAllowed = true; //this.IsPlayerAllowed(p);
+            List < Screen > screens;
+            
+            try
+            {
+                screens = this.screenCollection.FindAll().ToList();
+            }
+            catch (Exception e)
+            {
+                this.AddChatMessage(p, "Failed to read database. See server-log for more info");
+                Logger.WriteLine($"Failed to read database. Error: {e.Message}", Logger.LogLevel.Error);
+                throw;
+            }
+       
+            p.TriggerEvent(ClientEvents.ShowNUI, isAceAllowed, JsonConvert.SerializeObject(screens));
+            this.AddChatMessage(p, "Showing Window");
+            }
+
+    private void PopulateDatabaseIfEmpty()
         {
             if (this.screenCollection.Count() >= 1)
             {

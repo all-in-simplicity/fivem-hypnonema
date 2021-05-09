@@ -55,7 +55,7 @@
             this.RegisterNuiCallback(ClientEvents.OnCloseScreen, this.OnCloseScreen);
 
             this.RegisterNuiCallback(ClientEvents.OnDeleteScreen, this.OnDeleteScreen);
-            this.RegisterNuiCallback(ClientEvents.OnRequestState, this.OnRequestState);
+            this.RegisterNuiCallbackAsync(ClientEvents.OnRequestState, this.OnRequestState);
             this.RegisterNuiCallback(ClientEvents.OnPause, this.OnPause);
             this.RegisterNuiCallback(ClientEvents.OnResumeVideo, this.OnResume);
             this.RegisterNuiCallback(ClientEvents.OnSeek, this.OnSeek);
@@ -72,7 +72,7 @@
                 (body, resultCallback) => { callback.Invoke(body, resultCallback); });
         }
 
-        protected async void RegisterNuiCallback(
+        protected async void RegisterNuiCallbackAsync(
             string msg,
             Func<IDictionary<string, object>, CallbackDelegate, Task<CallbackDelegate>> callback)
         {
