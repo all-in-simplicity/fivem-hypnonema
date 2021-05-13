@@ -11,6 +11,8 @@
     {
         private readonly TextureRenderer textureRenderer;
 
+        static readonly float RENDER_DISTANCE = 300.0f;
+
         public VideoPlayer3D(DuiBrowser browser, TextureRenderer textureRenderer, string screenName)
         {
             this.textureRenderer = textureRenderer;
@@ -80,9 +82,15 @@
 
         public async Task OnTick()
         {
-            this.Draw();
-
-            this.CalculateVolume();
+            float dist = this.textureRenderer.GetDistanceToPlayer();
+            if (dist <= RENDER_DISTANCE)
+            {
+                this.Draw();
+                this.CalculateVolume();
+            } else
+            {
+                this.Browser.SetVolume(0f);
+            }
 
             await Task.FromResult(0);
         }
