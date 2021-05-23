@@ -30,6 +30,8 @@ hypnonema_logging_enabled 'false'
 -- The sync interval in ms
 hypnonema_sync_interval '5000'
 
+-- Whether the command should be restricted or not
+hypnonema_restrict_command 'true'
 
 --------------------------------------------
 --------------------------------------------

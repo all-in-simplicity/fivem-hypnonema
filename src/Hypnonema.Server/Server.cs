@@ -19,11 +19,13 @@
 
     using Logger = Hypnonema.Server.Utils.Logger;
 
-    public class ServerScript : BaseScript
+    public class Server : BaseScript
     {
         public static bool IsLoggingEnabled = true;
 
         private string cmdName = "hypnonema";
+        
+        private bool isCommandRestricted = true;
 
         private string connectionString = "Filename=hypnonema.db";
 
@@ -37,17 +39,7 @@
 
         private static void RegisterCommand(string cmdName, InputArgument handler, bool restricted)
         {
-            try
-            {
-                API.RegisterCommand(cmdName, handler, restricted);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteLine(
-                    $"failed to register the command {cmdName}. Error: {e.Message}",
-                    Logger.LogLevel.Error);
-                throw;
-            }
+            API.RegisterCommand(cmdName, handler, restricted);
         }
 
         private void AddChatMessage(Player player, string message, int[] color = null)
@@ -59,7 +51,7 @@
 
         private bool IsPlayerAllowed(Player player)
         {
-            return API.IsPlayerAceAllowed(player.Handle, $"command.{this.cmdName}");
+            return !this.isCommandRestricted || API.IsPlayerAceAllowed(player.Handle, $"command.{this.cmdName}");
         }
 
         /// <summary>
@@ -258,6 +250,12 @@
                 "hypnonema_db_connString",
                 0,
                 this.connectionString);
+            this.cmdName = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_command_name", 0, this.cmdName)
+                .Replace(" ", string.Empty);
+            this.syncInterval = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_sync_interval", 0, this.syncInterval);
+            this.isCommandRestricted = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_restrict_command", 0,
+                this.isCommandRestricted);
+            IsLoggingEnabled = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_logging_enabled", 0, IsLoggingEnabled);
 
             try
             {
@@ -273,20 +271,17 @@
             // Create Example Screen if Database is empty
             this.PopulateDatabaseIfEmpty();
 
-            this.cmdName = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_command_name", 0, "hypnonema")
-                .Replace(" ", string.Empty);
-
-            this.syncInterval = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_sync_interval", 0, 5000);
-
             if (this.cmdName != "hypnonema")
                 Logger.WriteLine(
-                    $"Using {this.cmdName} as command name. Type /{this.cmdName} to open the NUI window.",
+                    $"Using '{this.cmdName}' as command name. Type /{this.cmdName} to open the NUI window.",
                     Logger.LogLevel.Information);
 
-            var loggingEnabled = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_logging_enabled", 0, false);
-            IsLoggingEnabled = loggingEnabled;
+            if (!this.isCommandRestricted)
+            {
+                Logger.WriteLine($"Command '{this.cmdName}' is NOT restricted", Logger.LogLevel.Information);
+            }
 
-            RegisterCommand(this.cmdName, new Action<int, List<object>, string>(this.OnHypnonemaCommand), true);
+            RegisterCommand(this.cmdName, new Action<int, List<object>, string>(this.OnHypnonemaCommand), this.isCommandRestricted);
         }
 
         [EventHandler("onResourceStop")]
@@ -326,11 +321,9 @@
                              where screen != null
                              select new ScreenDuiState { Screen = screen, State = duiState }).ToList();
 
-            if (lastState.Any())
-            {
-                this.lastKnownState.StateList = lastState;
-                this.lastKnownState.Timestamp = DateTime.UtcNow;
-            }
+            if (!lastState.Any()) return;
+            this.lastKnownState.StateList = lastState;
+            this.lastKnownState.Timestamp = DateTime.UtcNow;
         }
 
         [EventHandler(ServerEvents.OnStopVideo)]

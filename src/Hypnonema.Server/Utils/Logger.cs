@@ -49,7 +49,7 @@
 
         private static bool IsLoggingEnabled()
         {
-            return ServerScript.IsLoggingEnabled;
+            return Server.IsLoggingEnabled;
         }
     }
 }
