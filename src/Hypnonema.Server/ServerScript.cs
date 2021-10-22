@@ -5,7 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
-
+    using System.Threading.Tasks;
     using CitizenFX.Core;
     using CitizenFX.Core.Native;
 
@@ -34,6 +34,28 @@
         private LiteCollection<Screen> screenCollection;
 
         private int syncInterval = 5000;
+        public ServerScript()
+        {
+            this.Tick += OnTick;
+        }
+
+        public async System.Threading.Tasks.Task OnTick()
+        {
+            // loop through lastKnownState collection and close screens that have URLs matching certin substrings as an optimization (especially for the screen that always likes to try playing the hypnonema github page as a video for some reason)
+            foreach (ScreenDuiState s in lastKnownState.StateList)
+            {
+                if (s.State.CurrentSource.Contains("github.com/"))
+                {
+                    Debug.WriteLine("Shutting down screen due to being a github URL: " + s.Screen.Name);
+                    TriggerClientEvent(ClientEvents.CloseScreen, s.Screen.Name);
+                    s.State.CurrentSource = "";
+                }
+            }
+
+            // todo: close any screens that have not had any players near them for x minutes as another optimization
+            
+            await Delay(1000);
+        }
 
         private static void RegisterCommand(string cmdName, InputArgument handler, bool restricted)
         {
