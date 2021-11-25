@@ -3,7 +3,7 @@
   "version": "1.8.23",
   "assemblyVersion": {
     "version": "1.8", 
-    "precision": "revision"
+    "precision": "build"
   },
   "release" : {
     "branchName" : "v{version}",
