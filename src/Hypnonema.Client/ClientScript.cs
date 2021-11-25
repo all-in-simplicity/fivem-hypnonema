@@ -12,11 +12,13 @@
 
     using Hypnonema.Client.Graphics;
     using Hypnonema.Client.Players;
-    using Hypnonema.Shared;
-    using Hypnonema.Shared.Models;
+    using Hypnonema.Shared.Events;
+    using Hypnonema.Shared.Events.Models;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
+
+    using Debug = Hypnonema.Client.Utils.Debug;
 
     public class ClientScript : BaseScript
     {
@@ -28,24 +30,6 @@
 
         public ClientScript()
         {
-            this.RegisterEventHandler("onClientResourceStart", new Action<string>(this.OnClientResourceStart));
-            this.RegisterEventHandler("onClientResourceStop", new Action<string>(this.OnResourceStop));
-
-            this.RegisterEventHandler(ClientEvents.PlayVideo, new Func<string, string, Task>(this.OnPlay));
-            this.RegisterEventHandler(ClientEvents.ShowNUI, new Action<bool, string>(this.OnShowNUI));
-            this.RegisterEventHandler(
-                ClientEvents.Initialize,
-                new Func<string, int, bool, string, Task>(this.OnInitialize));
-            this.RegisterEventHandler(ClientEvents.SetVolume, new Action<float, string>(this.SetVolume));
-            this.RegisterEventHandler(ClientEvents.StopVideo, new Action<string>(this.StopVideo));
-            this.RegisterEventHandler(ClientEvents.CloseScreen, new Action<string>(this.CloseScreen));
-            this.RegisterEventHandler(ClientEvents.CreatedScreen, new Func<string, Task>(this.CreatedScreen));
-            this.RegisterEventHandler(ClientEvents.EditedScreen, new Func<string, Task>(this.EditedScreen));
-            this.RegisterEventHandler(ClientEvents.DeletedScreen, new Action<string>(this.DeletedScreen));
-            this.RegisterEventHandler(ClientEvents.PauseVideo, new Action<string>(this.PauseVideo));
-            this.RegisterEventHandler(ClientEvents.ResumeVideo, new Action<string>(this.ResumeVideo));
-            this.RegisterEventHandler(ClientEvents.OnStateTick, new Func<Task>(this.OnStateTick));
-
             this.RegisterNuiCallback(ClientEvents.OnPlay, this.OnPlay);
             this.RegisterNuiCallback(ClientEvents.OnStopVideo, this.OnStopVideo);
             this.RegisterNuiCallback(ClientEvents.OnHideNUI, this.OnHideNUI);
@@ -84,12 +68,21 @@
             await Task.FromResult(0);
         }
 
+        private static string GetAssemblyFileVersion()
+        {
+            var attribute = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true).Single();
+            return attribute.Version;
+        }
+
+        [EventHandler(ClientEvents.CloseScreen)]
         private void CloseScreen(string screenName)
         {
             this.playerPool.CloseScreen(screenName);
         }
 
-        private async Task CreatedScreen(string jsonScreen)
+        [EventHandler(ClientEvents.CreatedScreen)]
+        private async void CreatedScreen(string jsonScreen)
         {
             var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
             if (screen.AlwaysOn)
@@ -104,13 +97,15 @@
                     new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
         }
 
+        [EventHandler(ClientEvents.DeletedScreen)]
         private void DeletedScreen(string screenName)
         {
             API.SendNuiMessage(JsonConvert.SerializeObject(new { type = "HypnonemaNUI.DeletedScreen", screenName }));
             this.CloseScreen(screenName);
         }
 
-        private async Task EditedScreen(string jsonString)
+        [EventHandler(ClientEvents.EditedScreen)]
+        private async void EditedScreen(string jsonString)
         {
             var screen = JsonConvert.DeserializeObject<Screen>(jsonString);
 
@@ -120,52 +115,45 @@
                     new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
 
             var player = this.playerPool.VideoPlayers.FirstOrDefault(s => s.ScreenName == screen.Name);
-            if (player != null)
+            if (player == null) return;
+
+            // we want the current state of the dui browser,
+            // so we send a request and wait as long as duiStateResponse is null but max. 5500 ms
+            player.Browser.GetState();
+            var state = await BrowserStateHelperScript.GetLastState();
+
+            this.playerPool.CloseScreen(player.ScreenName);
+            player = await this.playerPool.CreateVideoPlayerAsync(screen);
+
+            // stateResponse can be null ( eg. if waiting time exceeded 5500ms)
+            if (state != null)
             {
-                // we want the current state of the dui browser,
-                // so we send a request and wait as long as duiStateResponse is null but max. 5500 ms
-                player.Browser.SendMessage(new { type = "getState" });
-                var state = await BrowserStateHelperScript.GetLastState();
-
-                this.playerPool.CloseScreen(player.ScreenName);
-                player = await this.playerPool.CreateVideoPlayerAsync(screen);
-
-                // stateResponse can be null ( eg. if waiting time exceeded 5500ms)
-                if (state != null)
-                {
-                    await Delay(500);
-                    player.Browser.SendMessage(
-                        new
-                            {
-                                type = "update",
-                                src = state.CurrentSource,
-                                currentTime = state.CurrentTime,
-                                paused = state.IsPaused
-                            });
-                }
-
-                this.playerPool.VideoPlayers.Add(player);
+                await Delay(500);
+                player.Browser.Update(state.IsPaused, state.CurrentTime, state.CurrentSource, state.Repeat);
             }
+
+            this.playerPool.VideoPlayers.Add(player);
         }
 
-        private string GetAssemblyFileVersion()
-        {
-            var attribute = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
-                .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true).Single();
-            return attribute.Version;
-        }
-
+        [EventHandler("onClientResourceStart")]
         private void OnClientResourceStart(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
 
             var url = API.GetResourceMetadata(resourceName, "hypnonema_url", 0);
+            var posterUrl = API.GetResourceMetadata(resourceName, "hypnonema_poster_url", 0);
 
-            if (!double.TryParse(
+            if (!int.TryParse(
                     API.GetResourceMetadata(API.GetCurrentResourceName(), "hypnonema_sync_interval", 0),
                     out var syncInterval)) this.syncInterval = 10000;
+            this.syncInterval = syncInterval;
 
-            this.playerPool = new VideoPlayerPool(url);
+            if (!bool.TryParse(
+                    API.GetResourceMetadata(resourceName, "hypnonema_logging_enabled", 0),
+                    out var isLoggingEnabled)) Debug.IsLoggingEnabled = false;
+            Debug.IsLoggingEnabled = isLoggingEnabled;
+
+            this.playerPool = new VideoPlayerPool(url, resourceName, posterUrl);
             this.Tick += this.OnFirstTick;
             this.Tick += this.OnTick;
         }
@@ -191,58 +179,51 @@
             }
 
             var is3DRendered = ArgsReader.GetArgKeyValue<bool>(args, "is3DRendered");
-            var alwaysOn = ArgsReader.GetArgKeyValue<bool>(args, "alwaysOn");
-            var modelName = ArgsReader.GetArgKeyValue<string>(args, "modelName");
-            var renderTargetName = ArgsReader.GetArgKeyValue<string>(args, "renderTargetName");
-            var positionX = ArgsReader.GetArgKeyValue<float>(args, "positionX");
-            var positionY = ArgsReader.GetArgKeyValue<float>(args, "positionY");
-            var positionZ = ArgsReader.GetArgKeyValue<float>(args, "positionZ");
-            var rotationX = ArgsReader.GetArgKeyValue<float>(args, "rotationX");
-            var rotationY = ArgsReader.GetArgKeyValue<float>(args, "rotationY");
-            var rotationZ = ArgsReader.GetArgKeyValue<float>(args, "rotationZ");
-            var scaleX = ArgsReader.GetArgKeyValue<float>(args, "scaleX");
-            var scaleY = ArgsReader.GetArgKeyValue<float>(args, "scaleY");
-            var scaleZ = ArgsReader.GetArgKeyValue<float>(args, "scaleZ");
-            var globalVolume = ArgsReader.GetArgKeyValue(args, "globalVolume", 100f);
-            var soundAttenuation = ArgsReader.GetArgKeyValue<float>(args, "soundAttenuation", 5f);
-            var soundMinDistance = ArgsReader.GetArgKeyValue<float>(args, "soundMinDistance", 15f);
-            var soundMaxDistance = ArgsReader.GetArgKeyValue<float>(args, "soundMaxDistance", 100f);
-            var is3DAudioEnabled = ArgsReader.GetArgKeyValue<bool>(args, "is3DAudioEnabled");
-          
+
             var screen = new Screen
                              {
-                                 AlwaysOn = alwaysOn,
+                                 AlwaysOn = ArgsReader.GetArgKeyValue<bool>(args, "alwaysOn"),
                                  Name = screenName,
                                  Is3DRendered = is3DRendered,
                                  BrowserSettings =
                                      new DuiBrowserSettings
                                          {
-                                             GlobalVolume = globalVolume,
-                                             SoundMaxDistance = soundMaxDistance,
-                                             SoundMinDistance = soundMinDistance,
-                                             SoundAttenuation = soundAttenuation,
-                                             Is3DAudioEnabled = is3DAudioEnabled
+                                             GlobalVolume = ArgsReader.GetArgKeyValue(args, "globalVolume", 100f),
+                                             SoundMaxDistance =
+                                                 ArgsReader.GetArgKeyValue(args, "soundMaxDistance", 100f),
+                                             SoundMinDistance =
+                                                 ArgsReader.GetArgKeyValue(args, "soundMinDistance", 15f),
+                                             SoundAttenuation = ArgsReader.GetArgKeyValue(args, "soundAttenuation", 5f),
+                                             Is3DAudioEnabled = ArgsReader.GetArgKeyValue<bool>(
+                                                 args,
+                                                 "is3DAudioEnabled")
                                          },
-                                 PositionalSettings = is3DRendered
-                                                          ? new PositionalSettings
-                                                                {
-                                                                    PositionX = positionX,
-                                                                    PositionY = positionY,
-                                                                    PositionZ = positionZ,
-                                                                    RotationX = rotationX,
-                                                                    RotationY = rotationY,
-                                                                    RotationZ = rotationZ,
-                                                                    ScaleX = scaleX,
-                                                                    ScaleY = scaleY,
-                                                                    ScaleZ = scaleZ
-                                                                }
-                                                          : null,
+                                 PositionalSettings =
+                                     is3DRendered
+                                         ? new PositionalSettings
+                                               {
+                                                   PositionX = ArgsReader.GetArgKeyValue<float>(args, "positionX"),
+                                                   PositionY = ArgsReader.GetArgKeyValue<float>(args, "positionY"),
+                                                   PositionZ = ArgsReader.GetArgKeyValue<float>(args, "positionZ"),
+                                                   RotationX = ArgsReader.GetArgKeyValue<float>(args, "rotationX"),
+                                                   RotationY = ArgsReader.GetArgKeyValue<float>(args, "rotationY"),
+                                                   RotationZ = ArgsReader.GetArgKeyValue<float>(args, "rotationZ"),
+                                                   ScaleX = ArgsReader.GetArgKeyValue<float>(args, "scaleX"),
+                                                   ScaleY = ArgsReader.GetArgKeyValue<float>(args, "scaleY"),
+                                                   ScaleZ = ArgsReader.GetArgKeyValue<float>(args, "scaleZ")
+                                               }
+                                         : null,
                                  TargetSettings = is3DRendered
                                                       ? null
                                                       : new RenderTargetSettings
                                                             {
-                                                                ModelName = modelName,
-                                                                RenderTargetName = renderTargetName
+                                                                ModelName =
+                                                                    ArgsReader.GetArgKeyValue<string>(
+                                                                        args,
+                                                                        "modelName"),
+                                                                RenderTargetName = ArgsReader.GetArgKeyValue<string>(
+                                                                    args,
+                                                                    "renderTargetName")
                                                             }
                              };
 
@@ -276,10 +257,10 @@
             var alwaysOn = ArgsReader.GetArgKeyValue<bool>(args, "alwaysOn");
             var modelName = ArgsReader.GetArgKeyValue<string>(args, "modelName");
             var renderTargetName = ArgsReader.GetArgKeyValue<string>(args, "renderTargetName");
-            var globalVolume = ArgsReader.GetArgKeyValue<float>(args, "globalVolume", 100f);
-            var soundAttenuation = ArgsReader.GetArgKeyValue<float>(args, "soundAttenuation", 5f);
-            var soundMinDistance = ArgsReader.GetArgKeyValue<float>(args, "soundMinDistance", 15f);
-            var soundMaxDistance = ArgsReader.GetArgKeyValue<float>(args, "soundMaxDistance", 100f);
+            var globalVolume = ArgsReader.GetArgKeyValue(args, "globalVolume", 100f);
+            var soundAttenuation = ArgsReader.GetArgKeyValue(args, "soundAttenuation", 5f);
+            var soundMinDistance = ArgsReader.GetArgKeyValue(args, "soundMinDistance", 15f);
+            var soundMaxDistance = ArgsReader.GetArgKeyValue(args, "soundMaxDistance", 100f);
             var positionX = ArgsReader.GetArgKeyValue<float>(args, "positionX");
             var positionY = ArgsReader.GetArgKeyValue<float>(args, "positionY");
             var positionZ = ArgsReader.GetArgKeyValue<float>(args, "positionZ");
@@ -290,7 +271,7 @@
             var scaleY = ArgsReader.GetArgKeyValue<float>(args, "scaleY");
             var scaleZ = ArgsReader.GetArgKeyValue<float>(args, "scaleZ");
             var is3DAudioEnabled = ArgsReader.GetArgKeyValue<bool>(args, "is3DAudioEnabled");
-           
+
             var screen = new Screen
                              {
                                  Id = id,
@@ -352,7 +333,8 @@
             return callback;
         }
 
-        private async Task OnInitialize(string jsonScreens, int rendererLimit, bool isAceAllowed, string lastKnownState)
+        [EventHandler(ClientEvents.Initialize)]
+        private async void OnInitialize(string jsonScreens, int rendererLimit, bool isAceAllowed, string lastKnownState)
         {
             TextureRendererPool.MaxActiveScaleforms = rendererLimit;
 
@@ -373,7 +355,6 @@
                     await this.playerPool.SynchronizeState(screenDuiState.State, screenDuiState.Screen);
             }
 
-            // Debug.WriteLine("Initialized..");
             this.isInitialized = true;
         }
 
@@ -388,7 +369,8 @@
             return callback;
         }
 
-        private async Task OnPlay(string url, string jsonScreen)
+        [EventHandler(ClientEvents.PlayVideo)]
+        private async void OnPlay(string url, string jsonScreen)
         {
             var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
             await this.playerPool.Play(url, screen);
@@ -432,6 +414,7 @@
             return callback;
         }
 
+        [EventHandler("onClientResourceStop")]
         private void OnResourceStop(string resourceName)
         {
             if (API.GetCurrentResourceName() != resourceName) return;
@@ -464,6 +447,7 @@
             return callback;
         }
 
+        [EventHandler(ClientEvents.ShowNUI)]
         private void OnShowNUI(bool isAceAllowed, string jsonScreens)
         {
             var screens = JsonConvert.DeserializeObject<List<Screen>>(jsonScreens);
@@ -473,7 +457,7 @@
                         new
                             {
                                 type = "HypnonemaNUI.ShowUI",
-                                hypnonemaVersion = this.GetAssemblyFileVersion(),
+                                hypnonemaVersion = GetAssemblyFileVersion(),
                                 isAceAllowed,
                                 screens
                             },
@@ -486,14 +470,13 @@
                     JsonConvert.SerializeObject(
                         new
                             {
-                                type = "HypnonemaNUI.ShowUI",
-                                hypnonemaVersion = this.GetAssemblyFileVersion(),
-                                isAceAllowed
+                                type = "HypnonemaNUI.ShowUI", hypnonemaVersion = GetAssemblyFileVersion(), isAceAllowed
                             }));
             API.SetNuiFocus(true, true);
         }
 
-        private async Task OnStateTick()
+        [EventHandler(ClientEvents.OnStateTick)]
+        private async void OnStateTick()
         {
             if (!this.isInitialized || this.playerPool?.VideoPlayers?.Count == 0) return;
 
@@ -553,6 +536,7 @@
             return callback;
         }
 
+        [EventHandler(ClientEvents.PauseVideo)]
         private void PauseVideo(string screenName)
         {
             this.playerPool.PauseVideo(screenName);
@@ -563,16 +547,19 @@
             this.EventHandlers.Add(eventName, actionDelegate);
         }
 
+        [EventHandler(ClientEvents.ResumeVideo)]
         private void ResumeVideo(string screenName)
         {
             this.playerPool.ResumeVideo(screenName);
         }
 
+        [EventHandler(ClientEvents.SetVolume)]
         private void SetVolume(float volume, string screenName)
         {
             this.playerPool.SetVolume(screenName, volume);
         }
 
+        [EventHandler(ClientEvents.StopVideo)]
         private void StopVideo(string screenName)
         {
             this.playerPool.StopVideo(screenName);

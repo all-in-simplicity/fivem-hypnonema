@@ -5,8 +5,6 @@
     using System.ComponentModel;
     using System.Linq;
 
-    using CitizenFX.Core;
-
     public static class ArgsReader
     {
         public static T GetArgKeyValue<T>(IDictionary<string, object> args, string key, T defaultValue)
@@ -20,7 +18,7 @@
             }
             catch (Exception)
             {
-                Debug.WriteLine($"failed to read {key}");
+                Utils.Debug.WriteLine($"failed to read {key}");
             }
 
             return result;

@@ -1,16 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
-import { CurrentTrackComponent } from './current-track.component';
+import {CurrentTrackComponent} from './current-track.component';
 
 describe('CurrentTrackComponent', () => {
   let component: CurrentTrackComponent;
   let fixture: ComponentFixture<CurrentTrackComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CurrentTrackComponent ]
+      declarations: [CurrentTrackComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

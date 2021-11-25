@@ -1,16 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
-import { ScreensComponent } from './screens.component';
+import {ScreensComponent} from './screens.component';
 
 describe('ScreensComponent', () => {
   let component: ScreensComponent;
   let fixture: ComponentFixture<ScreensComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ScreensComponent ]
+      declarations: [ScreensComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

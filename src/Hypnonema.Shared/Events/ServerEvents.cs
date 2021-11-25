@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Shared
+﻿namespace Hypnonema.Shared.Events
 {
     public static class ServerEvents
     {

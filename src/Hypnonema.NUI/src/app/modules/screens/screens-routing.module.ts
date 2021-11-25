@@ -1,8 +1,8 @@
-import { RouterModule, Routes } from '@angular/router';
-import { ScreensComponent } from './screens.component';
-import { NgModule } from '@angular/core';
-import { CreateNewScreenComponent } from './create-new-screen/create-new-screen.component';
-import { EditScreenComponent } from './edit-screen/edit-screen.component';
+import {RouterModule, Routes} from '@angular/router';
+import {ScreensComponent} from './screens.component';
+import {NgModule} from '@angular/core';
+import {CreateNewScreenComponent} from './create-new-screen/create-new-screen.component';
+import {EditScreenComponent} from './edit-screen/edit-screen.component';
 
 
 const routes: Routes = [{
@@ -17,7 +17,7 @@ const routes: Routes = [{
     path: 'edit-screen',
     component: EditScreenComponent,
   }
-  ];
+];
 
 @NgModule({
   imports: [
@@ -27,4 +27,5 @@ const routes: Routes = [{
     RouterModule
   ]
 })
-export class ScreensRoutingModule { }
+export class ScreensRoutingModule {
+}

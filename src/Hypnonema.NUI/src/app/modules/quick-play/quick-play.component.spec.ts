@@ -1,16 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
-import { QuickPlayComponent } from './quick-play.component';
+import {QuickPlayComponent} from './quick-play.component';
 
 describe('QuickPlayComponent', () => {
   let component: QuickPlayComponent;
   let fixture: ComponentFixture<QuickPlayComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ QuickPlayComponent ]
+      declarations: [QuickPlayComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

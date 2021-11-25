@@ -9,7 +9,7 @@
 /tmp
 /app/**/*.js
 /app/**/*.js.map
-
+/build
 # dependencies
 /node_modules
 /bower_components

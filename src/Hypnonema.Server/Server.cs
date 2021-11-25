@@ -10,8 +10,8 @@
     using CitizenFX.Core.Native;
 
     using Hypnonema.Server.Utils;
-    using Hypnonema.Shared;
-    using Hypnonema.Shared.Models;
+    using Hypnonema.Shared.Events;
+    using Hypnonema.Shared.Events.Models;
 
     using LiteDB;
 
@@ -24,7 +24,7 @@
         public static bool IsLoggingEnabled = true;
 
         private string cmdName = "hypnonema";
-        
+
         private bool isCommandRestricted = true;
 
         private string connectionString = "Filename=hypnonema.db";
@@ -54,11 +54,6 @@
             return !this.isCommandRestricted || API.IsPlayerAceAllowed(player.Handle, $"command.{this.cmdName}");
         }
 
-        /// <summary>
-        ///     Used to initialize the Client.
-        ///     Triggered from Client at the first Tick.
-        /// </summary>
-        /// <param name="p"></param>
         [EventHandler(ServerEvents.OnInitialize)]
         private void OnClientInitialize([FromSource] Player p)
         {
@@ -252,10 +247,21 @@
                 this.connectionString);
             this.cmdName = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_command_name", 0, this.cmdName)
                 .Replace(" ", string.Empty);
-            this.syncInterval = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_sync_interval", 0, this.syncInterval);
-            this.isCommandRestricted = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_restrict_command", 0,
+            this.syncInterval = ConfigReader.GetConfigKeyValue(
+                resourceName,
+                "hypnonema_sync_interval",
+                0,
+                this.syncInterval);
+            this.isCommandRestricted = ConfigReader.GetConfigKeyValue(
+                resourceName,
+                "hypnonema_restrict_command",
+                0,
                 this.isCommandRestricted);
-            IsLoggingEnabled = ConfigReader.GetConfigKeyValue(resourceName, "hypnonema_logging_enabled", 0, IsLoggingEnabled);
+            IsLoggingEnabled = ConfigReader.GetConfigKeyValue(
+                resourceName,
+                "hypnonema_logging_enabled",
+                0,
+                IsLoggingEnabled);
 
             try
             {
@@ -277,11 +283,12 @@
                     Logger.LogLevel.Information);
 
             if (!this.isCommandRestricted)
-            {
                 Logger.WriteLine($"Command '{this.cmdName}' is NOT restricted", Logger.LogLevel.Information);
-            }
 
-            RegisterCommand(this.cmdName, new Action<int, List<object>, string>(this.OnHypnonemaCommand), this.isCommandRestricted);
+            RegisterCommand(
+                this.cmdName,
+                new Action<int, List<object>, string>(this.OnHypnonemaCommand),
+                this.isCommandRestricted);
         }
 
         [EventHandler("onResourceStop")]
@@ -340,22 +347,20 @@
 
         private void PopulateDatabaseIfEmpty()
         {
-            if (this.screenCollection.Count() >= 1)
-            {
-                return;
-            }
+            if (this.screenCollection.Count() >= 1) return;
 
             var exampleScreen = new Screen()
                                     {
                                         AlwaysOn = false,
-                                        BrowserSettings = new DuiBrowserSettings()
-                                                              {
-                                                                  GlobalVolume = 100f,
-                                                                  Is3DAudioEnabled = true,
-                                                                  SoundAttenuation = 10f,
-                                                                  SoundMaxDistance = 200f,
-                                                                  SoundMinDistance = 10f,
-                                                              },
+                                        BrowserSettings =
+                                            new DuiBrowserSettings()
+                                                {
+                                                    GlobalVolume = 100f,
+                                                    Is3DAudioEnabled = true,
+                                                    SoundAttenuation = 10f,
+                                                    SoundMaxDistance = 200f,
+                                                    SoundMinDistance = 10f
+                                                },
                                         Is3DRendered = true,
                                         Name = "Hypnonema Example Screen",
                                         PositionalSettings = new PositionalSettings()
@@ -368,8 +373,8 @@
                                                                      RotationZ = -140f,
                                                                      ScaleX = 0.969999969f,
                                                                      ScaleY = 0.484999985f,
-                                                                     ScaleZ = -0.1f,
-                                                                }
+                                                                     ScaleZ = -0.1f
+                                                                 }
                                     };
 
             try

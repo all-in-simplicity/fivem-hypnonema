@@ -1,6 +1,6 @@
-import { Action, Selector, State, StateContext } from '@ngxs/store';
-import { append, patch } from '@ngxs/store/operators';
-import { ScreenModel, ScreenStatus } from './screen-model';
+import {Action, Selector, State, StateContext} from '@ngxs/store';
+import {patch} from '@ngxs/store/operators';
+import {ScreenModel, ScreenStatus} from './screen-model';
 
 export interface AppStateModel {
   isAceAllowed: boolean;
@@ -13,52 +13,72 @@ export interface AppStateModel {
 
 export class SetIsAceAllowed {
   static readonly type = '[App-State] Setting IsAceAllowed';
-  constructor(public isAceAllowed: boolean) { }
+
+  constructor(public isAceAllowed: boolean) {
+  }
 }
 
 export class SetScreens {
   static readonly type = '[App-State] Set ScreenModel';
-  constructor(public screens: ScreenModel[]) { }
+
+  constructor(public screens: ScreenModel[]) {
+  }
 }
 
 export class SetSelectedScreen {
   static readonly type = '[App-State] Set Selected ScreenModel';
-  constructor(public payload: ScreenModel) { }
+
+  constructor(public payload: ScreenModel) {
+  }
 }
 
 export class UpdateScreen {
   static readonly type = '[App-State] Update ScreenModel';
-  constructor(public payload: ScreenModel) { }
+
+  constructor(public payload: ScreenModel) {
+  }
 }
 
 export class DeleteScreen {
   static readonly type = '[App-State] Delete ScreenModel';
-  constructor(public screenName: string) { }
+
+  constructor(public screenName: string) {
+  }
 }
 
 export class CreateScreen {
   static readonly type = '[App-State] Create ScreenModel';
-  constructor(public payload: ScreenModel) { }
+
+  constructor(public payload: ScreenModel) {
+  }
 }
 
 export class UpdateStatuses {
   static readonly type = '[App-State] Update Statuses';
-  constructor(public payload: ScreenStatus[]) { }
+
+  constructor(public payload: ScreenStatus[]) {
+  }
 }
 
 export class SetIsLoading {
   static readonly type = '[App-State] Set Is Loading';
-  constructor(public payload: boolean) { }
+
+  constructor(public payload: boolean) {
+  }
 }
 
 export class SetControlledScreen {
   static readonly type = '[App-State] Set Controlled Screen';
-  constructor(public payload: string) { }
+
+  constructor(public payload: string) {
+  }
 }
 
 export class ClearControlledScreen {
   static readonly type = '[App-State] Clear Selected Screen';
-  constructor() { }
+
+  constructor() {
+  }
 }
 
 @State<AppStateModel>({
@@ -104,7 +124,7 @@ export class AppState {
   }
 
   @Action(SetIsLoading)
-  setIsLoading(ctx: StateContext<AppStateModel>, { payload}: SetIsLoading) {
+  setIsLoading(ctx: StateContext<AppStateModel>, {payload}: SetIsLoading) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -123,7 +143,7 @@ export class AppState {
   }
 
   @Action(UpdateStatuses)
-  updateStatuses(ctx: StateContext<AppStateModel>, { payload}: UpdateStatuses) {
+  updateStatuses(ctx: StateContext<AppStateModel>, {payload}: UpdateStatuses) {
     const state = ctx.getState();
     /* check if controlled screen is set and still exists
     if (state.controlledScreen !== '' && payload.find(s => s.screenName === state.controlledScreen) !== undefined) {
@@ -136,7 +156,7 @@ export class AppState {
   }
 
   @Action(ClearControlledScreen)
-  clearControlledScreen(ctx: StateContext<AppStateModel>, { }: ClearControlledScreen) {
+  clearControlledScreen(ctx: StateContext<AppStateModel>, {}: ClearControlledScreen) {
     const state = ctx.getState();
     ctx.setState({
       ...state,
@@ -145,7 +165,7 @@ export class AppState {
   }
 
   @Action(UpdateScreen)
-  updateScreen({getState, setState}: StateContext<AppStateModel>, { payload}: UpdateScreen ) {
+  updateScreen({getState, setState}: StateContext<AppStateModel>, {payload}: UpdateScreen) {
     const state = getState();
     const screens = [...state.screens];
     const screenIndex = screens.findIndex(item => item.id === payload.id);
@@ -157,7 +177,7 @@ export class AppState {
   }
 
   @Action(CreateScreen)
-  createScreen({getState, setState}: StateContext<AppStateModel>, { payload }: CreateScreen) {
+  createScreen({getState, setState}: StateContext<AppStateModel>, {payload}: CreateScreen) {
     const state = getState();
     const screens = [...state.screens];
     screens.push(payload);
@@ -168,7 +188,7 @@ export class AppState {
   }
 
   @Action(SetControlledScreen)
-  setControlledScreen(ctx: StateContext<AppStateModel>, { payload}: SetControlledScreen) {
+  setControlledScreen(ctx: StateContext<AppStateModel>, {payload}: SetControlledScreen) {
     const state = ctx.getState();
     const screenStates = [...state.screenStatus];
     const screenIndex = screenStates.findIndex(item => item.screenName === payload);
@@ -188,14 +208,14 @@ export class AppState {
   }
 
   @Action(SetScreens)
-  addScreen(ctx: StateContext<AppStateModel>, { screens }: SetScreens) {
+  addScreen(ctx: StateContext<AppStateModel>, {screens}: SetScreens) {
     ctx.setState(patch({
       screens,
     }));
   }
 
   @Action(SetIsAceAllowed)
-  setIsAceAllowed(ctx: StateContext<AppStateModel>, { isAceAllowed}: SetIsAceAllowed) {
+  setIsAceAllowed(ctx: StateContext<AppStateModel>, {isAceAllowed}: SetIsAceAllowed) {
     const state = ctx.getState();
     ctx.setState({
       ...state,

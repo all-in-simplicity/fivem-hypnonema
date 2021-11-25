@@ -3,6 +3,7 @@
     using System;
 
     using CitizenFX.Core;
+    using Debug = Hypnonema.Client.Utils.Debug;
 
     public class TextureRenderer : IDisposable
     {

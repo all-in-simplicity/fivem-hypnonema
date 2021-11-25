@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Shared.Models
+﻿namespace Hypnonema.Shared.Events.Models
 {
     public class Screen
     {
@@ -9,10 +9,6 @@
         public int Id { get; set; }
 
         public bool Is3DRendered { get; set; }
-
-        public bool IsValid =>
-            this.TargetSettings != null && this.BrowserSettings != null && this.Id != 0
-            && !string.IsNullOrEmpty(this.Name);
 
         public string Name { get; set; }
 

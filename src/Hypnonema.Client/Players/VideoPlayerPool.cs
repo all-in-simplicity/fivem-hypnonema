@@ -6,11 +6,12 @@
     using System.Threading.Tasks;
 
     using CitizenFX.Core;
-    using CitizenFX.Core.Native;
     using CitizenFX.Core.UI;
 
     using Hypnonema.Client.Graphics;
-    using Hypnonema.Shared;
+    using Hypnonema.Shared.Events;
+    
+    using Debug = Hypnonema.Client.Utils.Debug;
 
     public class VideoPlayerPool : IDisposable
     {
@@ -24,13 +25,18 @@
 
         private readonly string posterUrl = string.Empty;
 
-        public VideoPlayerPool(string duiUrl, int duiWidth = 1280, int duiHeight = 720)
+        public VideoPlayerPool(
+            string duiUrl,
+            string resourceName,
+            string posterUrl,
+            int duiWidth = 1280,
+            int duiHeight = 720)
         {
             this.duiUrl = duiUrl;
             this.duiWidth = duiWidth;
             this.duiHeight = duiHeight;
-            this.resourceName = API.GetCurrentResourceName();
-            this.posterUrl = API.GetResourceMetadata(this.resourceName, "hypnonema_poster_url", 0);
+            this.resourceName = resourceName;
+            this.posterUrl = posterUrl;
         }
 
         ~VideoPlayerPool()
@@ -58,15 +64,14 @@
             Debug.WriteLine($"Closed screen: {screenName}");
         }
 
-        public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Models.Screen screen)
+        public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Events.Models.Screen screen)
         {
             var browser = new DuiBrowser(this.duiUrl, this.duiWidth, this.duiHeight);
-            while (!API.IsDuiAvailable(browser.NativeValue)) await BaseScript.Delay(5);
+            while (!browser.IsDuiAvailable()) await BaseScript.Delay(5);
 
             browser.CreateRuntimeTexture();
             await BaseScript.Delay(1000);
 
-            // Debug.WriteLine("sending init..");
             browser.Init(screen.Name, this.posterUrl, this.resourceName);
 
             if (!screen.Is3DRendered)
@@ -94,7 +99,7 @@
             player?.Pause();
         }
 
-        public async Task Play(string url, Shared.Models.Screen screen)
+        public async Task Play(string url, Shared.Events.Models.Screen screen)
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
 
@@ -141,7 +146,7 @@
             screen?.Browser.Stop();
         }
 
-        public async Task SynchronizeState(DuiState state, Shared.Models.Screen screen)
+        public async Task SynchronizeState(DuiState state, Shared.Events.Models.Screen screen)
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
             if (player != null)
@@ -171,7 +176,7 @@
             player.ToggleRepeat();
         }
 
-        private static VideoPlayer2D CreateVideoPlayer2D(DuiBrowser browser, Shared.Models.Screen screen)
+        private static VideoPlayer2D CreateVideoPlayer2D(DuiBrowser browser, Shared.Events.Models.Screen screen)
         {
             var renderTarget = new RenderTarget(
                 screen.TargetSettings.ModelName,
@@ -190,7 +195,7 @@
             return player;
         }
 
-        private async Task<VideoPlayer3D> CreateVideoPlayer3D(DuiBrowser browser, Shared.Models.Screen screen)
+        private async Task<VideoPlayer3D> CreateVideoPlayer3D(DuiBrowser browser, Shared.Events.Models.Screen screen)
         {
             var position = new Vector3(
                 screen.PositionalSettings.PositionX,

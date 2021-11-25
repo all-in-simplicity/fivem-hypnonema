@@ -1,9 +1,9 @@
-﻿namespace Hypnonema.Shared
+﻿namespace Hypnonema.Shared.Events
 {
     using System;
     using System.Collections.Generic;
 
-    using Hypnonema.Shared.Models;
+    using Hypnonema.Shared.Events.Models;
 
     public class ScreenDuiState
     {

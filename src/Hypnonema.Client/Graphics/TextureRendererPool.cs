@@ -6,6 +6,7 @@
     using System.Threading.Tasks;
 
     using CitizenFX.Core;
+    using Debug = Hypnonema.Client.Utils.Debug;
 
     public class TextureRendererPool
     {

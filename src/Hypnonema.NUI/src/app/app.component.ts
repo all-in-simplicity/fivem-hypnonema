@@ -1,8 +1,8 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { environment } from '../environments/environment';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { Store } from '@ngxs/store';
+import {Component, HostListener, OnInit} from '@angular/core';
+import {environment} from '../environments/environment';
+import {Router} from '@angular/router';
+import {HttpClient} from '@angular/common/http';
+import {Store} from '@ngxs/store';
 import {
   ClearControlledScreen,
   CreateScreen,
@@ -13,9 +13,9 @@ import {
   UpdateScreen,
   UpdateStatuses
 } from './app-state';
-import { ScreenModel, ScreenStatus } from './screen-model';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UpdateCheckService } from './modules/core/update-check.service';
+import {ScreenModel, ScreenStatus} from './screen-model';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {UpdateCheckService} from './modules/core/update-check.service';
 
 @Component({
   selector: 'app-root',

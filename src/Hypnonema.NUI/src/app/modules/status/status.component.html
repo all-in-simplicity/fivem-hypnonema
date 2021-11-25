@@ -4,24 +4,24 @@
     <mat-spinner class="loading-spinner"></mat-spinner>
   </div>
   <ng-template #content>
-    <table mat-table [dataSource]="screens$"  class="mat-elevation-z8">
+    <table [dataSource]="screens$" class="mat-elevation-z8" mat-table>
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions</th>
-        <td mat-cell *matCellDef="let screen">
-          <button mat-icon-button color="warn" (click)="suspendScreen(screen)" matTooltip="Suspend Screen">
+        <th *matHeaderCellDef mat-header-cell>Actions</th>
+        <td *matCellDef="let screen" mat-cell>
+          <button (click)="suspendScreen(screen)" color="warn" mat-icon-button matTooltip="Suspend Screen">
             <mat-icon>stop</mat-icon>
           </button>
       </ng-container>
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Screen-Name</th>
-        <td mat-cell *matCellDef="let screen">{{screen.screenName}}</td>
+        <th *matHeaderCellDef mat-header-cell>Screen-Name</th>
+        <td *matCellDef="let screen" mat-cell>{{screen.screenName}}</td>
       </ng-container>
       <ng-container matColumnDef="isPaused">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let screen">
+        <th *matHeaderCellDef mat-header-cell>Status</th>
+        <td *matCellDef="let screen" mat-cell>
           <mat-chip-list>
-            <ng-template [ngIf]="!screen.isPaused && !screen.ended" [ngIfElse]="elseBlock">
-              <ng-template [ngIf]="!screen.repeat" [ngIfElse]="repeatBlock">
+            <ng-template [ngIfElse]="elseBlock" [ngIf]="!screen.isPaused && !screen.ended">
+              <ng-template [ngIfElse]="repeatBlock" [ngIf]="!screen.repeat">
                 <mat-chip style="background-color: forestgreen;">Playing</mat-chip>
               </ng-template>
               <ng-template #repeatBlock>
@@ -29,34 +29,34 @@
               </ng-template>
             </ng-template>
             <ng-template #elseBlock>
-              <ng-template [ngIf]="screen.isPaused && !screen.ended" [ngIfElse]="elseBlock2">
+              <ng-template [ngIfElse]="elseBlock2" [ngIf]="screen.isPaused && !screen.ended">
                 <mat-chip color="accent">Paused</mat-chip>
               </ng-template>
               <ng-template #elseBlock2>
                 <mat-chip>Ended</mat-chip>
               </ng-template>
-          </ng-template>
+            </ng-template>
           </mat-chip-list>
-         </td>
+        </td>
       </ng-container>
       <ng-container matColumnDef="currentTime">
-        <th mat-header-cell *matHeaderCellDef>Current Time</th>
-        <td mat-cell *matCellDef="let screen">{{screen.currentTime | minuteSeconds}}</td>
+        <th *matHeaderCellDef mat-header-cell>Current Time</th>
+        <td *matCellDef="let screen" mat-cell>{{screen.currentTime | minuteSeconds}}</td>
       </ng-container>
       <ng-container matColumnDef="duration">
-        <th mat-header-cell *matHeaderCellDef>Duration</th>
-        <td mat-cell *matCellDef="let screen">{{screen.duration | minuteSeconds}}</td>
+        <th *matHeaderCellDef mat-header-cell>Duration</th>
+        <td *matCellDef="let screen" mat-cell>{{screen.duration | minuteSeconds}}</td>
       </ng-container>
       <ng-container matColumnDef="currentSource">
-        <th mat-header-cell *matHeaderCellDef>Currently Playing</th>
-        <td mat-cell *matCellDef="let screen">{{screen.currentSource}}</td>
+        <th *matHeaderCellDef mat-header-cell>Currently Playing</th>
+        <td *matCellDef="let screen" mat-cell>{{screen.currentSource}}</td>
       </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      <tr *matHeaderRowDef="displayedColumns" mat-header-row></tr>
+      <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
     </table>
   </ng-template>
   <div class="fab-container">
-    <button mat-fab class="md-fab-right" matTooltip="Refresh" (click)="refresh()" color="accent">
+    <button (click)="refresh()" class="md-fab-right" color="accent" mat-fab matTooltip="Refresh">
       <mat-icon>refresh</mat-icon>
     </button>
   </div>

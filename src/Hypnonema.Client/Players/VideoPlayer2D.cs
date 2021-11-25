@@ -40,7 +40,7 @@
 
         public void CalculateVolume()
         {
-            var entity = GetClosestObjectOfType(this.SoundMaxDistance, (uint)this.RenderTarget.Hash);
+            var entity = this.GetClosestObjectOfType(this.SoundMaxDistance);
             if (entity == null)
             {
                 this.Browser.SetVolume(0f);
@@ -142,7 +142,7 @@
             this.Browser.ToggleRepeat();
         }
 
-        private static Prop GetClosestObjectOfType(float radius, uint modelHash)
+        private Prop GetClosestObjectOfType(float radius)
         {
             var playerPos = Game.PlayerPed.Position;
             var entity = API.GetClosestObjectOfType(
@@ -150,7 +150,7 @@
                 playerPos.Y,
                 playerPos.Z,
                 radius,
-                modelHash,
+                (uint)this.RenderTarget.Hash,
                 false,
                 false,
                 false);

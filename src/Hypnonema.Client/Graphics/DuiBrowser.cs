@@ -65,6 +65,11 @@
             GC.SuppressFinalize(this);
         }
 
+        public bool IsDuiAvailable()
+        {
+            return API.IsDuiAvailable(this.NativeValue);
+        }
+
         public void GetState()
         {
             this.SendMessage(new { type = "getState" });
@@ -93,11 +98,6 @@
         public void Seek(float time)
         {
             this.SendMessage(new { type = "seek", time });
-        }
-
-        public void SendMessage(object obj)
-        {
-            API.SendDuiMessage(this.NativeValue, JsonConvert.SerializeObject(obj));
         }
 
         public void SetVolume(float volume)
@@ -158,7 +158,20 @@
 
         public void Update(bool paused, float currentTime, string currentSource, bool repeat)
         {
-            this.SendMessage(new { type = "update", paused, currentTime, src = currentSource, repeat });
+            this.SendMessage(
+                new
+                    {
+                        type = "update",
+                        paused,
+                        currentTime,
+                        src = currentSource,
+                        repeat
+                    });
+        }
+
+        private void SendMessage(object obj)
+        {
+            API.SendDuiMessage(this.NativeValue, JsonConvert.SerializeObject(obj));
         }
     }
 }

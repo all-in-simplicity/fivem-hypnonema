@@ -3,13 +3,14 @@
     using System;
     using System.Collections.Generic;
     using System.Dynamic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using CitizenFX.Core;
     using CitizenFX.Core.Native;
 
-    using Hypnonema.Shared;
+    using Hypnonema.Shared.Events;
+
+    using Debug = Hypnonema.Client.Utils.Debug;
 
     public class BrowserStateHelperScript : BaseScript
     {
@@ -49,7 +50,7 @@
             if (string.IsNullOrEmpty(screenName))
             {
                 Debug.WriteLine("Warning: received state response without valid screenName.");
-                callback("");
+                callback(string.Empty);
                 return callback;
             }
 

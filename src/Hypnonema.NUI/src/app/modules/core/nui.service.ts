@@ -1,16 +1,18 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NuiService {
+
+  private resourceName = window.location.hostname;
+
   constructor(private http: HttpClient) {
   }
 
   public repeatVideo(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnToggleRepeat`, {
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnToggleRepeat`, {
       screenName
     }).subscribe(() => {
     }, error => console.log(error.toString()));
@@ -20,7 +22,7 @@ export class NuiService {
                     renderTargetName: string, globalVolume: number, soundAttenuation: number, soundMinDistance: number,
                     soundMaxDistance: number, positionX: number, positionY: number, positionZ: number, rotationX: number,
                     rotationY: number, rotationZ: number, scaleX: number, scaleY: number, scaleZ: number, is3DAudioEnabled: boolean) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnEditScreen`, {
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnEditScreen`, {
       id: screenId,
       is3DRendered,
       screenName,
@@ -46,13 +48,13 @@ export class NuiService {
   }
 
   public closeScreen(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnCloseScreen`, {screenName})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnCloseScreen`, {screenName})
       .subscribe(() => {
       }, error => console.log(JSON.stringify(error)));
   }
 
-  public stopVideo(screenName) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnStopVideo`, {
+  public stopVideo(screenName: string) {
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnStopVideo`, {
       screenName
     })
       .subscribe(() => {
@@ -62,7 +64,7 @@ export class NuiService {
   }
 
   public hideNUI() {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnHideNUI`, {})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnHideNUI`, {})
       .subscribe(() => {
       }, error => {
         console.log(error);
@@ -70,35 +72,34 @@ export class NuiService {
   }
 
   public resumeVideo(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnResume`, {screenName})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnResume`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public pauseVideo(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnPause`, {screenName})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnPause`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public requestDuiState(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnRequestState`, {})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnRequestState`, {})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
   public deleteScreen(screenName: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnDeleteScreen`, {screenName})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnDeleteScreen`, {screenName})
       .subscribe(() => {
       }, error => console.log(error));
   }
 
-  public createScreen(screenName: string, alwaysOn: boolean, globalVolume: number, soundAttenuation: number,
-                      soundMinDistance: number, soundMaxDistance: number, is3DRendered: boolean, is3DAudioEnabled: boolean, modelName?: string,
-                      renderTargetName?: string, positionX?: number, positionY?: number, positionZ?: number,
-                      rotationX?: number, rotationY?: number, rotationZ?: number, scaleX?: number, scaleY?: number, scaleZ?: number,
-                     ) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnCreateScreen`, {
+  public createScreen(screenName: string, alwaysOn: boolean, globalVolume: number, soundAttenuation: number, soundMinDistance: number,
+                      soundMaxDistance: number, is3DRendered: boolean, is3DAudioEnabled: boolean, modelName?: string,
+                      renderTargetName?: string, positionX?: number, positionY?: number, positionZ?: number, rotationX?: number,
+                      rotationY?: number, rotationZ?: number, scaleX?: number, scaleY?: number, scaleZ?: number) {
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnCreateScreen`, {
       screenName,
       alwaysOn,
       modelName,
@@ -126,7 +127,7 @@ export class NuiService {
   }
 
   public playVideo(screenName: string, videoUrl: string) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnPlay`, {
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnPlay`, {
       videoUrl, screen: screenName
     }).subscribe(() => {
     }, error => {
@@ -135,7 +136,7 @@ export class NuiService {
   }
 
   public setVideoTime(screenName: string, time: number) {
-    this.http.post(`http://${window.location.hostname}/Hypnonema.OnSeek`, {screenName, time})
+    this.http.post(`http://${this.resourceName}/Hypnonema.OnSeek`, {screenName, time})
       .subscribe(() => {
       }, error => console.log(error));
   }

@@ -1,6 +1,6 @@
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { StatusComponent } from './status.component';
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
+import {StatusComponent} from './status.component';
 
 
 const routes: Routes = [{
@@ -16,4 +16,5 @@ const routes: Routes = [{
     RouterModule
   ]
 })
-export class StatusRoutingModule { }
+export class StatusRoutingModule {
+}

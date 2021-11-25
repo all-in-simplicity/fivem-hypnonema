@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Shared
+﻿namespace Hypnonema.Shared.Events
 {
     public static class ClientEvents
     {
@@ -55,7 +55,5 @@
         public const string StopVideo = "Hypnonema.StopVideo";
 
         public const string ToggleRepeat = "Hypnonema.ToggleRepeat";
-
-        public const string UpdateState = "Hypnonema.UpdateState";
     }
 }

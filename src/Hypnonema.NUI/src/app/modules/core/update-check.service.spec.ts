@@ -1,6 +1,6 @@
-import { TestBed } from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
-import { UpdateCheckService } from './update-check.service';
+import {UpdateCheckService} from './update-check.service';
 
 describe('UpdateCheckService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));

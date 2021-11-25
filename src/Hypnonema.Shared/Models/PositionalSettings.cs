@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Shared.Models
+﻿namespace Hypnonema.Shared.Events.Models
 {
     public class PositionalSettings
     {

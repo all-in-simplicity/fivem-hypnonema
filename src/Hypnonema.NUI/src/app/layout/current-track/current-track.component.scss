@@ -3,13 +3,15 @@ mat-form-field {
   max-width: 90px;
   max-height: 50px;
 }
+
 .mat-accent .mat-slider-thumb-label-text {
-  color: azure!important;
+  color: azure !important;
 }
 
 .current-track {
   & {
-    background: rgb(40, 40, 40);    border-top: 1px solid rgb(24, 24, 24);
+    background: rgb(40, 40, 40);
+    border-top: 1px solid rgb(24, 24, 24);
     padding: 15px 45px 5px 45px;
 
     display: flex;
@@ -39,7 +41,6 @@ mat-form-field {
     }
 
 
-
     .play {
       font-size: 36px;;
     }
@@ -62,6 +63,7 @@ mat-form-field {
       padding-left: 8%;
       display: flex;
     }
+
     & {
       width: 70%;
       padding: 0 30px;
@@ -78,6 +80,7 @@ mat-form-field {
       width: 80%;
       padding: 0 15px;
     }
+
     mat-slider {
       width: 100%;
       padding: 0 15px;

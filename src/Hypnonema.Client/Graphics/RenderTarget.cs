@@ -11,6 +11,7 @@
             this.ObjectName = objectName;
             this.TargetName = targetName;
             this.TargetHandle = CreateNamedRenderTargetForModel(targetName, this.Hash);
+            this.Hash = API.GetHashKey(this.ObjectName);
         }
 
         ~RenderTarget()
@@ -18,7 +19,7 @@
             this.Dispose();
         }
 
-        public int Hash => API.GetHashKey(this.ObjectName);
+        public int Hash;
 
         public bool IsValid => this.TargetHandle != 0;
 

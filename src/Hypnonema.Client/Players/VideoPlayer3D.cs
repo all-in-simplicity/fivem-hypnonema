@@ -40,6 +40,7 @@
         public void CalculateVolume()
         {
             var distance = this.textureRenderer.GetDistanceToPlayer();
+
             if (distance >= this.SoundMaxDistance)
             {
                 this.Browser.SetVolume(0f);
@@ -49,6 +50,7 @@
             if (this.Is3DAudioEnabled)
             {
                 this.Browser.SetVolume(this.GlobalVolume);
+
                 var tickData = new AudioTickData
                                    {
                                        ListenerForward = Game.PlayerPed.ForwardVector,
@@ -57,6 +59,7 @@
                                        PositionPanner = this.textureRenderer.Position - Game.PlayerPed.Position,
                                        OrientationPanner = GameMath.RotationToDirection(this.textureRenderer.Rotation)
                                    };
+
                 this.Browser.Tick(tickData);
             }
             else
