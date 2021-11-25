@@ -11,7 +11,7 @@
 
     using Hypnonema.Server.Utils;
     using Hypnonema.Shared.Events;
-    using Hypnonema.Shared.Events.Models;
+    using Hypnonema.Shared.Models;
 
     using LiteDB;
 

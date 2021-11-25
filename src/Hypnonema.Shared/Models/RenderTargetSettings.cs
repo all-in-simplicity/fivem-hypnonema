@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Shared.Events.Models
+﻿namespace Hypnonema.Shared.Models
 {
     public class RenderTargetSettings
     {

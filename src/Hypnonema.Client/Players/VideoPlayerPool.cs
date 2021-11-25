@@ -64,7 +64,7 @@
             Debug.WriteLine($"Closed screen: {screenName}");
         }
 
-        public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Events.Models.Screen screen)
+        public async Task<IVideoPlayer> CreateVideoPlayerAsync(Shared.Models.Screen screen)
         {
             var browser = new DuiBrowser(this.duiUrl, this.duiWidth, this.duiHeight);
             while (!browser.IsDuiAvailable()) await BaseScript.Delay(5);
@@ -99,7 +99,7 @@
             player?.Pause();
         }
 
-        public async Task Play(string url, Shared.Events.Models.Screen screen)
+        public async Task Play(string url, Shared.Models.Screen screen)
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
 
@@ -146,7 +146,7 @@
             screen?.Browser.Stop();
         }
 
-        public async Task SynchronizeState(DuiState state, Shared.Events.Models.Screen screen)
+        public async Task SynchronizeState(DuiState state, Shared.Models.Screen screen)
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
             if (player != null)
@@ -176,7 +176,7 @@
             player.ToggleRepeat();
         }
 
-        private static VideoPlayer2D CreateVideoPlayer2D(DuiBrowser browser, Shared.Events.Models.Screen screen)
+        private static VideoPlayer2D CreateVideoPlayer2D(DuiBrowser browser, Shared.Models.Screen screen)
         {
             var renderTarget = new RenderTarget(
                 screen.TargetSettings.ModelName,
@@ -195,7 +195,7 @@
             return player;
         }
 
-        private async Task<VideoPlayer3D> CreateVideoPlayer3D(DuiBrowser browser, Shared.Events.Models.Screen screen)
+        private async Task<VideoPlayer3D> CreateVideoPlayer3D(DuiBrowser browser, Shared.Models.Screen screen)
         {
             var position = new Vector3(
                 screen.PositionalSettings.PositionX,

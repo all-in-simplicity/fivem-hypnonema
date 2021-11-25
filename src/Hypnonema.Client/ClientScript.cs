@@ -13,7 +13,7 @@
     using Hypnonema.Client.Graphics;
     using Hypnonema.Client.Players;
     using Hypnonema.Shared.Events;
-    using Hypnonema.Shared.Events.Models;
+    using Hypnonema.Shared.Models;
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;

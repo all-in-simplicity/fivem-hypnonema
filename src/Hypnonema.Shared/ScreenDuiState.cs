@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
 
-    using Hypnonema.Shared.Events.Models;
+    using Hypnonema.Shared.Models;
 
     public class ScreenDuiState
     {
