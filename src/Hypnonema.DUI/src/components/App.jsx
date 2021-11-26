@@ -148,10 +148,10 @@ class App extends Component {
     getPlayerState = () => {
         return {
             paused: !this.state.playing,
-            currentTime: this.player.getCurrentTime(),
-            duration: this.state.duration,
+            currentTime: this.player.getCurrentTime() || '',
+            duration: this.state.duration || '',
             currentSource: this.state.url,
-            ended: this.player.getCurrentTime() === this.player.getDuration(),
+            ended: (this.player.getCurrentTime() === this.player.getDuration()) || false,
             screenName: this.state.screenName,
             repeat: this.state.loop,
         }
