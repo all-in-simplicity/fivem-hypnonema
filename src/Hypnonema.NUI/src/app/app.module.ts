@@ -12,7 +12,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
-
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import {AppHeaderComponent} from './layout/header/app-header.component';
 import {CurrentTrackComponent} from './layout/current-track/current-track.component';
 import {MatOptionModule} from '@angular/material/core';
@@ -40,6 +40,7 @@ import {ToastrModule} from 'ngx-toastr';
     SharedModule,
     AppRoutingModule,
     BrowserModule,
+    DragDropModule,
     BrowserAnimationsModule,
     HttpClientModule,
     ToastrModule.forRoot(),
