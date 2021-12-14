@@ -32,7 +32,7 @@
 - Live-Edit Feature (simplifies scaleform placement)
 
 ## Demo
-[Click me](https://youtu.be/NQZf-pyKeNg)
+[Click me](https://youtu.be/JckYo8bKdnE)
 
 ## Requirements
 - [FiveM](https://fivem.net)
@@ -54,7 +54,7 @@ start hypnonema-map
 ### Change command
 If you want to use your own command just edit the `fxmanifest.lua`. Don't add preceding slashes or any special characters.
 
-**Hint:** Dont forget to adjust the ACE-Permissions in case of change accordingly to match your new command name!
+**Hint:** Dont forget to adjust the ACE-Permissions (in case of change) to match your new command name!
 ```
 hypnonema_command_name 'mynewcommand'
 ```
