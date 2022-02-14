@@ -36,11 +36,10 @@ export class QuickPlayComponent implements OnInit {
   }
 
   submit() {
-    const refThis = this;
-    this.nuiService.playVideo(this.selectedScreen.name, this.videoUrl);
+    this.nuiService.playVideo(this.selectedScreen, this.videoUrl);
 
-    setTimeout(function(this) {
-      refThis.nuiService.requestDuiState(refThis.selectedScreen);
-    }, 2500);
+    setTimeout(() => {
+      this.nuiService.requestDuiState('');
+    }, 1000);
   }
 }

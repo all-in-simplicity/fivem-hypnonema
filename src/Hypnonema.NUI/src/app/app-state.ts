@@ -53,7 +53,7 @@ export class CreateScreen {
   }
 }
 
-export class UpdateStatuses {
+export class UpdateState {
   static readonly type = '[App-State] Update Statuses';
 
   constructor(public payload: ScreenStatus[]) {
@@ -142,13 +142,10 @@ export class AppState {
     });
   }
 
-  @Action(UpdateStatuses)
-  updateStatuses(ctx: StateContext<AppStateModel>, {payload}: UpdateStatuses) {
+  @Action(UpdateState)
+  updateStatuses(ctx: StateContext<AppStateModel>, {payload}: UpdateState) {
     const state = ctx.getState();
-    /* check if controlled screen is set and still exists
-    if (state.controlledScreen !== '' && payload.find(s => s.screenName === state.controlledScreen) !== undefined) {
 
-    }*/
     ctx.setState({
       ...state,
       screenStatus: payload,

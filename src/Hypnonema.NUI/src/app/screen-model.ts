@@ -36,9 +36,8 @@ export interface ScreenModel {
 export interface ScreenStatus {
   screenName: string;
   isPaused: boolean;
-  currentTime: number;
+  startedAt: string;
   duration: number;
   currentSource: string;
-  ended: boolean;
   repeat: boolean;
 }

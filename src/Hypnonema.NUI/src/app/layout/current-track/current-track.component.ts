@@ -37,9 +37,9 @@ export class CurrentTrackComponent implements OnInit {
   onSelectionChange(newValue) {
     this.selectedScreenName = newValue;
     this.store.dispatch(new SetControlledScreen(newValue));
-    const refThis = this;
+
     setTimeout(() => {
-      refThis.nuiService.requestDuiState(this.selectedScreenName);
+      this.nuiService.requestDuiState(this.selectedScreenName);
     }, 500);
   }
 
@@ -61,28 +61,32 @@ export class CurrentTrackComponent implements OnInit {
           if (!screen.isPaused) {
             this.startTimer();
           }
-          this.startCurrentTime = screen.ended ? this.sliderCap : Math.floor(screen.currentTime);
+          const now = new Date();
+          const screenStartedAt = new Date(Date.parse(screen.startedAt));
+          this.startCurrentTime = Math.floor((now.getTime() - screenStartedAt.getTime()) / (1000));
         }
       });
   }
 
   onSliderChange(sliderVal: MatSliderChange) {
+    this.sub.unsubscribe();
+    this.ticks = 0;
     this.startCurrentTime = sliderVal.value;
+    this.startTimer();
+
     this.nuiService.setVideoTime(this.selectedScreenName, sliderVal.value);
 
-    const refThis = this;
     setTimeout(() => {
-      refThis.nuiService.requestDuiState(this.selectedScreenName);
-    }, 500);
+      this.nuiService.requestDuiState(this.selectedScreenName);
+    }, 1000);
   }
 
   repeat(screenName: string) {
     this.nuiService.repeatVideo(screenName);
 
-    const refThis = this;
     setTimeout(() => {
-      refThis.nuiService.requestDuiState(this.selectedScreenName);
-    }, 250);
+      this.nuiService.requestDuiState(this.selectedScreenName);
+    }, 1000);
   }
 
   resumeOrPause(paused) {
@@ -92,10 +96,9 @@ export class CurrentTrackComponent implements OnInit {
       this.nuiService.pauseVideo(this.selectedScreenName);
     }
 
-    const refThis = this;
     setTimeout(() => {
-      refThis.nuiService.requestDuiState(this.selectedScreenName);
-    }, 1000);
+      this.nuiService.requestDuiState(this.selectedScreenName);
+    }, 250);
   }
 
   formatSliderLabel(value: number) {
