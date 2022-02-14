@@ -66,10 +66,9 @@
     <Compile Include="Utils\ArgsReader.cs" />
     <Compile Include="ClientScript.cs" />
     <Compile Include="Communications\NetworkMethod.cs" />
-    <Compile Include="Dui\Browser.cs" />
+    <Compile Include="Dui\BaseBrowser.cs" />
     <Compile Include="Dui\DuiBrowser.cs" />
     <Compile Include="Dui\DuiBrowserPool.cs" />
-    <Compile Include="Graphics\IDrawable.cs" />
     <Compile Include="Graphics\RenderTargetRenderer.cs" />
     <Compile Include="Graphics\ScaleformRenderer.cs" />
     <Compile Include="Managers\ScreenPlaybackManager.cs" />
