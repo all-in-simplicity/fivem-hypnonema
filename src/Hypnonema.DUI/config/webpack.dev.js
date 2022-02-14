@@ -12,7 +12,8 @@ module.exports = merge (common, {
         historyApiFallback: true,
         overlay: true,
         open: true,
-        stats: 'errors-only'
+        stats: 'errors-only',
+        disableHostCheck: true,
     },
     module: {
         rules: [
