@@ -15,10 +15,17 @@
 - [Features](#features)
 - [Demo](#demo)
 - [Requirements](#requirements)
-  - [ACE-Permissions](#ace-permissions)
-  - [(Optional) Example Map](#optional-example-map)
+- [Permissions](#permissions)
+  - [Example Permission Config](#example-permission-config)
+- [(Optional) Example Map](#optional-example-map)
 - [Customization](#customization)
   - [Change command](#change-command)
+- [Exports](#exports)
+  - [Server-Side](#server-side)
+    - [play](#play)
+    - [pause](#pause)
+    - [stop](#stop)
+    - [resume](#resume)
 - [License](#license)
 - [Support](#support)
 
@@ -26,7 +33,7 @@
 - Synchronized
 - All HTML5 supported audio and video types including HLS/DASH plus Twitch / YouTube / DailyMotion / Facebook / Vimeo / Streamable / Vidme / Wistia / SoundCloud
 - Multi-Screen capable (watch multiple movies at once)
-- 3D Spatialized Audio
+- ~~3D Spatialized Audio~~ *temporarily removed due to undergoing performance improvements*
 - NUI Frontend
 - ACE-Permissions
 - Live-Edit Feature (simplifies scaleform placement)
@@ -37,14 +44,30 @@
 ## Requirements
 - [FiveM](https://fivem.net)
 
-### ACE-Permissions
-To permit users to make use of the command make sure to edit your `server.cfg`
+## Permissions
+By default only members of `group.admin` are allowed to interact with hypnonema.
+To permit users to make use of all available functionality make sure to edit the `permissions.cfg` file inside the resource directory.
+
+Below is a list of all available permission settings.
+| Permission                  | Description                    |
+|-----------------------------|--------------------------------|
+| `hypnonema.screens.edit`    | Allow editing existing screens |
+| `hypnonema.screens.create`  | Allow creating screens         |
+| `hypnonema.screens.delete`  | Allow deleting screens         |
+| `hypnonema.playback.play`   | Allow playing videos           |
+| `hypnonema.playback.resume` | Allow resuming paused videos   |
+| `hypnonema.playback.pause`  | Allow pausing videos           |
+| `hypnonema.playback.stop`   | Allow stopping videos          |
+
+### Example permission config
+To restrict creating / editing screens to admins only but allow everyone to control the playback use following settings.
 ```
-add_ace identifier.steam:steamidhere "command.hypnonema" allow
+add_ace group.admin hypnonema.screens allow
+add_ace builtin.everyone hypnonema.playback allow
 ```
 
-### (Optional) Example Map
-There is an example map included, just copy the folder **hypnonema-map** to your resource directory and paste following line into your `server.cfg`
+## (Optional) Example Map
+There is an example map included, just copy the folder **hypnonema-map** to your resource directory and paste following line into your `server.cfg`.
 ```
 start hypnonema-map
 ``` 
@@ -58,9 +81,31 @@ If you want to use your own command just edit the `fxmanifest.lua`. Don't add pr
 ```
 hypnonema_command_name 'mynewcommand'
 ```
+## Exports
+### Server-side
+#### play
+```lua
+exports.hypnonema:play(screenName, url)
+```
+#### pause
+```lua
+exports.hypnonema:pause(screenName)
+```
+
+#### stop
+```lua
+exports.hypnonema:stop(screenName)
+```
+
+#### resume
+```lua
+exports.hypnonema:resume(screenName)
+```
+
+
 ## License
 This work is licensed under a
-[Creative Commons Attribution-NonCommercial 4.0 International License][cc-by-nc-sa]
+[Creative Commons Attribution-NonCommercial 4.0 International License][cc-by-nc-sa].
 
 [![CC BY-NC 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
 
