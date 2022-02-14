@@ -4,22 +4,25 @@
 
     using CitizenFX.Core.Native;
 
-    public class RenderTarget : IDisposable
+    public class RenderTargetRenderer : IDisposable
     {
-        public RenderTarget(string objectName, string targetName)
+        public RenderTargetRenderer(string objectName, string targetName, string txdName, string txnName)
         {
             this.ObjectName = objectName;
             this.TargetName = targetName;
-            this.TargetHandle = CreateNamedRenderTargetForModel(targetName, this.Hash);
             this.Hash = API.GetHashKey(this.ObjectName);
+            this.TargetHandle = CreateNamedRenderTargetForModel(targetName, this.Hash);
+
+            this.TxdName = txdName;
+            this.TxnName = txnName;
         }
 
-        ~RenderTarget()
+        ~RenderTargetRenderer()
         {
             this.Dispose();
         }
 
-        public int Hash;
+        public int Hash { get; protected set; }
 
         public bool IsValid => this.TargetHandle != 0;
 
@@ -29,6 +32,10 @@
 
         public string TargetName { get; protected set; }
 
+        public string TxdName { get; protected set; }
+
+        public string TxnName { get; protected set; }
+
         public void Dispose()
         {
             if (this.IsValid) API.ReleaseNamedRendertarget(this.TargetName);
@@ -36,13 +43,13 @@
             GC.SuppressFinalize(this);
         }
 
-        public void Draw(string txdName, string txnName)
+        public void Draw()
         {
             API.SetTextRenderId(this.TargetHandle);
             API.Set_2dLayer(4);
             API.SetScriptGfxDrawBehindPausemenu(true);
 
-            API.DrawSprite(txdName, txnName, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 255, 255, 255, 255);
+            API.DrawSprite(this.TxdName, this.TxnName, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 255, 255, 255, 255);
             API.SetTextRenderId(API.GetDefaultScriptRendertargetRenderId());
             API.SetScriptGfxDrawBehindPausemenu(false);
         }

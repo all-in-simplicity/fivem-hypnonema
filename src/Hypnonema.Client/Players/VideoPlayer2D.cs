@@ -6,15 +6,23 @@
     using CitizenFX.Core;
     using CitizenFX.Core.Native;
 
+    using Hypnonema.Client.Dui;
     using Hypnonema.Client.Graphics;
+    using Hypnonema.Client.Utils;
+    using Hypnonema.Shared.Models;
 
     public sealed class VideoPlayer2D : IVideoPlayer
     {
-        public VideoPlayer2D(DuiBrowser browser, RenderTarget renderTarget, string screenName)
+        public VideoPlayer2D(Screen screen, RenderTargetRenderer renderTarget, DuiBrowser duiBrowser)
         {
-            this.Browser = browser;
+            this.DuiBrowser = duiBrowser;
             this.RenderTarget = renderTarget;
-            this.ScreenName = screenName;
+            this.ScreenName = screen.Name;
+
+            this.SoundAttenuation = screen.BrowserSettings.SoundAttenuation;
+            this.GlobalVolume = screen.BrowserSettings.GlobalVolume;
+            this.SoundMinDistance = screen.BrowserSettings.SoundMinDistance;
+            this.SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance;
         }
 
         ~VideoPlayer2D()
@@ -22,13 +30,19 @@
             this.Dispose();
         }
 
-        public DuiBrowser Browser { get; }
+        public DuiBrowser DuiBrowser { get; }
 
         public float GlobalVolume { get; set; } = 100f;
 
-        public bool Is3DAudioEnabled { get; set; } = true;
+        public bool Is3DAudioEnabled { get; set; } = false;
 
-        public RenderTarget RenderTarget { get; }
+        public float MaxRenderDistance { get; set; } = ConfigReader.GetConfigKeyValue(
+            API.GetCurrentResourceName(),
+            "hypnonema_max_render_distance",
+            0,
+            400f);
+
+        public RenderTargetRenderer RenderTarget { get; }
 
         public string ScreenName { get; }
 
@@ -38,50 +52,42 @@
 
         public float SoundMinDistance { get; set; } = 10f;
 
-        public void CalculateVolume()
+        public static IVideoPlayer CreateVideoPlayer(Screen screen, DuiBrowser duiBrowser)
         {
-            var entity = this.GetClosestObjectOfType(this.SoundMaxDistance);
-            if (entity == null)
-            {
-                this.Browser.SetVolume(0f);
-                return;
-            }
+            var renderTarget = new RenderTargetRenderer(
+                screen.TargetSettings.ModelName,
+                screen.TargetSettings.RenderTargetName,
+                duiBrowser.TxdName,
+                duiBrowser.TxnName);
 
-            var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
+            return new VideoPlayer2D(screen, renderTarget, duiBrowser)
+                       {
+                           GlobalVolume = screen.BrowserSettings.GlobalVolume,
+                           Is3DAudioEnabled = screen.BrowserSettings.Is3DAudioEnabled,
+                           SoundAttenuation = screen.BrowserSettings.SoundAttenuation,
+                           SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance,
+                           SoundMinDistance = screen.BrowserSettings.SoundMinDistance
+                       };
+        }
 
+        public void CalculateVolume(float distance, bool isOccluded)
+        {
             if (distance >= this.SoundMaxDistance)
             {
-                this.Browser.SetVolume(0f);
+                this.DuiBrowser.SetVolume(0f);
             }
             else
             {
-                if (entity.IsOccluded) this.Browser.SetVolume(this.GlobalVolume / 2);
-                else this.Browser.SetVolume(this.GlobalVolume);
+                if (isOccluded) this.DuiBrowser.SetVolume(this.GlobalVolume / 2);
+                else this.DuiBrowser.SetVolume(this.GlobalVolume);
 
-                if (this.Is3DAudioEnabled)
-                {
-                    var tickData = new AudioTickData
-                                       {
-                                           ListenerForward = Game.PlayerPed.ForwardVector,
-                                           ListenerUp = Game.PlayerPed.UpVector,
-                                           PositionListener = Game.PlayerPed.Position,
-                                           PositionPanner =
-                                               entity.Position - Game.PlayerPed.Position, // relative to player
-                                           OrientationPanner = entity.ForwardVector
-                                       };
-
-                    this.Browser.Tick(tickData);
-                }
-                else
-                {
-                    this.Browser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
-                }
+                this.DuiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
             }
         }
 
         public void Dispose()
         {
-            if (this.Browser.IsValid) this.Browser.Dispose();
+            if (this.DuiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.DuiBrowser);
 
             if (this.RenderTarget.IsValid) this.RenderTarget.Dispose();
 
@@ -90,56 +96,76 @@
 
         public void Draw()
         {
-            this.RenderTarget.Draw(this.Browser.TxdName, this.Browser.TxnName);
+            this.RenderTarget.Draw();
         }
 
-        public async Task OnTick()
+        public async void OnTick()
         {
+            var entity = await this.GetClosestObjectOfType();
+            if (entity == null)
+            {
+                this.DuiBrowser.ShowPlayer(false);
+                return;
+            }
+
+            var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
+            if (distance > this.MaxRenderDistance)
+            {
+                this.DuiBrowser.ShowPlayer(false);
+                return;
+            }
+
+            this.CalculateVolume(distance, entity.IsOccluded);
+            this.DuiBrowser.ShowPlayer(true);
             this.Draw();
-
-            this.CalculateVolume();
-
-            await Task.FromResult(0);
         }
 
         public void Pause()
         {
-            this.Browser.Pause();
+            this.DuiBrowser.Pause();
         }
 
         public void Play(string url)
         {
-            this.Browser.Play(url);
+            this.DuiBrowser.Play(url);
         }
 
         public void Resume()
         {
-            this.Browser.Resume();
+            this.DuiBrowser.Resume();
         }
 
         public void Seek(float time)
         {
-            this.Browser.Seek(time);
+            this.DuiBrowser.Seek(time);
         }
 
         public void Stop()
         {
-            this.Browser.Stop();
+            this.DuiBrowser.Stop();
         }
 
         public void SynchronizeState(bool paused, float currentTime, string currentSource, bool repeat)
         {
-            this.Browser.Update(paused, currentTime, currentSource, repeat);
-        }
-
-        public void Toggle3DAudio(bool value)
-        {
-            this.Browser.Toggle3DAudio(value);
+            this.DuiBrowser.SynchronizeState(paused, currentTime, currentSource, repeat);
         }
 
         public void ToggleRepeat()
         {
-            this.Browser.ToggleRepeat();
+            this.DuiBrowser.ToggleRepeat();
+        }
+
+        private async Task<Prop> GetClosestObjectOfType()
+        {
+            var objects = API.GetGamePool("CObject");
+            foreach (int obj in objects)
+            {
+                var entity = API.GetEntityModel(obj);
+
+                if (entity == this.RenderTarget.Hash) return new Prop(obj);
+            }
+
+            return null;
         }
 
         private Prop GetClosestObjectOfType(float radius)

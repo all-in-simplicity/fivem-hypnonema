@@ -27,11 +27,8 @@ hypnonema_db_connString "Filename=hypnonema.db;Flush=true"
 -- Whether logging is enabled or not
 hypnonema_logging_enabled 'false'
 
--- The sync interval in ms
-hypnonema_sync_interval '5000'
-
--- Whether the command should be restricted or not
-hypnonema_restrict_command 'true'
+-- The max render distance for all screens
+hypnonema_max_render_distance '400'
 
 --------------------------------------------
 --------------------------------------------
@@ -54,3 +51,4 @@ files {
 author 'simpled-dev'
 version '1.8.0'
 description 'a Cinema Resource for FiveM'
+repository 'https://github.com/thiago-dev/fivem-hypnonema'

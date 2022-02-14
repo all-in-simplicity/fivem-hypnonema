@@ -3,19 +3,29 @@
     using System;
     using System.Threading.Tasks;
 
-    using CitizenFX.Core;
+    using CitizenFX.Core.Native;
 
+    using Hypnonema.Client.Dui;
     using Hypnonema.Client.Graphics;
+    using Hypnonema.Client.Utils;
+    using Hypnonema.Shared.Models;
 
     public class VideoPlayer3D : IVideoPlayer
     {
-        private readonly TextureRenderer textureRenderer;
+        private readonly ScaleformRenderer scaleform;
 
-        public VideoPlayer3D(DuiBrowser browser, TextureRenderer textureRenderer, string screenName)
+        private VideoPlayer3D(Screen screen, ScaleformRenderer scaleform, DuiBrowser duiBrowser)
         {
-            this.textureRenderer = textureRenderer;
-            this.ScreenName = screenName;
-            this.Browser = browser;
+            this.ScreenName = screen.Name;
+
+            this.GlobalVolume = screen.BrowserSettings.GlobalVolume;
+            this.SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance;
+            this.SoundMinDistance = screen.BrowserSettings.SoundMinDistance;
+            this.SoundAttenuation = screen.BrowserSettings.SoundAttenuation;
+
+            this.DuiBrowser = duiBrowser;
+
+            this.scaleform = scaleform;
         }
 
         ~VideoPlayer3D()
@@ -23,11 +33,17 @@
             this.Dispose();
         }
 
-        public DuiBrowser Browser { get; }
+        public DuiBrowser DuiBrowser { get; }
 
         public float GlobalVolume { get; set; }
 
-        public bool Is3DAudioEnabled { get; set; } = true;
+        public bool IsOutOfRange => this.scaleform.GetDistanceToPlayer() > this.MaxRenderDistance;
+
+        public float MaxRenderDistance { get; set; } = ConfigReader.GetConfigKeyValue(
+            API.GetCurrentResourceName(),
+            "hypnonema_max_render_distance",
+            0,
+            400f);
 
         public string ScreenName { get; }
 
@@ -37,97 +53,94 @@
 
         public float SoundMinDistance { get; set; }
 
+        public static async Task<IVideoPlayer> CreateVideoPlayer(Screen screen, DuiBrowser duiBrowser)
+        {
+            var scaleform = await ScaleformRendererPool.Instance.AcquireScaleformRenderer(
+                                screen.PositionalSettings,
+                                duiBrowser.TxdName,
+                                duiBrowser.TxnName);
+
+            if (scaleform != null) return new VideoPlayer3D(screen, scaleform, duiBrowser);
+
+            Logger.Error("Cannot create VideoPlayer3D, because of failed Scaleform creation.");
+            return null;
+        }
+
         public void CalculateVolume()
         {
-            var distance = this.textureRenderer.GetDistanceToPlayer();
+            var distance = this.scaleform.GetDistanceToPlayer();
 
-            if (distance >= this.SoundMaxDistance)
+            if (distance >= this.SoundMaxDistance || this.IsOutOfRange)
             {
-                this.Browser.SetVolume(0f);
+                this.DuiBrowser.SetVolume(0f);
                 return;
             }
 
-            if (this.Is3DAudioEnabled)
-            {
-                this.Browser.SetVolume(this.GlobalVolume);
-
-                var tickData = new AudioTickData
-                                   {
-                                       ListenerForward = Game.PlayerPed.ForwardVector,
-                                       ListenerUp = Game.PlayerPed.UpVector,
-                                       PositionListener = Game.PlayerPed.Position,
-                                       PositionPanner = this.textureRenderer.Position - Game.PlayerPed.Position,
-                                       OrientationPanner = GameMath.RotationToDirection(this.textureRenderer.Rotation)
-                                   };
-
-                this.Browser.Tick(tickData);
-            }
-            else
-            {
-                this.Browser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
-            }
+            this.DuiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
         }
 
         public void Dispose()
         {
-            if (this.Browser.IsValid) this.Browser.Dispose();
+            if (this.DuiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.DuiBrowser);
 
-            TextureRendererPool.Instance.ReleaseTextureRenderer(this.textureRenderer.Id);
+            // TODO: Dispose Scaleform
+            ScaleformRendererPool.Instance.ReleaseScaleformRenderer(this.scaleform);
+
             GC.SuppressFinalize(this);
         }
 
         public void Draw()
         {
-            this.textureRenderer.Render3D();
+            this.scaleform.Draw();
         }
 
-        public async Task OnTick()
+        public void OnTick()
         {
-            this.Draw();
+            if (this.IsOutOfRange)
+            {
+                this.DuiBrowser.ShowPlayer(false);
+                return;
+            }
+
+            this.DuiBrowser.ShowPlayer(true);
 
             this.CalculateVolume();
-
-            await Task.FromResult(0);
+            this.Draw();
         }
 
         public void Pause()
         {
-            this.Browser.Pause();
+            this.DuiBrowser.Pause();
         }
 
         public void Play(string url)
         {
-            this.Browser.Play(url);
+            this.DuiBrowser.Play(url);
         }
 
         public void Resume()
         {
-            this.Browser.Resume();
+            this.DuiBrowser.Resume();
         }
 
         public void Seek(float time)
         {
-            this.Browser.Seek(time);
+            this.DuiBrowser.Seek(time);
         }
 
         public void Stop()
         {
-            this.Browser.Stop();
+            this.DuiBrowser.Stop();
         }
 
         public void SynchronizeState(bool paused, float currentTime, string currentSource, bool repeat)
         {
-            this.Browser.Update(paused, currentTime, currentSource, repeat);
-        }
-
-        public void Toggle3DAudio(bool value)
-        {
-            this.Browser.Toggle3DAudio(value);
+            this.DuiBrowser.SynchronizeState(paused, currentTime, currentSource, repeat);
         }
 
         public void ToggleRepeat()
         {
-            this.Browser.ToggleRepeat();
+            this.DuiBrowser.ToggleRepeat();
         }
 
         private float GetSoundFactor(float distance)
