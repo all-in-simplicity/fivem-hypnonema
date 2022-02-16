@@ -18,7 +18,7 @@
             this.RegisteredCallback = this.GetRegisterCallback();
             if (callback != null)
             {
-                ClientScript.Self.RegisterEvent($"hyp:S2C:{this.EventName}", this.RegisteredCallback);
+                ClientScript.Self.AddEvent($"hyp:S2C:{this.EventName}", this.RegisteredCallback);
             }
         }
 
@@ -38,7 +38,7 @@
         {
             if (this.Callback != null)
             {
-                ClientScript.Self.UnregisterEvent($"hyp:S2C:{this.EventName}", this.RegisteredCallback);
+                ClientScript.Self.RemoveEvent($"hyp:S2C:{this.EventName}", this.RegisteredCallback);
                 this.Callback = null;
             }
 

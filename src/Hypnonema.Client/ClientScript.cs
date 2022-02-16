@@ -40,7 +40,7 @@
             return this.GlobalState.Get(key);
         }
 
-        public void RegisterEvent(string eventName, Delegate action)
+        public void AddEvent(string eventName, Delegate action)
         {
             this.EventHandlers[eventName] += action;
         }
@@ -55,12 +55,17 @@
                 (body, resultCallback) => { callback.Invoke(body, resultCallback); });
         }
 
-        public void RegisterTick(Func<Task> tickHandler)
+        public void AddTick(Func<Task> tickHandler)
         {
             this.Tick += tickHandler;
         }
 
-        public void UnregisterEvent(string eventName, Delegate action)
+        public void RemoveTick(Func<Task> tickHandler)
+        {
+            this.Tick -= tickHandler;
+        }
+
+        public void RemoveEvent(string eventName, Delegate action)
         {
             this.EventHandlers[eventName] -= action;
         }
@@ -71,11 +76,6 @@
         {
             this.EventHandlers[$"__cfx_nui:{msg}"] -= new Action<ExpandoObject, CallbackDelegate>(
                 (body, resultCallback) => { callback.Invoke(body, resultCallback); });
-        }
-
-        public void UnregisterTick(Func<Task> tickHandler)
-        {
-            this.Tick -= tickHandler;
         }
 
         private void OnCommand()
