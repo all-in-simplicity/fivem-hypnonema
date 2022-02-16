@@ -52,8 +52,6 @@
             ClientScript.Self.UnregisterNuiCallback(Events.Resume, this.OnResume);
             ClientScript.Self.UnregisterNuiCallback(Events.Stop, this.OnStop);
 
-            ClientScript.Self.UnregisterTick(this.OnTick);
-
             foreach (var player in this.videoPlayers)
             {
                 player.Dispose();
@@ -86,8 +84,6 @@
             ClientScript.Self.RegisterNuiCallback(Events.UpdateStateDuration, this.OnUpdateStateDuration);
             ClientScript.Self.RegisterNuiCallback(Events.RequestState, this.OnRequestState);
             ClientScript.Self.RegisterNuiCallback(Events.PlaybackEnded, this.OnPlaybackEnded);
-
-            ClientScript.Self.RegisterTick(this.OnTick);
 
             this.IsInitialized = true;
         }
@@ -325,16 +321,6 @@
             this.videoPlayers.Remove(player);
 
             player.Dispose();
-        }
-
-        private async Task OnTick()
-        {
-            if (this.videoPlayers.Count == 0) return;
-
-            foreach (var player in this.videoPlayers)
-            {
-                player.OnTick();
-            }
         }
 
         private void OnUpdateStateDuration(string screenName, float duration)

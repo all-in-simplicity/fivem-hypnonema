@@ -3,12 +3,15 @@
     using System;
     using System.Threading.Tasks;
 
+    using CitizenFX.Core;
     using CitizenFX.Core.Native;
 
     using Hypnonema.Client.Dui;
     using Hypnonema.Client.Graphics;
     using Hypnonema.Client.Utils;
     using Hypnonema.Shared.Models;
+
+    using ClientScript = Hypnonema.Client.ClientScript;
 
     public class VideoPlayer3D : IVideoPlayer
     {
@@ -26,6 +29,9 @@
             this.DuiBrowser = duiBrowser;
 
             this.scaleform = scaleform;
+
+            ClientScript.Self.AddTick(this.CalculateVolume);
+            ClientScript.Self.AddTick(this.Draw);
         }
 
         ~VideoPlayer3D()
@@ -66,8 +72,29 @@
             return null;
         }
 
-        public void CalculateVolume()
+        public void Dispose()
         {
+            ClientScript.Self.RemoveTick(this.CalculateVolume);
+            ClientScript.Self.RemoveTick(this.Draw);
+
+            if (this.DuiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.DuiBrowser);
+
+            ScaleformRendererPool.Instance.ReleaseScaleformRenderer(this.scaleform);
+
+            GC.SuppressFinalize(this);
+        }
+
+        public async Task Draw()
+        {
+            if (this.IsOutOfRange) return;
+            
+            this.scaleform.Draw();
+        }
+
+        public async Task CalculateVolume()
+        {
+            await BaseScript.Delay(150);
+
             var distance = this.scaleform.GetDistanceToPlayer();
 
             if (distance >= this.SoundMaxDistance || this.IsOutOfRange)
@@ -78,36 +105,7 @@
 
             this.DuiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
         }
-
-        public void Dispose()
-        {
-            if (this.DuiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.DuiBrowser);
-
-            // TODO: Dispose Scaleform
-            ScaleformRendererPool.Instance.ReleaseScaleformRenderer(this.scaleform);
-
-            GC.SuppressFinalize(this);
-        }
-
-        public void Draw()
-        {
-            this.scaleform.Draw();
-        }
-
-        public void OnTick()
-        {
-            if (this.IsOutOfRange)
-            {
-                this.DuiBrowser.ShowPlayer(false);
-                return;
-            }
-
-            this.DuiBrowser.ShowPlayer(true);
-
-            this.CalculateVolume();
-            this.Draw();
-        }
-
+        
         public void Pause()
         {
             this.DuiBrowser.Pause();

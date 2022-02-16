@@ -8,8 +8,9 @@
 
     using Hypnonema.Client.Dui;
     using Hypnonema.Client.Graphics;
-    using Hypnonema.Client.Utils;
     using Hypnonema.Shared.Models;
+
+    using ClientScript = Hypnonema.Client.ClientScript;
 
     public sealed class VideoPlayer2D : IVideoPlayer
     {
@@ -23,6 +24,10 @@
             this.GlobalVolume = screen.BrowserSettings.GlobalVolume;
             this.SoundMinDistance = screen.BrowserSettings.SoundMinDistance;
             this.SoundMaxDistance = screen.BrowserSettings.SoundMaxDistance;
+
+            ClientScript.Self.AddTick(this.CalculateVolume);
+            ClientScript.Self.AddTick(this.Draw);
+            ClientScript.Self.AddTick(this.CalculateDistance);
         }
 
         ~VideoPlayer2D()
@@ -36,11 +41,7 @@
 
         public bool Is3DAudioEnabled { get; set; } = false;
 
-        public float MaxRenderDistance { get; set; } = ConfigReader.GetConfigKeyValue(
-            API.GetCurrentResourceName(),
-            "hypnonema_max_render_distance",
-            0,
-            400f);
+        private Prop closestObject;
 
         public RenderTargetRenderer RenderTarget { get; }
 
@@ -70,23 +71,44 @@
                        };
         }
 
-        public void CalculateVolume(float distance, bool isOccluded)
+        public async Task CalculateDistance()
         {
+            this.closestObject = await this.GetClosestObjectOfType();
+
+            await BaseScript.Delay(500);
+        }
+
+        public async Task CalculateVolume()
+        {
+            if (this.closestObject == null)
+            {
+                // no object found, so set distance to maxRenderDistance to mute the player
+                this.DuiBrowser.SetVolume(0f);
+                return;
+            }
+            
+            var distance = World.GetDistance(Game.PlayerPed.Position, this.closestObject.Position);
             if (distance >= this.SoundMaxDistance)
             {
                 this.DuiBrowser.SetVolume(0f);
             }
             else
             {
-                if (isOccluded) this.DuiBrowser.SetVolume(this.GlobalVolume / 2);
+                if (this.closestObject.IsOccluded) this.DuiBrowser.SetVolume(this.GlobalVolume / 2);
                 else this.DuiBrowser.SetVolume(this.GlobalVolume);
 
                 this.DuiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
             }
+
+            await BaseScript.Delay(300);
         }
 
         public void Dispose()
         {
+            ClientScript.Self.RemoveTick(this.CalculateVolume);
+            ClientScript.Self.RemoveTick(this.CalculateDistance);
+            ClientScript.Self.RemoveTick(this.Draw);
+
             if (this.DuiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.DuiBrowser);
 
             if (this.RenderTarget.IsValid) this.RenderTarget.Dispose();
@@ -94,30 +116,14 @@
             GC.SuppressFinalize(this);
         }
 
-        public void Draw()
+        public async Task Draw()
         {
+            if (this.closestObject == null)
+            {
+                return;
+            }
+            
             this.RenderTarget.Draw();
-        }
-
-        public async void OnTick()
-        {
-            var entity = await this.GetClosestObjectOfType();
-            if (entity == null)
-            {
-                this.DuiBrowser.ShowPlayer(false);
-                return;
-            }
-
-            var distance = World.GetDistance(Game.PlayerPed.Position, entity.Position);
-            if (distance > this.MaxRenderDistance)
-            {
-                this.DuiBrowser.ShowPlayer(false);
-                return;
-            }
-
-            this.CalculateVolume(distance, entity.IsOccluded);
-            this.DuiBrowser.ShowPlayer(true);
-            this.Draw();
         }
 
         public void Pause()
@@ -166,22 +172,6 @@
             }
 
             return null;
-        }
-
-        private Prop GetClosestObjectOfType(float radius)
-        {
-            var playerPos = Game.PlayerPed.Position;
-            var entity = API.GetClosestObjectOfType(
-                playerPos.X,
-                playerPos.Y,
-                playerPos.Z,
-                radius,
-                (uint)this.RenderTarget.Hash,
-                false,
-                false,
-                false);
-
-            return entity == 0 ? null : new Prop(entity);
         }
 
         private float GetSoundFactor(float distance)

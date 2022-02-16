@@ -5,9 +5,7 @@
     public interface IVideoPlayer : IDisposable
     {
         string ScreenName { get; }
-
-        void OnTick();
-
+        
         void Pause();
 
         void Play(string url);
