@@ -105,11 +105,6 @@ const Player = () => {
         sendDuiResponse('updateStateDuration', {screenName, duration}).then(() => {});
     }
 
-    const onShowPlayer = ({payload}) => {
-        setIsVisible(payload);
-    }
-
-    useNuiMessage('showPlayer', onShowPlayer);
     useNuiMessage('synchronizeState', onSynchronizeState);
     useNuiMessage('volume', onVolume);
     useNuiMessage('loop', onLoop);
