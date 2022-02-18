@@ -2,10 +2,12 @@
 {
     using System;
 
-    public interface IVideoPlayer : IDisposable
+    public interface IMediaPlayer : IDisposable
     {
-        string ScreenName { get; }
-        
+        string PlayerName { get; }
+
+        void InitDuiBrowser();
+
         void Pause();
 
         void Play(string url);

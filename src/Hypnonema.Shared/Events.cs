@@ -2,9 +2,13 @@
 {
     public class Events
     {
+        public const string ClientVolume = "clientVolume";
+
         public const string CreateScreen = "createScreen";
 
         public const string DeleteScreen = "deleteScreen";
+
+        public const string DuiState = "duiState";
 
         public const string EditScreen = "editScreen";
 

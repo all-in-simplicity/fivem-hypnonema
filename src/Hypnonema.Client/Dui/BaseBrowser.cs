@@ -4,6 +4,8 @@
 
     using CitizenFX.Core.Native;
 
+    using Hypnonema.Client.Utils;
+
     using Newtonsoft.Json;
 
     public abstract class BaseBrowser : IDisposable
@@ -84,7 +86,7 @@
         {
             var message = new { type, payload = new { payload } };
 
-            API.SendDuiMessage(this.NativeValue, JsonConvert.SerializeObject(message));
+            API.SendDuiMessage(this.NativeValue, JsonConvert.SerializeObject(message, Nui.NuiSerializerSettings));
         }
     }
 }

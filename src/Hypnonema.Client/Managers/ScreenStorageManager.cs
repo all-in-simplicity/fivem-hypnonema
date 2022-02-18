@@ -132,6 +132,9 @@
         private void OnGetScreenList(List<Screen> screenList)
         {
             this.Screens = screenList;
+
+            Logger.Debug($"received {screenList.Count} screens");
+
             Nui.SendMessage(Events.GetScreenList, screenList);
         }
 

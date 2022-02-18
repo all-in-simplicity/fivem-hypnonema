@@ -40,7 +40,7 @@
         public static ScaleformRendererPool Instance => instance ?? (instance = new ScaleformRendererPool());
 
         public async Task<ScaleformRenderer> AcquireScaleformRenderer(
-            PositionalSettings positionalSettings,
+            Screen.PositionSettings positionalSettings,
             string txdName,
             string txnName)
         {
@@ -55,7 +55,7 @@
             try
             {
                 renderer = this.scaleformRenderers.Pop();
-                
+
                 renderer.UnsetTexture();
                 renderer.SetTexture(txdName, txnName);
 
@@ -68,7 +68,7 @@
             }
 
             this.usageCount += 1;
-            
+
             return renderer;
         }
 
@@ -90,7 +90,7 @@
         }
 
         private async Task<ScaleformRenderer> CreateScaleformRenderer(
-            PositionalSettings positionalSettings,
+            Screen.PositionSettings positionalSettings,
             string txdName,
             string txnName)
         {

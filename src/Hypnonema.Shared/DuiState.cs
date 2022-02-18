@@ -1,15 +1,17 @@
-﻿namespace Hypnonema.Shared.Models
+﻿namespace Hypnonema.Shared
 {
     using System;
+
+    using Hypnonema.Shared.Models;
 
     public class DuiState
     {
         public DuiState(Screen screen, string currentSource)
         {
-            this.ScreenName = screen.Name;
-            this.CurrentSource = currentSource;
-            this.StartedAt = DateTime.UtcNow;
             this.Screen = screen;
+            this.ScreenName = screen.Name;
+            this.StartedAt = DateTime.UtcNow;
+            this.CurrentSource = currentSource;
         }
 
         public string CurrentSource { get; set; }

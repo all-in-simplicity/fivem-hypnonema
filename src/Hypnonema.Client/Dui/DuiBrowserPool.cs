@@ -34,8 +34,10 @@
             catch (Exception)
             {
                 // no browser left. create one
-                browser = await DuiBrowser.CreateDuiBrowser(screen, width, height);
+                browser = await DuiBrowser.CreateDuiBrowser(screen.Name, width, height);
             }
+
+            browser.Init();
 
             return browser;
         }

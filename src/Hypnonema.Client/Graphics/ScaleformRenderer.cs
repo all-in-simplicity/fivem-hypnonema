@@ -13,7 +13,7 @@
 
         public ScaleformRenderer(
             Scaleform scaleform,
-            PositionalSettings positionalSettings,
+            Screen.PositionSettings positionalSettings,
             string txdName,
             string txnName)
         {
@@ -55,15 +55,7 @@
             return World.GetDistance(this.Position, Game.PlayerPed.Position);
         }
 
-        public void UnsetTexture()
-        {
-            if (!this.IsTextureSet) return;
-
-            this.scaleform.CallFunction("UNSET_TEXTURE");
-            this.IsTextureSet = false;
-        }
-
-        public void SetPosition(PositionalSettings positionalSettings)
+        public void SetPosition(Screen.PositionSettings positionalSettings)
         {
             this.Position = new Vector3(
                 positionalSettings.PositionX,
@@ -90,6 +82,14 @@
 
             this.scaleform.CallFunction("SET_TEXTURE", txdName, txnName, positionX, positionY, width, height);
             this.IsTextureSet = true;
+        }
+
+        public void UnsetTexture()
+        {
+            if (!this.IsTextureSet) return;
+
+            this.scaleform.CallFunction("UNSET_TEXTURE");
+            this.IsTextureSet = false;
         }
     }
 }

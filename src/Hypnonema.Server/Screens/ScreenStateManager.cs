@@ -1,137 +1,90 @@
 ﻿namespace Hypnonema.Server.Screens
 {
     using System;
-    using System.Collections.Concurrent;
-    using System.Linq;
-    using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     using CitizenFX.Core;
 
+    using Hypnonema.Server.Communications;
+    using Hypnonema.Server.Utils;
+    using Hypnonema.Shared;
     using Hypnonema.Shared.Models;
-
-    using Newtonsoft.Json;
 
     public sealed class ScreenStateManager
     {
-        private readonly ConcurrentDictionary<string, DuiState> _state = new ConcurrentDictionary<string, DuiState>();
+        private readonly State _state = new State();
+
+        private readonly NetworkMethod<Guid, List<DuiState>> duiState;
 
         public ScreenStateManager()
         {
-            BaseServer.Self.AddTick(this.OnTick);
+            this.duiState = new NetworkMethod<Guid, List<DuiState>>(Events.DuiState, this.OnDuiState);
+        }
+
+        public void OnEnded(string screenName)
+        {
+            this._state.Remove(screenName);
         }
 
         public void OnPause(string screenName)
         {
-            var key = string.Concat(screenName.Where(c => !char.IsWhiteSpace(c)));
+            var screenState = this._state.Get(screenName);
+            if (screenState == null) return;
 
-            var exists = this._state.TryGetValue(key, out var oldState);
-            if (!exists) return;
+            screenState.IsPaused = true;
 
-            var newState = oldState;
-            newState.IsPaused = true;
-
-            this._state.TryUpdate(key, newState, oldState);
-            this.SetGlobalState();
+            this._state.Update(screenName, screenState);
         }
 
         public void OnPlay(Screen screen, string url)
         {
             var duiState = new DuiState(screen, url);
 
-            // whitespace removal from screenName is necessary 
-            // otherwise screen names "screen test" and "screen test1" would be considered equal.
-            var key = string.Concat(screen.Name.Where(c => !char.IsWhiteSpace(c)));
-
-            this._state.AddOrUpdate(key, duiState, (k, _) => duiState);
-            this.SetGlobalState();
+            this._state.Add(screen.Name, duiState);
         }
 
         public void OnResume(string screenName)
         {
-            var key = string.Concat(screenName.Where(c => !char.IsWhiteSpace(c)));
+            var screenState = this._state.Get(screenName);
+            if (screenState == null) return;
 
-            var exists = this._state.TryGetValue(key, out var oldState);
-            if (!exists) return;
+            screenState.IsPaused = false;
 
-            var newState = oldState;
-            newState.IsPaused = false;
-
-            this._state.TryUpdate(key, newState, oldState);
-            this.SetGlobalState();
+            this._state.Update(screenName, screenState);
         }
 
         public void OnSeek(string screenName, float time)
         {
-            var key = string.Concat(screenName.Where(c => !char.IsWhiteSpace(c)));
+            var screenState = this._state.Get(screenName);
+            if (screenState == null) return;
 
-            var exists = this._state.TryGetValue(key, out var oldState);
-            if (!exists) return;
+            var diff = time - screenState.CurrentTime;
+            screenState.StartedAt = screenState.StartedAt.Subtract(new TimeSpan(0, 0, (int)diff));
 
-            var newState = oldState;
-            var diff = time - newState.CurrentTime;
-            newState.StartedAt = newState.StartedAt.Subtract(new TimeSpan(0, 0, (int)diff));
-
-            this._state.TryUpdate(key, newState, oldState);
-            this.SetGlobalState();
+            this._state.Update(screenName, screenState);
         }
 
         public void OnStop(string screenName)
         {
-            var key = string.Concat(screenName.Where(c => !char.IsWhiteSpace(c)));
-
-            var exists = this._state.TryGetValue(key, out var _);
-            if (!exists) return;
-
-            this._state.TryRemove(key, out var _);
-            this.SetGlobalState();
+            this._state.Remove(screenName);
         }
 
         public void OnUpdateDuration(string screenName, float duration)
         {
-            var key = string.Concat(screenName.Where(c => !char.IsWhiteSpace(c)));
+            var screenState = this._state.Get(screenName);
+            if (screenState == null) return;
 
-            var exists = this._state.TryGetValue(key, out var oldState);
-            if (!exists) return;
+            screenState.Duration = duration;
 
-            var newState = oldState;
-            newState.Duration = duration;
-
-            this._state.TryUpdate(key, newState, oldState);
-            this.SetGlobalState();
+            this._state.Update(screenName, screenState);
         }
 
-        // flush out old states at regular interval
-        private async Task OnTick()
+        private void OnDuiState(Player p, Guid requestId, List<DuiState> unused)
         {
-            if (this._state.IsEmpty) return;
+            var states = this._state.ToList();
+            if (states == null) return;
 
-            foreach (var duiState in this._state.Values)
-            {
-                if (duiState.Repeat || !duiState.Ended) continue;
-
-                try
-                {
-                    this._state.TryRemove(duiState.ScreenName, out _);
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            await BaseScript.Delay(60000);
-        }
-
-        private void SetGlobalState()
-        {
-            if (this._state.IsEmpty)
-            {
-                BaseServer.Self.SetGlobalState("hypnonema", null, true);
-                return;
-            }
-
-            var state = this._state.Values.ToList();
-            
-            BaseServer.Self.SetGlobalState("hypnonema", JsonConvert.SerializeObject(state), true);
+            this.duiState.Invoke(p, requestId, states);
         }
     }
 }

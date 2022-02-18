@@ -9,6 +9,7 @@
 
     using Hypnonema.Client.Communications;
     using Hypnonema.Client.Dui;
+    using Hypnonema.Client.Graphics;
     using Hypnonema.Client.Players;
     using Hypnonema.Client.Utils;
     using Hypnonema.Shared;
@@ -16,11 +17,11 @@
 
     using Newtonsoft.Json;
 
-    #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
     public sealed class ScreenPlaybackManager : IDisposable
     {
-        private readonly IList<IVideoPlayer> videoPlayers = new List<IVideoPlayer>();
+        private readonly IList<IMediaPlayer> videoPlayers = new List<IMediaPlayer>();
 
         ~ScreenPlaybackManager()
         {
@@ -36,6 +37,8 @@
         public NetworkMethod<string> Pause { get; private set; }
 
         public NetworkMethod<PlayEvent> Play { get; private set; }
+
+        public NetworkMethod<string> PlaybackEnded { get; private set; }
 
         public NetworkMethod<string> Resume { get; private set; }
 
@@ -74,6 +77,7 @@
                 this.OnUpdateStateDuration);
             this.EditScreen = new NetworkMethod<Screen>(Events.EditScreen, this.OnEditScreen);
             this.DeleteScreen = new NetworkMethod<string>(Events.DeleteScreen, this.OnDeleteScreen);
+            this.PlaybackEnded = new NetworkMethod<string>(Events.PlaybackEnded, this.OnPlaybackEnded);
 
             ClientScript.Self.RegisterNuiCallback(Events.Play, this.OnPlay);
             ClientScript.Self.RegisterNuiCallback(Events.Pause, this.OnPause);
@@ -90,7 +94,7 @@
 
         public async Task SynchronizeState(DuiState state)
         {
-            var player = this.videoPlayers?.FirstOrDefault(s => s.ScreenName == state.ScreenName);
+            var player = this.videoPlayers?.FirstOrDefault(s => s.PlayerName == state.ScreenName);
             if (player != null)
             {
                 // no need to synchronize. player already exists.
@@ -104,19 +108,44 @@
             this.videoPlayers?.Add(player);
         }
 
-        private async Task<IVideoPlayer> CreateVideoPlayer(Screen screen)
+        private async Task<IMediaPlayer> CreateVideoPlayer(Screen screen)
         {
-            IVideoPlayer videoPlayer;
+            IMediaPlayer videoPlayer;
 
             var duiBrowser = await DuiBrowserPool.Instance.AcquireDuiBrowser(screen);
 
             if (screen.Is3DRendered)
             {
-                videoPlayer = await VideoPlayer3D.CreateVideoPlayer(screen, duiBrowser);
+                var scaleform = await ScaleformRendererPool.Instance.AcquireScaleformRenderer(
+                                    screen.PositionalSettings,
+                                    duiBrowser.TxdName,
+                                    duiBrowser.TxnName);
+
+                videoPlayer = new MediaPlayer3D(
+                    scaleform,
+                    duiBrowser,
+                    screen.Name,
+                    screen.BrowserSettings.GlobalVolume,
+                    screen.BrowserSettings.SoundAttenuation,
+                    screen.BrowserSettings.SoundMaxDistance,
+                    screen.BrowserSettings.SoundMinDistance);
             }
             else
             {
-                videoPlayer = VideoPlayer2D.CreateVideoPlayer(screen, duiBrowser);
+                var renderTarget = new RenderTargetRenderer(
+                    screen.TargetSettings.ModelName,
+                    screen.TargetSettings.RenderTargetName,
+                    duiBrowser.TxdName,
+                    duiBrowser.TxnName);
+
+                videoPlayer = new MediaPlayer2D(
+                    renderTarget,
+                    duiBrowser,
+                    screen.Name,
+                    screen.BrowserSettings.GlobalVolume,
+                    screen.BrowserSettings.SoundAttenuation,
+                    screen.BrowserSettings.SoundMaxDistance,
+                    screen.BrowserSettings.SoundMinDistance);
             }
 
             return videoPlayer;
@@ -124,7 +153,7 @@
 
         private void OnDeleteScreen(string screenName)
         {
-            var player = this.videoPlayers?.FirstOrDefault(p => p.ScreenName == screenName);
+            var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screenName);
             if (player == null) return;
 
             this.videoPlayers.Remove(player);
@@ -133,7 +162,7 @@
 
         private async void OnEditScreen(Screen screen)
         {
-            var currentPlayer = this.videoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
+            var currentPlayer = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screen.Name);
             if (currentPlayer == null)
             {
                 return;
@@ -164,14 +193,14 @@
 
         private void OnPause(string screenName)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.ScreenName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
 
             player?.Pause();
         }
 
         private async void OnPlay(PlayEvent playEvent)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.ScreenName == playEvent.Screen.Name);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == playEvent.Screen.Name);
 
             if (player == null)
             {
@@ -182,6 +211,7 @@
                     return;
                 }
 
+                player.InitDuiBrowser();
                 player.Play(playEvent.Url);
 
                 await BaseScript.Delay(500);
@@ -219,6 +249,11 @@
             return callback;
         }
 
+        private void OnPlaybackEnded(string screenName)
+        {
+            // Nothing to do on client side
+        }
+
         private CallbackDelegate OnPlaybackEnded(IDictionary<string, object> args, CallbackDelegate callback)
         {
             callback("OK");
@@ -229,7 +264,7 @@
                 return callback;
             }
 
-            var player = this.videoPlayers?.FirstOrDefault(p => p.ScreenName == screenName);
+            var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screenName);
             if (player == null)
             {
                 return callback;
@@ -238,27 +273,22 @@
             this.videoPlayers.Remove(player);
             player.Dispose();
 
+            this.PlaybackEnded.Invoke(screenName);
+
             return callback;
         }
 
-        private CallbackDelegate OnRequestState(IDictionary<string, object> args, CallbackDelegate callback)
+        private async Task<CallbackDelegate> OnRequestState(IDictionary<string, object> args, CallbackDelegate callback)
         {
-            string stateJson = ClientScript.Self.GetState("hypnonema");
+            var state = await ClientScript.Self.DuiStateHelper.RequestDuiStateAsync();
 
-            if (stateJson == null)
-            {
-                callback(JsonConvert.SerializeObject(new List<DuiState>(), Nui.NuiSerializerSettings));
-                return callback;
-            }
-
-            var state = JsonConvert.DeserializeObject<List<DuiState>>(stateJson);
             callback(JsonConvert.SerializeObject(state, Nui.NuiSerializerSettings));
             return callback;
         }
 
         private void OnResume(string screenName)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.ScreenName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
 
             player?.Resume();
         }
@@ -291,7 +321,7 @@
 
         private void OnSeek(string screenName, float time)
         {
-            var player = this.videoPlayers.FirstOrDefault(s => s.ScreenName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(s => s.PlayerName == screenName);
 
             player?.Seek(time);
         }
@@ -313,7 +343,7 @@
 
         private void OnStop(string screenName)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.ScreenName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
             if (player == null) return;
 
             player.Stop();

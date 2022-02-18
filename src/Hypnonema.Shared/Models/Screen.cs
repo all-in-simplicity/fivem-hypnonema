@@ -12,7 +12,7 @@
 
         public string Name { get; set; }
 
-        public PositionalSettings PositionalSettings { get; set; }
+        public PositionSettings PositionalSettings { get; set; }
 
         public RenderTargetSettings TargetSettings { get; set; }
 
@@ -32,7 +32,7 @@
                                    },
                            Is3DRendered = true,
                            Name = "Hypnonema Example Screen",
-                           PositionalSettings = new PositionalSettings()
+                           PositionalSettings = new PositionSettings()
                                                     {
                                                         PositionX = -1678.949f,
                                                         PositionY = -928.3431f,
@@ -45,6 +45,54 @@
                                                         ScaleZ = -0.1f
                                                     }
                        };
+        }
+
+        public bool IsValid =>
+            string.IsNullOrEmpty(this.Name) || (this.Is3DRendered || this.TargetSettings.IsValid);
+       
+
+        public class DuiBrowserSettings
+        {
+            public float GlobalVolume { get; set; }
+
+            public bool Is3DAudioEnabled { get; set; }
+
+            public float SoundAttenuation { get; set; }
+
+            public float SoundMaxDistance { get; set; }
+
+            public float SoundMinDistance { get; set; }
+        }
+
+        public class PositionSettings
+        {
+            public float PositionX { get; set; }
+
+            public float PositionY { get; set; }
+
+            public float PositionZ { get; set; }
+
+            public float RotationX { get; set; }
+
+            public float RotationY { get; set; }
+
+            public float RotationZ { get; set; }
+
+            public float ScaleX { get; set; }
+
+            public float ScaleY { get; set; }
+
+            public float ScaleZ { get; set; }
+        }
+
+        public class RenderTargetSettings
+        {
+            public bool IsValid =>
+                !string.IsNullOrEmpty(this.ModelName) && !string.IsNullOrEmpty(this.RenderTargetName);
+
+            public string ModelName { get; set; }
+
+            public string RenderTargetName { get; set; }
         }
     }
 }

@@ -7,16 +7,21 @@
     using CitizenFX.Core.Native;
 
     using Hypnonema.Client.Utils;
-    using Hypnonema.Shared.Models;
 
     public class DuiBrowser : BaseBrowser, IDisposable
     {
-        private DuiBrowser(string url, int width = 1280, int height = 720)
+        private DuiBrowser(string screenName, string posterUrl, string url, int width = 1280, int height = 720)
             : base(url, width, height)
         {
+            this.ScreenName = screenName;
+            this.PosterUrl = posterUrl;
         }
 
-        public static async Task<DuiBrowser> CreateDuiBrowser(Screen screen, int width = 1280, int height = 720)
+        public string PosterUrl { get; set; }
+
+        public string ScreenName { get; set; }
+
+        public static async Task<DuiBrowser> CreateDuiBrowser(string screenName, int width = 1280, int height = 720)
         {
             var resourceName = API.GetCurrentResourceName();
 
@@ -30,9 +35,9 @@
                 resourceName,
                 "hypnonema_poster_url",
                 0,
-                "https://i.imgur.com/dPaIjEW.jpg");
+                "https://thiago-dev.github.io/fivem-hypnonema");
 
-            var duiBrowser = new DuiBrowser(url, width, height);
+            var duiBrowser = new DuiBrowser(screenName, posterUrl, url, width, height);
 
             while (!duiBrowser.IsDuiAvailable)
             {
@@ -45,8 +50,6 @@
             // TODO: Is this additional delay necessary?
             await BaseScript.Delay(650);
 
-            duiBrowser.Init(screen.Name, posterUrl, resourceName);
-
             return duiBrowser;
         }
 
@@ -55,9 +58,12 @@
             base.Dispose();
         }
 
-        public void Init(string screenName, string posterUrl, string resourceName)
+        public void Init()
         {
-            var payload = new { screenName, posterUrl, resourceName };
+            var resourceName = API.GetCurrentResourceName();
+
+            var payload = new { this.ScreenName, this.PosterUrl, resourceName };
+
             this.SendMessage("init", payload);
         }
 
@@ -84,11 +90,6 @@
         public void SetVolume(float volume)
         {
             this.SendMessage("volume", volume / 100);
-        }
-
-        public void ShowPlayer(bool show)
-        {
-            this.SendMessage("showPlayer", show);
         }
 
         public void Stop()

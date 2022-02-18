@@ -1,5 +1,6 @@
 ﻿namespace Hypnonema.Server.Screens
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -10,6 +11,10 @@
     using Hypnonema.Shared.Models;
 
     using LiteDB;
+
+    using Newtonsoft.Json;
+
+    using Logger = Hypnonema.Server.Utils.Logger;
 
     public sealed class ScreenStorageManager
     {
@@ -36,12 +41,39 @@
             this.EditScreen = new NetworkMethod<Screen>(Events.EditScreen, this.OnEditScreen);
             this.GetScreenList = new NetworkMethod<IList<Screen>>(Events.GetScreenList, this.OnGetScreenList);
 
+            BaseServer.Self.AddExport(Events.GetScreenList, new Func<string>(this.OnGetScreenList));
+            BaseServer.Self.AddExport(Events.CreateScreen, new Action<string>(this.OnCreateScreen));
+            BaseServer.Self.AddExport(Events.EditScreen, new Action<string>(this.OnEditScreen));
+            BaseServer.Self.AddExport(Events.DeleteScreen, new Action<string>(this.OnDeleteScreen));
+
             this.IsInitialized = true;
         }
 
         private IList<Screen> GetScreensList()
         {
             return this.screenCollection.FindAll().ToList();
+        }
+
+        private void OnCreateScreen(string jsonScreen)
+        {
+            var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
+            if (screen == null)
+            {
+                Logger.Error($"failed to create new screen. invalid argument");
+                return;
+            }
+
+            var existingScreen = this.screenCollection.FindOne(s => s.Name == screen.Name);
+            if (existingScreen != null)
+            {
+                Logger.Error($"failed to create a new screen. A screen with name \"{screen.Name}\" already exists.");
+                return;
+            }
+
+            var id = this.screenCollection.Insert(screen);
+            screen.Id = id;
+
+            this.GetScreenList.Invoke(null, this.GetScreensList());
         }
 
         private void OnCreateScreen(Player p, Screen screen)
@@ -70,6 +102,19 @@
             this.GetScreenList.Invoke(null, this.GetScreensList());
         }
 
+        private void OnDeleteScreen(string screenName)
+        {
+            var count = this.screenCollection.Delete(s => s.Name == screenName);
+            if (count == 0)
+            {
+                Logger.Error($"failed to delete screen. screen {screenName} not found.");
+                return;
+            }
+
+            this.DeleteScreen.Invoke(null, screenName);
+            this.GetScreenList.Invoke(null, this.GetScreensList());
+        }
+
         private void OnDeleteScreen(Player p, string screenName)
         {
             if (!p.IsAceAllowed(Permission.Delete))
@@ -88,6 +133,32 @@
             }
 
             this.DeleteScreen.Invoke(null, screenName);
+            this.GetScreenList.Invoke(null, this.GetScreensList());
+        }
+
+        private void OnEditScreen(string jsonScreen)
+        {
+            var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
+            if (screen == null)
+            {
+                Logger.Error("Failed to edit screen. Received empty or wrong argument");
+                return;
+            }
+
+            if (!screen.IsValid)
+            {
+                Logger.Error("Failed to edit screen. Received invalid screen argument");
+                return;
+            }
+
+            var found = this.screenCollection.Update(screen);
+            if (!found)
+            {
+                Logger.Error($"Editing failed. screen \"{screen.Name}\" not found.");
+                return;
+            }
+
+            this.EditScreen.Invoke(null, screen);
             this.GetScreenList.Invoke(null, this.GetScreensList());
         }
 
@@ -110,6 +181,12 @@
 
             this.EditScreen.Invoke(null, screen);
             this.GetScreenList.Invoke(null, this.GetScreensList());
+        }
+
+        private string OnGetScreenList()
+        {
+            var screens = this.GetScreensList();
+            return JsonConvert.SerializeObject(screens);
         }
 
         private void OnGetScreenList(Player p, IList<Screen> unused)

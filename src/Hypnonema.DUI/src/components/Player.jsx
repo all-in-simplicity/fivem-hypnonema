@@ -97,7 +97,7 @@ const Player = () => {
         if (!loop) {
             setTimeout(() => {
                 sendDuiResponse('playbackEnded', { screenName}).then(() => {});
-            }, 2000);
+            }, 2500);
         }
     }
 

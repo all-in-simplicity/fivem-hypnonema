@@ -26,6 +26,8 @@
 
         public NetworkMethod<PlayEvent> Play { get; private set; }
 
+        public NetworkMethod<string> PlaybackEnded { get; private set; }
+
         public NetworkMethod<string> Resume { get; private set; }
 
         public NetworkMethod<string, float> Seek { get; private set; }
@@ -45,11 +47,13 @@
             this.Resume = new NetworkMethod<string>(Events.Resume, this.OnResume);
             this.Seek = new NetworkMethod<string, float>(Events.Seek, this.OnSeek);
             this.Duration = new NetworkMethod<string, float>(Events.UpdateStateDuration, this.OnUpdateDuration);
+            this.PlaybackEnded = new NetworkMethod<string>(Events.PlaybackEnded, this.OnPlaybackEnded);
 
             BaseServer.Self.AddExport(Events.Play, new Action<string, string>(this.OnPlay));
             BaseServer.Self.AddExport(Events.Pause, new Action<string>(this.OnPause));
             BaseServer.Self.AddExport(Events.Stop, new Action<string>(this.OnStop));
             BaseServer.Self.AddExport(Events.Resume, new Action<string>(this.OnResume));
+            BaseServer.Self.AddExport(Events.Seek, new Action<string, float>(this.OnSeek));
 
             this.IsInitialized = true;
         }
@@ -60,7 +64,7 @@
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             if (screen == null)
             {
-                // Logging..
+                Logger.Error($"Pausing failed. Screen \"{screenName}\" not found.");
                 return;
             }
 
@@ -95,13 +99,17 @@
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             if (screen == null)
             {
-                // TODO: Logging
+                Logger.Error($"play on screen \"{screenName}\" failed. Screen not found");
                 return;
             }
 
             var playEvent = new PlayEvent() { Screen = screen, Url = videoUrl };
 
-            if (!playEvent.IsValid) return;
+            if (!playEvent.IsValid)
+            {
+                Logger.Error($"play \"{playEvent.Url}\" on screen \"{playEvent.Url}\" failed. Reason: Invalid url");
+                return;
+            }
 
             this.Play.Invoke(null, playEvent);
 
@@ -135,10 +143,12 @@
 
             this.Play.Invoke(null, playEvent);
 
-            // get video duration..
-            this.Duration.Invoke(p, playEvent.Screen.Name, 0f);
-
             this.screenStateManager.OnPlay(screen, playEvent.Url);
+        }
+
+        private void OnPlaybackEnded(Player p, string screenName)
+        {
+            this.screenStateManager.OnEnded(screenName);
         }
 
         // Called through export
@@ -147,7 +157,7 @@
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             if (screen == null)
             {
-                // TODO: Logging
+                Logger.Error($"Resuming failed. screen \"{screenName}\" not found.");
                 return;
             }
 
@@ -191,7 +201,20 @@
             }
 
             this.Seek.Invoke(null, screenName, time);
+            this.screenStateManager.OnSeek(screenName, time);
+        }
 
+        // Export
+        private void OnSeek(string screenName, float time)
+        {
+            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            if (screen == null)
+            {
+                Logger.Error($"seeking failed. Cant find {screenName}");
+                return;
+            }
+
+            this.Seek.Invoke(null, screenName, time);
             this.screenStateManager.OnSeek(screenName, time);
         }
 
@@ -201,7 +224,7 @@
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             if (screen == null)
             {
-                // TODO: Logging
+                Logger.Error($"Stopping failed. screen \"{screenName}\" not found.");
                 return;
             }
 

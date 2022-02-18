@@ -6,9 +6,10 @@
 
     using Hypnonema.Shared;
 
+    using Newtonsoft.Json;
+
     using ClientScript = Hypnonema.Client.ClientScript;
 
-    // https://gist.github.com/ApocDev/21373cd4a6e0a1dba3b6a0699661f5fc
     public abstract class NetworkMethod : IDisposable
     {
         protected NetworkMethod(string eventName, Delegate callback = null)
@@ -57,15 +58,12 @@
 
         protected static T DeserializeObject<T>(string text)
         {
-            return text == null ? default(T) : Newtonsoft.Json.JsonConvert.DeserializeObject<T>(text);
+            return text == null ? default(T) : JsonConvert.DeserializeObject<T>(text);
         }
 
         protected static string SerializeObject(object o)
         {
-            if (o == null)
-                return null;
-
-            return Newtonsoft.Json.JsonConvert.SerializeObject(o);
+            return o == null ? null : JsonConvert.SerializeObject(o);
         }
 
         protected virtual Delegate GetRegisterCallback()

@@ -23,7 +23,6 @@
     <PackageReference Include="CitizenFX.Core.Server" Version="1.0.5327" />
     <PackageReference Include="LiteDB" Version="4.1.4" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="MongoDB.Bson" Version="2.14.1" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.255">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

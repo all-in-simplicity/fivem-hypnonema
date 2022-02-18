@@ -30,7 +30,7 @@
                              ? (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input)
                              : JsonConvert.DeserializeObject<T>(input, serializerSettings);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Logger.Warn($"ArgsReader failed to read key \"{key}\".");
             }
