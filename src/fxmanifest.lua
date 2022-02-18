@@ -49,6 +49,6 @@ files {
 }
 
 author 'simpled-dev'
-version '1.8.0'
-description 'a Cinema Resource for FiveM'
+version '1.9.0'
+description 'a Media Player Resource for FiveM'
 repository 'https://github.com/thiago-dev/fivem-hypnonema'
