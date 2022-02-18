@@ -1,5 +1,5 @@
-﻿<h1>Hypnonema 🎬 🎥🍿</h1>
-<h5>Cinema Resource for FiveM</h5>
+<h1>Hypnonema 🎬 🎥</h1>
+<h5>Media Player Resource for FiveM</h5>
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/thiago-dev/fivem-hypnonema?style=social)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/thiago-dev/fivem-hypnonema?include_prereleases&style=flat-square)
@@ -15,6 +15,7 @@
 - [Features](#features)
 - [Demo](#demo)
 - [Requirements](#requirements)
+- [Installation](#installation)
 - [Permissions](#permissions)
   - [Example Permission Config](#example-permission-config)
 - [(Optional) Example Map](#optional-example-map)
@@ -26,6 +27,11 @@
     - [pause](#pause)
     - [stop](#stop)
     - [resume](#resume)
+    - [seek](#seek)
+    - [getScreenList](#getscreenlist)
+    - [createScreen](#createscreen)
+    - [editScreen](#editscreen)
+    - [deleteScreen](#deletescreen)
 - [License](#license)
 - [Support](#support)
 
@@ -42,7 +48,16 @@
 [Click me](https://youtu.be/JckYo8bKdnE)
 
 ## Requirements
-- [FiveM](https://fivem.net)
+- Recent [FiveM-Server](https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/?=t) Build
+
+## Installation
+1. Download the latest Release from [Github](https://github.com/thiago-dev/fivem-hypnonema/releases) and extract the zip file to your resources directory.
+2. (Optional) Edit permissions.cfg to your likings. See [Permissions](#permissions) for more information.
+3. Edit the `server.cfg` and add following lines:
+```
+exec @hypnonema/permissions.cfg
+start hypnonema
+```
 
 ## Permissions
 By default only members of `group.admin` are allowed to interact with hypnonema.
@@ -77,7 +92,6 @@ start hypnonema-map
 ### Change command
 If you want to use your own command just edit the `fxmanifest.lua`. Don't add preceding slashes or any special characters.
 
-**Hint:** Dont forget to adjust the ACE-Permissions (in case of change) to match your new command name!
 ```
 hypnonema_command_name 'mynewcommand'
 ```
@@ -102,6 +116,56 @@ exports.hypnonema:stop(screenName)
 exports.hypnonema:resume(screenName)
 ```
 
+#### seek
+```lua
+exports.hypnonema:seek(screenName, time)
+```
+
+#### getScreenList
+```lua
+local screens = json.decode(exports.hypnonema:getScreenList())
+```
+
+#### createScreen
+The parameter has to be in JSON format.
+```lua
+local exampleScreen = {
+    AlwaysOn = false,
+    DuiBrowserSettings = {
+        GlobalVolume = 100,
+        Is3DAudioEnabled = true,
+        SoundAttenuation = 10,
+        SoundMaxDistance = 200,
+        SoundMinDistance = 10,
+    },
+    Is3DRendered = true,
+    Name = "Hypnonema Example Screen",
+    PositionalSettings = {
+        PositionX = -1678.949,
+        PositionY = -928.3431,
+        PositionZ = 20.6290932,
+        RotationX = 0,
+        RotationY = 0,
+        RotationZ = -140,
+        ScaleX = 0.969999969,
+        ScaleY = 0.484999985,
+        ScaleZ = -0.1,
+    }
+}
+
+exports.hypnonema:createScreen(json.encode(exampleScreen))
+```
+
+#### editScreen
+The parameter has to be in JSON format.
+```lua
+exports.hypnonema:editScreen(jsonScreen)
+```
+
+#### deleteScreen
+```lua
+exports.hypnonema:deleteScreen(screenName)
+```
 
 ## License
 This work is licensed under a
