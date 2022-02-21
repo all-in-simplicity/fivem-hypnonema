@@ -1,0 +1,37 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+         fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore && nuget restore
+    - name: Build
+      run: dotnet build -c Release
+    - name: mv
+      run: mv libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
+    - name: Upload script Build Artifact
+      uses: actions/upload-artifact@v2.3.1
+      with:
+        name: dotnet
+        path: |
+          src/Hypnonema.Server/bin/Release/netstandard2.0/
+          src/Hypnonema.Client/bin/Release/net452/
+          !src/Hypnonema.Client/bin/Release/net452/CitizenFX.Core.Client.dll
+          !src/Hypnonema.Server/bin/Release/netstandard2.0/CitizenFX.Core.Server.dll
+          
