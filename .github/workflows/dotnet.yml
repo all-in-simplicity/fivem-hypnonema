@@ -28,11 +28,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-    - run: cd src/Hypnonema.NUI/
-    - run: npm install
+    - run: cd src/Hypnonema.NUI/ && npm install
     - name: Build NUI 
-      run: npm run build && 
-    - run: cd ../ & cd Hypnonema.DUI/
+      run: cd src/Hypnonema.NUI/ && npm run build
     - run: npm install 
     - name: Build DUI
       run: npm run build 
