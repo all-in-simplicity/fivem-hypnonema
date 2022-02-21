@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+         fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -20,7 +22,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore && nuget restore
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build --no-restore -c Release
     - name: mv
       run: mv libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
     - name: Upload script Build Artifact
