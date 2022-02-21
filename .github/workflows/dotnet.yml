@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore && nuget restore
     - name: Build
       run: dotnet build --no-restore -c Release
     - name: mv
