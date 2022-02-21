@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build -c Release
     - name: mv
-      run: mv libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
+      run: mv -force libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
     - name: Upload script Build Artifact
       uses: actions/upload-artifact@v2.3.1
       with:
