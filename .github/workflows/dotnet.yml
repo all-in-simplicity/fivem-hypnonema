@@ -25,13 +25,33 @@ jobs:
       run: dotnet build -c Release
     - name: mv
       run: mv -force libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
+    - name: Setup node 
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - run: cd src/Hypnonema.NUI/
+    - run: npm install
+    - name: Build NUI 
+      run: npm run build && 
+    - run: cd ../ & cd Hypnonema.DUI/
+    - run: npm install 
+    - name: Build DUI
+      run: npm run build 
+    - run: cd ../.. 
+    - run: New-Item -Path './build' -ItemType Directory
+    - run: Expand-Archive ./example_map/hypnonema-map.zip -DestinationPath ./build/ -Force
+    - run: xcopy /v/y/i src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll ./build/hypnonema/client/
+    - run: xcopy /v/y/i src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll ./build/hypnonema/client/
+    - run: xcopy /v/y/i ./lib/Newtonsoft.Json.dll ./build/hypnonema/client/
+    - run: xcopy /s/e/y/I/i src/Hypnonema.NUI/dist/HypnonemaNUI ./build/hypnonema/client/html/
+    - run: xcopy /y/I stream ./build/hypnonema/stream/
+    - run: xcopy /v/y/i src/Hypnonema.DUI/dist/index.html ./build/hypnonema/wwwroot/
+    - run: xcopy /i/y/I src/Hypnonema.Server/bin/Release/netstandard2.0/ ./build/hypnonema/server/ /EXCLUDE:CitizenFX.Core.Server.dll
+    - run: xcopy /y/I src/fxmanifest.lua ./build/hypnonema
+    - run: xcopy /y/I src/permissions.cfg ./build/hypnonema
     - name: Upload script Build Artifact
       uses: actions/upload-artifact@v2.3.1
       with:
-        name: dotnet
+        name: hypnonema
         path: |
-          src/Hypnonema.Server/bin/Release/netstandard2.0/
-          src/Hypnonema.Client/bin/Release/net452/
-          !src/Hypnonema.Client/bin/Release/net452/CitizenFX.Core.Client.dll
-          !src/Hypnonema.Server/bin/Release/netstandard2.0/CitizenFX.Core.Server.dll
-          
+          build/          
