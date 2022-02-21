@@ -20,7 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore && nuget restore
     - name: Build
-      run: dotnet build --no-restore -c Release
+      run: dotnet build -c Release
     - name: mv
       run: mv libs/Newtonsoft.Json.dll  src/Hypnonema.Client/bin/Release/net452/
     - name: Upload script Build Artifact
