@@ -27,7 +27,7 @@ jobs:
     - name: Setup node 
       uses: actions/setup-node@v2
       with:
-        node-version: '15.10'
+        node-version: '14'
     - run: cd src/Hypnonema.NUI/ && npm install --legacy-peer-deps
     - name: Build NUI 
       run: cd src/Hypnonema.NUI/ && npm run build
