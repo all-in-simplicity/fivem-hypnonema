@@ -33,17 +33,17 @@ jobs:
       run: cd src/Hypnonema.NUI/ && npm run build
     - name: Build DUI
       run: cd src/Hypnonema.DUI && npm install --legacy-peer-deps && npm run build  
-    - run: New-Item -Path './build' -ItemType Directory
+    - run: New-Item -Path @('./build', './build/hypnonema', './build/hypnonema/client', './build/hypnonema/server') -ItemType Directory
     - run: Expand-Archive ./example_map/hypnonema-map.zip -DestinationPath ./build/ -Force
-    - run: xcopy /v/y/i src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll ./build/hypnonema/client/
-    - run: xcopy /v/y/i src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll ./build/hypnonema/client/
-    - run: xcopy /v/y/i ./lib/Newtonsoft.Json.dll ./build/hypnonema/client/
-    - run: xcopy /s/e/y/I/i src/Hypnonema.NUI/dist/HypnonemaNUI ./build/hypnonema/client/html/
-    - run: xcopy /y/I stream ./build/hypnonema/stream/
-    - run: xcopy /v/y/i src/Hypnonema.DUI/dist/index.html ./build/hypnonema/wwwroot/
-    - run: xcopy /i/y/I src/Hypnonema.Server/bin/Release/netstandard2.0/ ./build/hypnonema/server/ /EXCLUDE:CitizenFX.Core.Server.dll
-    - run: xcopy /y/I src/fxmanifest.lua ./build/hypnonema
-    - run: xcopy /y/I src/permissions.cfg ./build/hypnonema
+    - run: Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll" -Destination "./build/hypnonema/client"
+    - run: Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll" -Destination "./build/hypnonema/client" 
+    - run: Copy-Item "./lib/Newtonsoft.Json.dll" -Destination "./build/hypnonema/client"
+    - run: Copy-Item "./src/Hypnonema.NUI/dist/HypnonemaNUI" -Destination "./build/hypnonema/client/html" -Recurse
+    - run: Copy-Item "./stream" -Destination "./build/hypnonema/stream" -Recurse
+    - run: Copy-Item "./src/Hypnonema.DUI/dist/index.html" -Destination "./build/hypnonema/wwwroot"
+    - run: Copy-Item "./src/Hypnonema.Server/bin/Release/netstandard2.0/*" -Destination "./build/hypnonema/server/" -Exclude CitizenFX.Core.Server.dll -Recurse
+    - run: Copy-Item "./src/fxmanifest.lua" -Destination "./build/hypnonema"
+    - run: Copy-Item "./src/permissions.cfg" -Destination "./build/hypnonema"
     - name: Upload script Build Artifact
       uses: actions/upload-artifact@v2.3.1
       with:
