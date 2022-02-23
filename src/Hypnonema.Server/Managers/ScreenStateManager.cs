@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Server.Screens
+﻿namespace Hypnonema.Server.Managers
 {
     using System;
     using System.Collections.Generic;
@@ -10,6 +10,8 @@
     using Hypnonema.Shared;
     using Hypnonema.Shared.Models;
 
+    using Newtonsoft.Json;
+
     public sealed class ScreenStateManager
     {
         private readonly State _state = new State();
@@ -19,6 +21,8 @@
         public ScreenStateManager()
         {
             this.duiState = new NetworkMethod<Guid, List<DuiState>>(Events.DuiState, this.OnDuiState);
+            
+            BaseServer.Self.AddExport(Events.DuiState, new Func<string>(this.OnDuiState));
         }
 
         public void OnEnded(string screenName)
@@ -77,6 +81,13 @@
             screenState.Duration = duration;
 
             this._state.Update(screenName, screenState);
+        }
+
+        private string OnDuiState()
+        {
+            var state = this._state.ToList();
+
+            return state == null ? "" : JsonConvert.SerializeObject(state);
         }
 
         private void OnDuiState(Player p, Guid requestId, List<DuiState> unused)

@@ -10,7 +10,7 @@
     using CitizenFX.Core.Native;
 
     using Hypnonema.Server.Communications;
-    using Hypnonema.Server.Screens;
+    using Hypnonema.Server.Managers;
     using Hypnonema.Server.Utils;
     using Hypnonema.Shared;
     using Hypnonema.Shared.Models;
@@ -55,22 +55,12 @@
         {
             this.Exports.Add(name, action);
         }
-
-        public void AddTick(Func<Task> action)
-        {
-            this.Tick += action;
-        }
-
+        
         public void RemoveEvent(string eventName, Delegate action)
         {
             this.EventHandlers[eventName] -= action;
         }
-
-        public void SetGlobalState(string key, object data, bool replicated)
-        {
-            this.GlobalState.Set(key, data, replicated);
-        }
-
+        
         /// <summary>
         /// CalculateMaxActiveScaleforms is used to specify how many scaleforms can be active at the same time.
         /// The limit of max. active scaleforms is limited by number of *.gfx files in resource's stream directory.
@@ -131,6 +121,8 @@
             {
                 this.database = new LiteDatabase(this.connectionString);
                 this.screenCollection = this.database.GetCollection<Screen>("screens");
+
+                this.screenCollection.EnsureIndex(s => s.Name, true);
             }
             catch (Exception e)
             {

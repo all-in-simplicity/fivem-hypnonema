@@ -32,6 +32,7 @@
     - [createScreen](#createscreen)
     - [editScreen](#editscreen)
     - [deleteScreen](#deletescreen)
+    - [getDuiState](#getduistate)
 - [License](#license)
 - [Support](#support)
 
@@ -127,7 +128,7 @@ local screens = json.decode(exports.hypnonema:getScreenList())
 ```
 
 #### createScreen
-The parameter has to be in JSON format.
+_Note: The parameter has to be in JSON format._
 ```lua
 local exampleScreen = {
     AlwaysOn = false,
@@ -157,7 +158,7 @@ exports.hypnonema:createScreen(json.encode(exampleScreen))
 ```
 
 #### editScreen
-The parameter has to be in JSON format.
+_Note: The parameter has to be in JSON format_
 ```lua
 exports.hypnonema:editScreen(jsonScreen)
 ```
@@ -165,6 +166,12 @@ exports.hypnonema:editScreen(jsonScreen)
 #### deleteScreen
 ```lua
 exports.hypnonema:deleteScreen(screenName)
+```
+
+#### getDuiState
+returns a list containing current player states.
+```lua
+local duiState = json.decode(exports.hypnonema.getDuiState())
 ```
 
 ## License

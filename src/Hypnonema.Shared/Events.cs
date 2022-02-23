@@ -8,7 +8,7 @@
 
         public const string DeleteScreen = "deleteScreen";
 
-        public const string DuiState = "duiState";
+        public const string DuiState = "getDuiState";
 
         public const string EditScreen = "editScreen";
 
@@ -33,5 +33,7 @@
         public const string Stop = "stop";
 
         public const string UpdateStateDuration = "updateStateDuration";
+
+        public const string ScheduleExecuted = "scheduleExecuted";
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Hypnonema.Server.Screens
+﻿namespace Hypnonema.Server.Managers
 {
     using System;
 
