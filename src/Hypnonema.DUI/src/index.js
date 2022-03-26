@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import App from './components/App';
-
 import './assets/styles/style.css';
+import Player from './components/Player';
 
 ReactDOM.render(
-  React.createElement(App),
+  React.createElement(Player),
   document.getElementById('root'),
 );
 

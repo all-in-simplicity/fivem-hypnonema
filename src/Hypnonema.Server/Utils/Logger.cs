@@ -2,54 +2,55 @@
 {
     using System;
 
-    using CitizenFX.Core;
+    using CitizenFX.Core.Native;
 
     public static class Logger
     {
-        public enum LogLevel
+        private static bool IsLoggingEnabled =>
+            ConfigReader.GetConfigKeyValue(API.GetCurrentResourceName(), "hypnonema_logging_enabled", 0, false);
+
+        public static void Debug(string message)
         {
-            Verbose = 0,
+            if (!IsLoggingEnabled) return;
 
-            Debug = 1,
+            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] [DEBUG]";
 
-            Information = 2,
-
-            Warning = 3,
-
-            Error = 4
+            CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }
 
-        public static void WriteLine(string message, LogLevel logLevel = LogLevel.Debug)
+        public static void Error(string message)
         {
-            if (!IsLoggingEnabled()) return;
+            if (!IsLoggingEnabled) return;
+            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^1[ERROR]";
+
+            CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
+        }
+
+        public static void Info(string message)
+        {
+            if (!IsLoggingEnabled) return;
+
+            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^5[INFO]";
+
+            CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
+        }
+
+        public static void Verbose(string message)
+        {
+            if (!IsLoggingEnabled) return;
 
             var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}]^7";
 
-            switch (logLevel)
-            {
-                case LogLevel.Warning:
-                    prefix = $"{prefix} ^3[WARN]";
-                    break;
-                case LogLevel.Debug:
-                    prefix = $"{prefix} [DEBUG]";
-                    break;
-                case LogLevel.Error:
-                    prefix = $"{prefix} ^1[ERROR]";
-                    break;
-                case LogLevel.Information:
-                    prefix = $"{prefix} ^5[INFO]";
-                    break;
-                case LogLevel.Verbose:
-                    prefix = $"{prefix} ";
-                    break;
-            }
-
-            Debug.WriteLine($"{prefix} {message} ^7");
+            CitizenFX.Core.Debug.WriteLine($"{prefix} {message}");
         }
 
-        private static bool IsLoggingEnabled()
+        public static void Warn(string message)
         {
-            return ServerScript.IsLoggingEnabled;
+            if (!IsLoggingEnabled) return;
+
+            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^3[WARN]";
+
+            CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }
     }
 }

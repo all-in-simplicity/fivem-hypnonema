@@ -1,6 +1,6 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { QuickPlayComponent } from './quick-play.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {QuickPlayComponent} from './quick-play.component';
 
 
 const routes: Routes = [{
@@ -12,4 +12,5 @@ const routes: Routes = [{
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class QuickPlayRoutingModule { }
+export class QuickPlayRoutingModule {
+}

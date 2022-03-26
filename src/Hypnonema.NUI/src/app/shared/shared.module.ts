@@ -1,7 +1,6 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MinuteSecondsPipe } from './pipes/minute-seconds.pipe';
-
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MinuteSecondsPipe} from './pipes/minute-seconds.pipe';
 
 
 @NgModule({
@@ -11,4 +10,5 @@ import { MinuteSecondsPipe } from './pipes/minute-seconds.pipe';
     CommonModule
   ]
 })
-export class SharedModule { }
+export class SharedModule {
+}

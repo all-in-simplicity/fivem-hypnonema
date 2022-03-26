@@ -1,16 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
-import { CreateNewScreenComponent } from './create-new-screen.component';
+import {CreateNewScreenComponent} from './create-new-screen.component';
 
 describe('CreateNewScreenComponent', () => {
   let component: CreateNewScreenComponent;
   let fixture: ComponentFixture<CreateNewScreenComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CreateNewScreenComponent ]
+      declarations: [CreateNewScreenComponent]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

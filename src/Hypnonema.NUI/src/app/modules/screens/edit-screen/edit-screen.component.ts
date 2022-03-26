@@ -1,11 +1,11 @@
-import { Component,  OnInit } from '@angular/core';
-import { ScreenModel } from '../../../screen-model';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {Component, OnInit} from '@angular/core';
+import {ScreenModel} from '../../../screen-model';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
-import { Select } from '@ngxs/store';
-import { AppState } from '../../../app-state';
-import { Observable } from 'rxjs';
-import { NuiService } from '../../core/nui.service';
+import {Select} from '@ngxs/store';
+import {AppState} from '../../../app-state';
+import {Observable} from 'rxjs';
+import {NuiService} from '../../core/nui.service';
 
 @Component({
   selector: 'app-edit-screen',
@@ -58,11 +58,11 @@ export class EditScreenComponent implements OnInit {
           is3DRendered: screen.is3DRendered,
           positionX: screen.is3DRendered ? screen.positionalSettings.positionX : 0,
           positionY: screen.is3DRendered ? screen.positionalSettings.positionY : 0,
-          positionZ: screen.is3DRendered ?  screen.positionalSettings.positionZ : 0,
+          positionZ: screen.is3DRendered ? screen.positionalSettings.positionZ : 0,
           rotationX: screen.is3DRendered ? screen.positionalSettings.rotationX : 0,
-          rotationY: screen.is3DRendered ?  screen.positionalSettings.rotationY : 0,
+          rotationY: screen.is3DRendered ? screen.positionalSettings.rotationY : 0,
           rotationZ: screen.is3DRendered ? screen.positionalSettings.rotationZ : 0,
-          scaleX: screen.is3DRendered ?  screen.positionalSettings.scaleX : 0,
+          scaleX: screen.is3DRendered ? screen.positionalSettings.scaleX : 0,
           scaleY: screen.is3DRendered ? screen.positionalSettings.scaleY : 0,
           scaleZ: screen.is3DRendered ? screen.positionalSettings.scaleZ : 0,
           is3DAudioEnabled: screen.browserSettings.is3DAudioEnabled,
@@ -97,6 +97,7 @@ export class EditScreenComponent implements OnInit {
       }
     });
   }
+
   submit() {
     this.nuiService.editScreen(this.screenForm.get('screenName').value, this.screenId, this.screenForm.get('is3DRendered').value,
       this.screenForm.get('alwaysOn').value, this.screenForm.get('modelName').value, this.screenForm.get('renderTargetName').value,

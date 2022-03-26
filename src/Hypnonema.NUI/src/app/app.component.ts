@@ -1,33 +1,23 @@
-import { Component, HostListener, OnInit } from '@angular/core';
-import { environment } from '../environments/environment';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { Store } from '@ngxs/store';
-import {
-  ClearControlledScreen,
-  CreateScreen,
-  DeleteScreen,
-  SetIsAceAllowed,
-  SetIsLoading,
-  SetScreens,
-  UpdateScreen,
-  UpdateStatuses
-} from './app-state';
-import { ScreenModel, ScreenStatus } from './screen-model';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { UpdateCheckService } from './modules/core/update-check.service';
+import {Component, HostListener, OnInit} from '@angular/core';
+import {environment} from '../environments/environment';
+import {Router} from '@angular/router';
+import {HttpClient} from '@angular/common/http';
+import {Store} from '@ngxs/store';
+import {ClearControlledScreen, CreateScreen, DeleteScreen, SetScreens, UpdateScreen, UpdateState} from './app-state';
+import {ScreenModel, ScreenStatus} from './screen-model';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {NuiService} from './modules/core/nui.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit{
   appVisible = !environment.production;
-  checkedForUpdates = false;
 
   constructor(private router: Router, private http: HttpClient, private store: Store, private snackBar: MatSnackBar,
-              private updateCheckService: UpdateCheckService) {
+              private nuiService: NuiService) {
     if (!environment.production) {
 
       let screens: ScreenModel[];
@@ -51,20 +41,23 @@ export class AppComponent implements OnInit {
         },
         positionalSettings: null,
       };
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - 5);
+
       const testStatus = {
         screenName: 'blabla',
-        currentTime: 350,
+        // tslint:disable-next-line:max-line-length
+        startedAt: now.toDateString(),
         duration: 3500,
         isPaused: false,
         currentSource: 'https://youtube.com/blablabla',
-        ended: false,
         repeat: false,
       };
 
       screenStatus = [testStatus];
       screens = [testScreen];
       this.store.dispatch(new SetScreens(screens));
-      this.store.dispatch(new UpdateStatuses(screenStatus));
+      this.store.dispatch(new UpdateState(screenStatus));
     }
   }
 
@@ -73,77 +66,50 @@ export class AppComponent implements OnInit {
     if (!event) {
       return;
     }
+    switch (event.data.type) {
+      case 'showUI':
+        this.appVisible = event.data.payload;
 
-    if (event.data.type === 'HypnonemaNUI.ShowUI') {
-      if (!this.checkedForUpdates) {
-        this.updateCheckService.check(event.data.hypnonemaVersion);
-        this.checkedForUpdates = true;
-      }
-      if (event.data.isAceAllowed) {
-        this.store.dispatch(new SetIsAceAllowed(event.data.isAceAllowed));
-      } else {
-        this.store.dispatch(new SetIsAceAllowed(false));
-      }
+        event.data.payload ? this.router.navigateByUrl('quick-play') : this.store.dispatch(new ClearControlledScreen());
+        break;
+      case 'createdScreen':
+        this.store.dispatch(new CreateScreen(event.data.payload));
 
-      if (event.data.screens) {
-        this.store.dispatch(new SetScreens(event.data.screens));
-      } else {
-        this.router.navigateByUrl('screens');
-        this.appVisible = true;
-        return;
-      }
+        if (this.appVisible) {
+          this.router.navigateByUrl('screens');
+          this.snackBar.open('Screen successfully created!', 'Dismiss', {
+            duration: 2500,
+          });
+        }
 
-      this.router.navigateByUrl('quick-play');
-      this.appVisible = true;
-    }
+        break;
+      case 'getScreenList':
+        this.store.dispatch(new SetScreens(event.data.payload));
+        break;
+      case 'editScreen':
+        this.store.dispatch(new UpdateScreen(event.data.payload));
 
-    if (event.data.type === 'HypnonemaNUI.HideUI') {
-      this.appVisible = false;
-      this.store.dispatch(new ClearControlledScreen());
-    }
+        if (this.appVisible) {
+          this.snackBar.open('Screen successfully updated!', 'Dismiss', {
+            duration: 2500,
+          });
+        }
+        break;
+      case 'deleteScreen':
+        this.store.dispatch(new DeleteScreen(event.data.payload));
 
-    if (event.data.type === 'HypnonemaNUI.CreatedScreen') {
-      this.store.dispatch(new CreateScreen(event.data.screen));
-      if (this.appVisible) {
-        this.snackBar.open('Screen successfully created!', 'Dismiss', {
-          duration: 2500,
-        });
-        this.router.navigateByUrl('screens');
-      }
-    }
-
-    if (event.data.type === 'HypnonemaNUI.EditedScreen') {
-      this.store.dispatch(new UpdateScreen(event.data.screen));
-      if (this.appVisible) {
-        this.snackBar.open('Screen successfully updated!', 'Dismiss', {
-          duration: 2500,
-        });
-        this.router.navigateByUrl('screens');
-      }
-    }
-
-    if (event.data.type === 'HypnonemaNUI.DeletedScreen') {
-      this.store.dispatch(new DeleteScreen(event.data.screenName));
-      if (this.appVisible) {
-        this.snackBar.open('Screen successfully deleted!', 'Dismiss', {
-          duration: 2500,
-        });
-        this.router.navigateByUrl('screens');
-      }
-    }
-    if (event.data.type === 'HypnonemaNUI.UpdateStatuses') {
-      this.store.dispatch(new SetIsLoading(false));
-      this.store.dispatch(new UpdateStatuses(event.data.screenStates));
-
-      if (this.appVisible && event.data.showSnackBar) {
-        this.snackBar.open('Successfully fetched status!', 'Dismiss', {
-          duration: 2500,
-        });
-      }
+        if (this.appVisible) {
+          this.snackBar.open('Screen successfully deleted!', 'Dismiss', {
+            duration: 2500,
+          });
+        }
+        break;
     }
   }
 
   ngOnInit(): void {
-
+    this.nuiService.requestDuiState('');
   }
 }
+
+

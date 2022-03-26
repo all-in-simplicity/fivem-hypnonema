@@ -18,17 +18,10 @@
             }
             catch (Exception)
             {
-                Logger.WriteLine(
-                    $"Error: Failed to parse {metadataKey}. Using default value {defaultValue}",
-                    Logger.LogLevel.Error);
+                Logger.Error($"Failed to parse {metadataKey}. Using default value {defaultValue}");
             }
 
             return result;
-        }
-
-        public static T GetConfigKeyValue<T>(string resourceName, string metadataKey, int index)
-        {
-            return GetConfigKeyValue(resourceName, metadataKey, index, default(T));
         }
     }
 }

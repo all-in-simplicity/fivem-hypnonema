@@ -5,18 +5,17 @@
   </mat-card-header>
   <mat-card-content>
     <div class="form-container">
-      <form [formGroup]="playForm" class="quick-play-form" (ngSubmit)="submit()">
+      <form (ngSubmit)="submit()" [formGroup]="playForm" class="quick-play-form">
         <div>
           <mat-form-field>
-            <input matInput placeholder="URL" formControlName="url" type="url" required>
-            <mat-error *ngIf="playForm.hasError('required', 'url')">Please enter a valid url</mat-error>
+            <input formControlName="url" matInput placeholder="URL" required type="url">
+            <mat-error *ngIf="playForm.hasError('required', 'url')">Please enter a url.</mat-error>
           </mat-form-field>
-
         </div>
 
         <div>
           <mat-form-field>
-            <mat-select required formControlName="screen" placeholder="Screen" [(ngModel)]="selectedScreen">
+            <mat-select formControlName="screen" placeholder="Screen" required>
               <mat-option *ngFor="let screen of screens$ | async" [value]="screen">{{screen.name}}</mat-option>
             </mat-select>
             <mat-hint>You may have to create a Screen first.</mat-hint>
@@ -25,7 +24,7 @@
         </div>
 
         <div style="padding-top: 10px;">
-          <button type="submit" mat-raised-button>Play</button>
+          <button mat-raised-button type="submit">Play</button>
         </div>
       </form>
     </div>

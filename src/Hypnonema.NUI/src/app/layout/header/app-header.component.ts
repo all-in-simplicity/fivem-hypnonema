@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { NuiService } from '../../modules/core/nui.service';
+import {Component, OnInit} from '@angular/core';
+import {NuiService} from '../../modules/core/nui.service';
 
 @Component({
   selector: 'app-header',
@@ -10,10 +8,12 @@ import { NuiService } from '../../modules/core/nui.service';
 })
 export class AppHeaderComponent implements OnInit {
 
-  constructor(private nuiService: NuiService) { }
+  constructor(private nuiService: NuiService) {
+  }
 
   ngOnInit() {
   }
+
   close() {
     this.nuiService.hideNUI();
   }

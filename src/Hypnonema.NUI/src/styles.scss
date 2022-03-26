@@ -1,6 +1,12 @@
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 #wrapper {
   width: 100%;
@@ -11,12 +17,14 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   min-height: 658px;
   margin: 0 auto;
 }
+
 #wrapper2 {
   position: relative;
   padding-top: 25px;
   padding-bottom: 67.5%;
   height: 0;
 }
+
 #content {
   box-sizing: border-box;
   background: url(assets/bg.png) center center no-repeat;
@@ -33,6 +41,18 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   width: 250px;
 }
 
-.mat-accent .mat-slider-thumb, .mat-accent .mat-slider-thumb-label, .mat-accent .mat-slider-track-fill  {
+.mat-accent .mat-slider-thumb, .mat-accent .mat-slider-thumb-label, .mat-accent .mat-slider-track-fill {
   background-color: #bc13fe;
+}
+::ng-deep {
+  .mat-slider-thumb-label {
+    transform: rotate(45deg) !important;
+    border-radius: 50% 50% 0 !important;
+  }
+  .mat-slider-thumb {
+    transform: scale(0) !important;
+  }
+  .mat-slider-thumb-label-text {
+    opacity: 1 !important;
+  }
 }

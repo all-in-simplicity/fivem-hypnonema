@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Select, Store } from '@ngxs/store';
-import { AppState, SetIsLoading } from '../../app-state';
-import { Observable } from 'rxjs';
-import { ScreenModel, ScreenStatus } from '../../screen-model';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { NuiService } from '../core/nui.service';
+import {Component, OnInit} from '@angular/core';
+import {Select, Store} from '@ngxs/store';
+import {AppState} from '../../app-state';
+import {Observable} from 'rxjs';
+import {ScreenStatus} from '../../screen-model';
+import {HttpClient} from '@angular/common/http';
+import {NuiService} from '../core/nui.service';
 
 @Component({
   selector: 'app-status',
@@ -21,7 +20,8 @@ export class StatusComponent implements OnInit {
   @Select(AppState.isLoading)
   isLoading: Observable<boolean>;
 
-  constructor(private http: HttpClient, private store: Store, private nuiService: NuiService) { }
+  constructor(private http: HttpClient, private store: Store, private nuiService: NuiService) {
+  }
 
   ngOnInit() {
     this.refresh();
@@ -29,7 +29,10 @@ export class StatusComponent implements OnInit {
 
   suspendScreen(screen: ScreenStatus) {
     this.nuiService.closeScreen(screen.screenName);
-    this.refresh();
+
+    setTimeout(() => {
+      this.nuiService.requestDuiState(screen.screenName);
+    }, 1000);
   }
 
   refresh() {
