@@ -10,6 +10,7 @@ build.bat
 /app/**/*.js
 /app/**/*.js.map
 /build
+/build2
 # dependencies
 /node_modules
 /bower_components

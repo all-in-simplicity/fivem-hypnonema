@@ -20,26 +20,27 @@
             this.duiStateMethod = new NetworkMethod<Guid, List<DuiState>>(Events.DuiState, this.OnDuiState);
         }
 
-        public Task<List<DuiState>> RequestDuiStateAsync()
+        unsafe public Task<List<DuiState>> RequestDuiStateAsync()
         {
-            var tcs = new TaskCompletionSource<List<DuiState>>();
+            TaskCompletionSource<List<DuiState>> tcs = new TaskCompletionSource<List<DuiState>>();
 
             this.pendingRequests.TryAdd(this.RequestDuiState(), tcs);
 
             return tcs.Task;
         }
 
-        private void OnDuiState(Guid requestId, List<DuiState> duiState)
+        unsafe private void OnDuiState(Guid requestId, List<DuiState> duiState)
         {
             this.pendingRequests.TryRemove(requestId, out var tcs);
 
             tcs?.SetResult(duiState);
         }
 
-        private Guid RequestDuiState()
+        unsafe private Guid RequestDuiState()
         {
-            var requestId = Guid.NewGuid();
-            this.duiStateMethod.Invoke(requestId, new List<DuiState>());
+            Guid requestId = Guid.NewGuid();
+            List<DuiState> myList = new List<DuiState>();
+            this.duiStateMethod.Invoke(requestId, myList);
 
             return requestId;
         }

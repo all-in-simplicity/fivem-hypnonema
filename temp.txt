@@ -1,0 +1,20 @@
+Remove-Item "./build2" -Recurse -Force
+dotnet build -c Release
+New-Item -Path @('./build2', './build2/hypnonema', './build2/hypnonema/client', './build2/hypnonema/server', './build2/hypnonema/wwwroot') -ItemType Directory
+    Expand-Archive ./example_map/hypnonema-map.zip -DestinationPath ./build2/ -Force
+    Copy-Item "./libs/Newtonsoft.Json.dll" -Destination "./src/Hypnonema.Client/bin/Release/net452/"   
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll" -Destination "./build2/hypnonema/client"
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll" -Destination "./build2/hypnonema/client" 
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Newtonsoft.Json.dll" -Destination "./build2/hypnonema/client"
+    Copy-Item "./src/Hypnonema.NUI/dist/HypnonemaNUI" -Destination "./build2/hypnonema/client/html" -Recurse
+    Copy-Item "./stream" -Destination "./build2/hypnonema/stream" -Recurse
+    Copy-Item "./src/Hypnonema.DUI/dist/index.html" -Destination "./build2/hypnonema/wwwroot"
+    Copy-Item "./src/Hypnonema.Server/bin/Release/netstandard2.0/*" -Destination "./build2/hypnonema/server/" -Exclude CitizenFX.Core.Server.dll -Recurse
+    Copy-Item "./src/fxmanifest.lua" -Destination "./build2/hypnonema"
+
+Remove-Item "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema\client" -Recurse -Force
+Remove-Item "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema\server" -Recurse -Force
+Remove-Item "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema\stream" -Recurse -Force
+Remove-Item "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema\wwwroot" -Recurse -Force
+Remove-Item "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema\fxmanifest.lua" -Force
+    Copy-Item "./build2/hypnonema/*" -Destination "C:\Users\jpstr\Documents\GitHub\main-server\resources\[Standalone]\hypnonema" -Recurse -Force

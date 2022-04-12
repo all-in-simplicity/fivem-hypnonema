@@ -84,8 +84,12 @@
         {
         }
 
-        public void Invoke(T1 value1) =>
+        unsafe public void Invoke(T1 value1)
+        {
+            Debug.WriteLine(value1.GetType().ToString());
             this.InvokeInternal(TypeCache<T1>.IsSimpleType ? (object)value1 : SerializeObject(value1));
+        }
+            
 
         protected override Delegate GetRegisterCallback() => new Action<object>(this.SerializedCallback);
 
@@ -100,10 +104,15 @@
         {
         }
 
-        public void Invoke(T1 value1, T2 value2) =>
+        unsafe public void Invoke(T1 value1, T2 value2)
+        {
+            Debug.WriteLine(value1.GetType().ToString());
+            Debug.WriteLine(value2.GetType().ToString());
             this.InvokeInternal(
                 TypeCache<T1>.IsSimpleType ? (object)value1 : SerializeObject(value1),
                 TypeCache<T2>.IsSimpleType ? (object)value2 : SerializeObject(value2));
+        }
+            
 
         protected override Delegate GetRegisterCallback() => new Action<object, object>(this.SerializedCallback);
 

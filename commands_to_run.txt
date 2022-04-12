@@ -1,0 +1,11 @@
+    New-Item -Path @('./build', './build/hypnonema', './build/hypnonema/client', './build/hypnonema/server', './build/hypnonema/wwwroot') -ItemType Directory
+    Expand-Archive ./example_map/hypnonema-map.zip -DestinationPath ./build/ -Force
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll" -Destination "./build/hypnonema/client"
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll" -Destination "./build/hypnonema/client" 
+    Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Newtonsoft.Json.dll" -Destination "./build/hypnonema/client"
+    Copy-Item "./src/Hypnonema.NUI/dist/HypnonemaNUI" -Destination "./build/hypnonema/client/html" -Recurse
+    Copy-Item "./stream" -Destination "./build/hypnonema/stream" -Recurse
+    Copy-Item "./src/Hypnonema.DUI/dist/index.html" -Destination "./build/hypnonema/wwwroot"
+    Copy-Item "./src/Hypnonema.Server/bin/Release/netstandard2.0/*" -Destination "./build/hypnonema/server/" -Exclude CitizenFX.Core.Server.dll -Recurse
+    Copy-Item "./src/fxmanifest.lua" -Destination "./build/hypnonema"
+    Copy-Item "./src/permissions.cfg" -Destination "./build/hypnonema"
