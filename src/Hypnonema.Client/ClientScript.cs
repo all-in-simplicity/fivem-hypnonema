@@ -1,4 +1,6 @@
-﻿namespace Hypnonema.Client
+﻿using Newtonsoft.Json;
+
+namespace Hypnonema.Client
 {
     using System;
     using System.Collections.Generic;
@@ -66,6 +68,30 @@
 
             this.EventHandlers[$"__cfx_nui:{msg}"] += new Func<ExpandoObject, CallbackDelegate, Task>(
                 async (body, resultCallback) => { await callback.Invoke(body, resultCallback); });
+        }
+
+        public void RegisterCallback(string @event, Action<IDictionary<string, object>> action)
+        {
+            API.RegisterNuiCallbackType(@event);
+
+            this.EventHandlers[$"__cfx_nui:{@event}"] += new Action<IDictionary<string, object>, CallbackDelegate>(
+                (data, callback) =>
+                {
+                    action(data);
+                    callback("OK");
+                });
+        }
+
+        public async void RegisterCallback<TReturn>(string @event, Func<Task<TReturn>> action)
+        {
+            API.RegisterNuiCallbackType(@event);
+
+            this.EventHandlers[$"__cfx_nui:{@event}"] += new Func<IDictionary<string, object>, CallbackDelegate, Task>(
+                async (data, callback) =>
+                {
+                    var result = await action();
+                    callback(JsonConvert.SerializeObject(result, Nui.NuiSerializerSettings));
+                });
         }
 
         public void RemoveEvent(string eventName, Delegate action)

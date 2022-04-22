@@ -1,4 +1,6 @@
-﻿namespace Hypnonema.Client.Dui
+﻿using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Client.Dui
 {
     using System;
     using System.Collections.Concurrent;
@@ -10,14 +12,14 @@
 
     public class DuiStateHelper
     {
-        private readonly NetworkMethod<Guid, List<DuiState>> duiStateMethod;
+        private readonly NetworkMethod<DuiStateMessage> duiStateMethod;
 
         private readonly ConcurrentDictionary<Guid, TaskCompletionSource<List<DuiState>>> pendingRequests =
             new ConcurrentDictionary<Guid, TaskCompletionSource<List<DuiState>>>();
 
         public DuiStateHelper()
         {
-            this.duiStateMethod = new NetworkMethod<Guid, List<DuiState>>(Events.DuiState, this.OnDuiState);
+            this.duiStateMethod = new NetworkMethod<DuiStateMessage>(Events.DuiState, this.OnDuiState);
         }
 
         public Task<List<DuiState>> RequestDuiStateAsync()
@@ -29,19 +31,19 @@
             return tcs.Task;
         }
 
-        private void OnDuiState(Guid requestId, List<DuiState> duiState)
+        private void OnDuiState(DuiStateMessage duiStateMessage)
         {
-            this.pendingRequests.TryRemove(requestId, out var tcs);
+            this.pendingRequests.TryRemove(duiStateMessage.RequestId, out var tcs);
 
-            tcs?.SetResult(duiState);
+            tcs?.SetResult(duiStateMessage.DuiStates);
         }
 
         private Guid RequestDuiState()
         {
-            var requestId = Guid.NewGuid();
-            this.duiStateMethod.Invoke(requestId, new List<DuiState>());
+            var duiStateMessage = new DuiStateMessage();
+            this.duiStateMethod.Invoke(duiStateMessage);
 
-            return requestId;
+            return duiStateMessage.RequestId;
         }
     }
 }

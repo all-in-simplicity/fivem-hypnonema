@@ -1,4 +1,6 @@
-﻿namespace Hypnonema.Server.Managers
+﻿using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Server.Managers
 {
     using System;
     using System.Collections.Generic;
@@ -16,11 +18,11 @@
     {
         private readonly State _state = new State();
 
-        private readonly NetworkMethod<Guid, List<DuiState>> duiState;
+        private readonly NetworkMethod<DuiStateMessage> duiState;
 
         public ScreenStateManager()
         {
-            this.duiState = new NetworkMethod<Guid, List<DuiState>>(Events.DuiState, this.OnDuiState);
+            this.duiState = new NetworkMethod<DuiStateMessage>(Events.DuiState, this.OnDuiState);
             
             BaseServer.Self.AddExport(Events.DuiState, new Func<string>(this.OnDuiState));
         }
@@ -90,12 +92,13 @@
             return state == null ? "" : JsonConvert.SerializeObject(state);
         }
 
-        private void OnDuiState(Player p, Guid requestId, List<DuiState> unused)
+        private void OnDuiState(Player p, DuiStateMessage duiStateMessage)
         {
             var states = this._state.ToList();
             if (states == null) return;
 
-            this.duiState.Invoke(p, requestId, states);
+            duiStateMessage.DuiStates = states;
+            this.duiState.Invoke(p, duiStateMessage);
         }
     }
 }

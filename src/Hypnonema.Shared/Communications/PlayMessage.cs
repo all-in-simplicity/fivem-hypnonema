@@ -1,10 +1,9 @@
-﻿namespace Hypnonema.Shared
+﻿using System;
+using Hypnonema.Shared.Models;
+
+namespace Hypnonema.Shared.Communications
 {
-    using System;
-
-    using Hypnonema.Shared.Models;
-
-    public class PlayEvent
+    public class PlayMessage
     {
         public bool IsValid =>
             Uri.TryCreate(this.Url, UriKind.Absolute, out var uriResult)

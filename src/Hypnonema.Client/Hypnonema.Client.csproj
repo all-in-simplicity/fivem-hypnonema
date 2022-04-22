@@ -39,4 +39,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Hypnonema.Shared\Hypnonema.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
 </Project>

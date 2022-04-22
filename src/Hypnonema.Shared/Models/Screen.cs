@@ -25,10 +25,10 @@
                                new DuiBrowserSettings()
                                    {
                                        GlobalVolume = 100f,
-                                       Is3DAudioEnabled = true,
-                                       SoundAttenuation = 10f,
+                                       Is3DAudioEnabled = false,
+                                       SoundAttenuation = 5f,
                                        SoundMaxDistance = 200f,
-                                       SoundMinDistance = 10f
+                                       SoundMinDistance = 30f
                                    },
                            Is3DRendered = true,
                            Name = "Hypnonema Example Screen",

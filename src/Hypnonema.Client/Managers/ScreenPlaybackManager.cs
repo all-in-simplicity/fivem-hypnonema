@@ -1,4 +1,7 @@
-﻿namespace Hypnonema.Client
+﻿using Hypnonema.Client.Extensions;
+using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Client
 {
     using System;
     using System.Collections.Generic;
@@ -28,33 +31,28 @@
             this.Dispose();
         }
 
-        public NetworkMethod<string> DeleteScreen { get; private set; }
+        public NetworkMethod<DeleteScreenMessage> DeleteScreen { get; private set; }
 
-        public NetworkMethod<Screen> EditScreen { get; private set; }
+        public NetworkMethod<EditScreenMessage> EditScreen { get; private set; }
 
         public bool IsInitialized { get; private set; }
 
-        public NetworkMethod<string> Pause { get; private set; }
+        public NetworkMethod<PauseMessage> Pause { get; private set; }
 
-        public NetworkMethod<PlayEvent> Play { get; private set; }
+        public NetworkMethod<PlayMessage> Play { get; private set; }
 
-        public NetworkMethod<string> PlaybackEnded { get; private set; }
+        public NetworkMethod<PlaybackEndedMessage> PlaybackEnded { get; private set; }
 
-        public NetworkMethod<string> Resume { get; private set; }
+        public NetworkMethod<ResumeMessage> Resume { get; private set; }
 
-        public NetworkMethod<string, float> Seek { get; private set; }
+        public NetworkMethod<SeekMessage> Seek { get; private set; }
 
-        public NetworkMethod<string, float> StateDuration { get; private set; }
+        public NetworkMethod<StateDurationMessage> StateDuration { get; private set; }
 
-        public NetworkMethod<string> Stop { get; private set; }
+        public NetworkMethod<StopMessage> Stop { get; private set; }
 
         public void Dispose()
         {
-            ClientScript.Self.UnregisterNuiCallback(Events.Play, this.OnPlay);
-            ClientScript.Self.UnregisterNuiCallback(Events.Pause, this.OnPause);
-            ClientScript.Self.UnregisterNuiCallback(Events.Resume, this.OnResume);
-            ClientScript.Self.UnregisterNuiCallback(Events.Stop, this.OnStop);
-
             foreach (var player in this.videoPlayers)
             {
                 player.Dispose();
@@ -67,27 +65,27 @@
         {
             if (this.IsInitialized) return;
 
-            this.Play = new NetworkMethod<PlayEvent>(Events.Play, this.OnPlay);
-            this.Pause = new NetworkMethod<string>(Events.Pause, this.OnPause);
-            this.Resume = new NetworkMethod<string>(Events.Resume, this.OnResume);
-            this.Stop = new NetworkMethod<string>(Events.Stop, this.OnStop);
-            this.Seek = new NetworkMethod<string, float>(Events.Seek, this.OnSeek);
-            this.StateDuration = new NetworkMethod<string, float>(
+            this.Play = new NetworkMethod<PlayMessage>(Events.Play, this.OnPlay);
+            this.Pause = new NetworkMethod<PauseMessage>(Events.Pause, this.OnPause);
+            this.Resume = new NetworkMethod<ResumeMessage>(Events.Resume, this.OnResume);
+            this.Stop = new NetworkMethod<StopMessage>(Events.Stop, this.OnStop);
+            this.Seek = new NetworkMethod<SeekMessage>(Events.Seek, this.OnSeek);
+            this.StateDuration = new NetworkMethod<StateDurationMessage>(
                 Events.UpdateStateDuration,
                 this.OnUpdateStateDuration);
-            this.EditScreen = new NetworkMethod<Screen>(Events.EditScreen, this.OnEditScreen);
-            this.DeleteScreen = new NetworkMethod<string>(Events.DeleteScreen, this.OnDeleteScreen);
-            this.PlaybackEnded = new NetworkMethod<string>(Events.PlaybackEnded, this.OnPlaybackEnded);
+            this.EditScreen = new NetworkMethod<EditScreenMessage>(Events.EditScreen, this.OnEditScreen);
+            this.DeleteScreen = new NetworkMethod<DeleteScreenMessage>(Events.DeleteScreen, this.OnDeleteScreen);
+            this.PlaybackEnded = new NetworkMethod<PlaybackEndedMessage>(Events.PlaybackEnded, this.OnPlaybackEnded);
+            
+            ClientScript.Self.RegisterCallback(Events.Play, this.OnPlay);
+            ClientScript.Self.RegisterCallback(Events.Pause, this.OnPause);
+            ClientScript.Self.RegisterCallback(Events.Resume, this.OnResume);
+            ClientScript.Self.RegisterCallback(Events.Stop, this.OnStop);
+            ClientScript.Self.RegisterCallback(Events.Seek, this.OnSeek);
 
-            ClientScript.Self.RegisterNuiCallback(Events.Play, this.OnPlay);
-            ClientScript.Self.RegisterNuiCallback(Events.Pause, this.OnPause);
-            ClientScript.Self.RegisterNuiCallback(Events.Resume, this.OnResume);
-            ClientScript.Self.RegisterNuiCallback(Events.Stop, this.OnStop);
-            ClientScript.Self.RegisterNuiCallback(Events.Seek, this.OnSeek);
-
-            ClientScript.Self.RegisterNuiCallback(Events.UpdateStateDuration, this.OnUpdateStateDuration);
-            ClientScript.Self.RegisterNuiCallback(Events.RequestState, this.OnRequestState);
-            ClientScript.Self.RegisterNuiCallback(Events.PlaybackEnded, this.OnPlaybackEnded);
+            ClientScript.Self.RegisterCallback(Events.UpdateStateDuration, this.OnUpdateStateDuration);
+            ClientScript.Self.RegisterCallback(Events.RequestState, this.OnRequestState);
+            ClientScript.Self.RegisterCallback(Events.PlaybackEnded, this.OnPlaybackEnded);
 
             this.IsInitialized = true;
         }
@@ -151,18 +149,18 @@
             return videoPlayer;
         }
 
-        private void OnDeleteScreen(string screenName)
+        private void OnDeleteScreen(DeleteScreenMessage deleteScreenMessage)
         {
-            var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screenName);
+            var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == deleteScreenMessage.ScreenName);
             if (player == null) return;
 
             this.videoPlayers.Remove(player);
             player.Dispose();
         }
 
-        private async void OnEditScreen(Screen screen)
+        private async void OnEditScreen(EditScreenMessage editScreenMessage)
         {
-            var currentPlayer = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screen.Name);
+            var currentPlayer = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == editScreenMessage.Screen.Name);
             if (currentPlayer == null)
             {
                 return;
@@ -171,40 +169,63 @@
             this.videoPlayers?.Remove(currentPlayer);
             currentPlayer.Dispose();
 
-            var newPlayer = await this.CreateVideoPlayer(screen);
+            var newPlayer = await this.CreateVideoPlayer(editScreenMessage.Screen);
 
             this.videoPlayers?.Add(newPlayer);
         }
 
-        private CallbackDelegate OnPause(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnPause(IDictionary<string, object> data)
         {
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
             if (string.IsNullOrEmpty(screenName))
             {
-                callback("ERROR", "screenName is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to pause: screenName is missing");
+                return;
             }
 
-            this.Pause.Invoke(screenName);
-
-            callback("OK");
-            return callback;
+            var pauseMessage = new PauseMessage(screenName);
+            
+            this.Pause.Invoke(pauseMessage);
         }
 
-        private void OnPause(string screenName)
+        private void OnPause(PauseMessage pauseMessage)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == pauseMessage.ScreenName);
 
             player?.Pause();
         }
 
-        private async void OnPlay(PlayEvent playEvent)
+
+        private void OnPlay(IDictionary<string, object> data)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == playEvent.Screen.Name);
+            var videoUrl = data.GetTypedValue<string>("videoUrl");
+            var screen = data.GetTypedValue<Screen>("screen");
+
+            if (string.IsNullOrEmpty(videoUrl))
+            {
+                ClientScript.AddChatMessage("Failed to play: videoUrl is empty");
+                return;
+            }
+
+            if (screen == null)
+            {
+                ClientScript.AddChatMessage("Failed to play: missing screen data");
+                return;
+            }
+
+            var playEvent = new PlayMessage() { Screen = screen, Url = videoUrl };
+
+            this.Play.Invoke(playEvent);
+        }
+
+
+        private async void OnPlay(PlayMessage playMessage)
+        {
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == playMessage.Screen.Name);
 
             if (player == null)
             {
-                player = await this.CreateVideoPlayer(playEvent.Screen);
+                player = await this.CreateVideoPlayer(playMessage.Screen);
                 if (player == null)
                 {
                     ClientScript.AddChatMessage("Playback failed. Check logs for more information.");
@@ -212,138 +233,115 @@
                 }
 
                 player.InitDuiBrowser();
-                player.Play(playEvent.Url);
+                player.Play(playMessage.Url);
 
                 await BaseScript.Delay(500);
 
                 this.videoPlayers.Add(player);
 
-                Logger.Debug($"created a new player for screen: \"{playEvent.Screen.Name}\"");
+                Logger.Debug($"created a new player for screen: \"{playMessage.Screen.Name}\"");
                 return;
             }
 
-            player.Play(playEvent.Url);
+            player.Play(playMessage.Url);
         }
 
-        private CallbackDelegate OnPlay(IDictionary<string, object> args, CallbackDelegate callback)
-        {
-            var videoUrl = ArgsReader.GetArgKeyValue<string>(args, "videoUrl");
-            var screen = ArgsReader.GetArgKeyValue<Screen>(args, "screen");
-
-            if (string.IsNullOrEmpty(videoUrl))
-            {
-                callback("ERROR", "missing videoUrl");
-                return callback;
-            }
-
-            if (screen == null)
-            {
-                callback("ERROR", "missing screen");
-                return callback;
-            }
-
-            var playEvent = new PlayEvent() { Screen = screen, Url = videoUrl };
-            this.Play.Invoke(playEvent);
-
-            callback("OK");
-            return callback;
-        }
-
-        private void OnPlaybackEnded(string screenName)
+        private void OnPlaybackEnded(PlaybackEndedMessage playbackEndedMessage)
         {
             // Nothing to do on client side
         }
 
-        private CallbackDelegate OnPlaybackEnded(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnPlaybackEnded(IDictionary<string, object> data)
         {
-            callback("OK");
-
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
             if (string.IsNullOrEmpty(screenName))
             {
-                return callback;
+                Logger.Error("Failed to process event \"OnPlaybackEnded\" because no screenName was provided.");
+                return;
             }
 
             var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == screenName);
             if (player == null)
             {
-                return callback;
+                return;
             }
 
             this.videoPlayers.Remove(player);
             player.Dispose();
 
-            this.PlaybackEnded.Invoke(screenName);
+            var playbackEndedMessage = new PlaybackEndedMessage(screenName);
 
-            return callback;
+            this.PlaybackEnded.Invoke(playbackEndedMessage);
         }
 
-        private async Task<CallbackDelegate> OnRequestState(IDictionary<string, object> args, CallbackDelegate callback)
+        private async Task<List<DuiState>> OnRequestState()
         {
             var state = await ClientScript.Self.DuiStateHelper.RequestDuiStateAsync();
 
-            callback(JsonConvert.SerializeObject(state, Nui.NuiSerializerSettings));
-            return callback;
+            return state;
         }
 
-        private void OnResume(string screenName)
+        private void OnResume(ResumeMessage resumeMessage)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == resumeMessage.ScreenName);
 
             player?.Resume();
         }
 
-        private CallbackDelegate OnResume(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnResume(IDictionary<string, object> data)
         {
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
             if (string.IsNullOrEmpty(screenName))
             {
-                callback("ERROR", "screenName is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to resume. ScreenName is missing");
+                return;
             }
 
-            this.Resume.Invoke(screenName);
-
-            callback("OK");
-            return callback;
+            var resumeMessage = new ResumeMessage(screenName);
+            
+            this.Resume.Invoke(resumeMessage);
         }
 
-        private CallbackDelegate OnSeek(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnSeek(IDictionary<string, object> data)
         {
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
-            var time = ArgsReader.GetArgKeyValue<float>(args, "time");
-
-            this.Seek.Invoke(screenName, time);
-
-            callback("OK");
-            return callback;
-        }
-
-        private void OnSeek(string screenName, float time)
-        {
-            var player = this.videoPlayers.FirstOrDefault(s => s.PlayerName == screenName);
-
-            player?.Seek(time);
-        }
-
-        private CallbackDelegate OnStop(IDictionary<string, object> args, CallbackDelegate callback)
-        {
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
             if (string.IsNullOrEmpty(screenName))
             {
-                callback("ERROR", "screenName is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to seek. screenName is missing!");
+                return;
             }
 
-            this.Stop.Invoke(screenName);
+            var time = data.GetTypedValue<float>("time");
 
-            callback("OK");
-            return callback;
+            var seekMessage = new SeekMessage(screenName, time);
+
+            this.Seek.Invoke(seekMessage);
         }
 
-        private void OnStop(string screenName)
+        private void OnSeek(SeekMessage seekMessage)
         {
-            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == screenName);
+            var player = this.videoPlayers.FirstOrDefault(s => s.PlayerName == seekMessage.ScreenName);
+
+            player?.Seek(seekMessage.Time);
+        }
+
+        private void OnStop(IDictionary<string, object> data)
+        {
+            var screenName = data.GetTypedValue<string>("screenName");
+            if (string.IsNullOrEmpty(screenName))
+            {
+                ClientScript.AddChatMessage("Failed to stop. screenName is missing");
+                return;
+            }
+
+            var stopMessage = new StopMessage(screenName);
+
+            this.Stop.Invoke(stopMessage);
+        }
+
+        private void OnStop(StopMessage stopMessage)
+        {
+            var player = this.videoPlayers.FirstOrDefault(p => p.PlayerName == stopMessage.ScreenName);
             if (player == null) return;
 
             player.Stop();
@@ -353,25 +351,25 @@
             player.Dispose();
         }
 
-        private void OnUpdateStateDuration(string screenName, float duration)
+        private void OnUpdateStateDuration(StateDurationMessage updateStateDurationMessage)
         {
             // nothing to do on client side
         }
 
-        private CallbackDelegate OnUpdateStateDuration(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnUpdateStateDuration(IDictionary<string, object> data)
         {
-            var duration = ArgsReader.GetArgKeyValue<float>(args, "duration");
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
+            var duration = data.GetTypedValue<float>("duration");
 
             if (string.IsNullOrEmpty(screenName))
             {
-                callback("ERROR");
-                return callback;
+                ClientScript.AddChatMessage("Failed to update state. screenName is missing");
+                return;
             }
 
-            this.StateDuration.Invoke(screenName, duration);
-            callback("OK");
-            return callback;
+            var stateDurationMessage = new StateDurationMessage(screenName, duration);
+
+            this.StateDuration.Invoke(stateDurationMessage);
         }
     }
 }

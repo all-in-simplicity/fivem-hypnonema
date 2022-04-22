@@ -1,4 +1,7 @@
-﻿namespace Hypnonema.Client
+﻿using Hypnonema.Client.Extensions;
+using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Client
 {
     using System;
     using System.Collections.Generic;
@@ -17,15 +20,13 @@
             this.Dispose();
         }
 
-        public event EventHandler<ScreenDeletedEventArgs> ScreenDeleted;
+        public NetworkMethod<CreateScreenMessage> CreateScreen { get; private set; }
 
-        public NetworkMethod<Screen> CreateScreen { get; private set; }
+        public NetworkMethod<DeleteScreenMessage> DeleteScreen { get; private set; }
 
-        public NetworkMethod<string> DeleteScreen { get; private set; }
+        public NetworkMethod<EditScreenMessage> EditScreen { get; private set; }
 
-        public NetworkMethod<Screen> EditScreen { get; private set; }
-
-        public NetworkMethod<List<Screen>> GetScreenList { get; private set; }
+        public NetworkMethod<ScreenListMessage> GetScreenList { get; private set; }
 
         public bool IsInitialized { get; private set; }
 
@@ -33,11 +34,6 @@
 
         public void Dispose()
         {
-            ClientScript.Self.UnregisterNuiCallback(Events.CreateScreen, this.OnCreateScreen);
-            ClientScript.Self.UnregisterNuiCallback(Events.DeleteScreen, this.OnDeleteScreen);
-            ClientScript.Self.UnregisterNuiCallback(Events.EditScreen, this.OnEditScreen);
-            ClientScript.Self.UnregisterNuiCallback(Events.GetScreenList, this.OnGetScreenList);
-
             GC.SuppressFinalize(this);
         }
 
@@ -45,109 +41,88 @@
         {
             if (this.IsInitialized) return;
 
-            this.CreateScreen = new NetworkMethod<Screen>(Events.CreateScreen, this.OnCreateScreen);
-            this.DeleteScreen = new NetworkMethod<string>(Events.DeleteScreen, this.OnDeleteScreen);
-            this.EditScreen = new NetworkMethod<Screen>(Events.EditScreen, this.OnEditScreen);
-            this.GetScreenList = new NetworkMethod<List<Screen>>(Events.GetScreenList, this.OnGetScreenList);
-
-            ClientScript.Self.RegisterNuiCallback(Events.CreateScreen, this.OnCreateScreen);
-            ClientScript.Self.RegisterNuiCallback(Events.DeleteScreen, this.OnDeleteScreen);
-            ClientScript.Self.RegisterNuiCallback(Events.EditScreen, this.OnEditScreen);
-            ClientScript.Self.RegisterNuiCallback(Events.GetScreenList, this.OnGetScreenList);
+            this.CreateScreen = new NetworkMethod<CreateScreenMessage>(Events.CreateScreen, this.OnCreateScreen);
+            this.DeleteScreen = new NetworkMethod<DeleteScreenMessage>(Events.DeleteScreen, this.OnDeleteScreen);
+            this.EditScreen = new NetworkMethod<EditScreenMessage>(Events.EditScreen, this.OnEditScreen);
+            this.GetScreenList = new NetworkMethod<ScreenListMessage>(Events.GetScreenList, this.OnGetScreenList);
+            
+            ClientScript.Self.RegisterCallback(Events.CreateScreen, this.OnCreateScreen);
+            ClientScript.Self.RegisterCallback(Events.DeleteScreen, this.OnDeleteScreen);
+            ClientScript.Self.RegisterCallback(Events.EditScreen, this.OnEditScreen);
+            ClientScript.Self.RegisterCallback(Events.GetScreenList, this.OnGetScreenList);
 
             this.IsInitialized = true;
         }
 
-        private CallbackDelegate OnCreateScreen(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnCreateScreen(IDictionary<string, object> data)
         {
-            var screen = ArgsReader.GetArgKeyValue<Screen>(args, "payload");
+            var screen = data.GetTypedValue<Screen>("payload");
             if (screen == null)
             {
-                callback("ERROR", "payload is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to create screen. screen is null or empty");
+                return;
             }
 
-            this.CreateScreen.Invoke(screen);
+            var createScreenMessage = new CreateScreenMessage(screen);
 
-            callback("OK");
-            return callback;
+            this.CreateScreen.Invoke(createScreenMessage);
         }
 
-        private void OnCreateScreen(Screen screen)
+        private void OnCreateScreen(CreateScreenMessage createScreenMessage)
         {
-            Nui.SendMessage("createdScreen", screen);
+            Nui.SendMessage("createdScreen", createScreenMessage.Screen);
         }
 
-        private CallbackDelegate OnDeleteScreen(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnDeleteScreen(IDictionary<string, object> data)
         {
-            var screenName = ArgsReader.GetArgKeyValue<string>(args, "screenName");
+            var screenName = data.GetTypedValue<string>("screenName");
             if (string.IsNullOrEmpty(screenName))
             {
-                callback("ERROR", "screenName is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to delete Screen. screenName is empty");
+                return;
             }
 
-            this.DeleteScreen.Invoke(screenName);
-
-            callback("OK");
-            return callback;
+            var deleteScreenMessage = new DeleteScreenMessage(screenName);
+            
+            this.DeleteScreen.Invoke(deleteScreenMessage);
         }
 
-        private void OnDeleteScreen(string screenName)
+        private void OnDeleteScreen(DeleteScreenMessage deleteScreenMessage)
         {
-            Nui.SendMessage(Events.DeleteScreen, screenName);
-
-            var eventArgs = new ScreenDeletedEventArgs() { ScreenName = screenName };
-            this.OnScreenDeleted(eventArgs);
+            Nui.SendMessage(Events.DeleteScreen, deleteScreenMessage.ScreenName);
         }
 
-        private CallbackDelegate OnEditScreen(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnEditScreen(IDictionary<string, object> data)
         {
-            var screen = ArgsReader.GetArgKeyValue<Screen>(args, "payload");
+            var screen = data.GetTypedValue<Screen>("payload");
             if (screen == null)
             {
-                callback("ERROR", "payload is empty");
-                return callback;
+                ClientScript.AddChatMessage("Failed to edit screen. payload is missing");
+                return;
             }
 
-            this.EditScreen.Invoke(screen);
+            var editScreenMessage = new EditScreenMessage(screen);
 
-            callback("OK");
-            return callback;
+            this.EditScreen.Invoke(editScreenMessage);
         }
 
-        private void OnEditScreen(Screen screen)
+        private void OnEditScreen(EditScreenMessage editScreenMessage)
         {
-            Nui.SendMessage(Events.EditScreen, screen);
+            Nui.SendMessage(Events.EditScreen, editScreenMessage.Screen);
         }
 
-        private CallbackDelegate OnGetScreenList(IDictionary<string, object> args, CallbackDelegate callback)
+        private void OnGetScreenList(IDictionary<string, object> data)
         {
             this.GetScreenList.InvokeNoArgs();
-
-            callback("OK");
-            return callback;
         }
 
-        private void OnGetScreenList(List<Screen> screenList)
+        private void OnGetScreenList(ScreenListMessage screenListMessage)
         {
-            this.Screens = screenList;
+            this.Screens = screenListMessage.Screens;
 
-            Logger.Debug($"received {screenList.Count} screens");
+            Logger.Debug($"received {screenListMessage.Screens.Count} screens");
 
-            Nui.SendMessage(Events.GetScreenList, screenList);
+            Nui.SendMessage(Events.GetScreenList, screenListMessage.Screens);
         }
-
-        private void OnScreenDeleted(ScreenDeletedEventArgs e)
-        {
-            var handler = this.ScreenDeleted;
-
-            handler?.Invoke(this, e);
-        }
-    }
-
-    public class ScreenDeletedEventArgs : EventArgs
-    {
-        public string ScreenName { get; set; }
     }
 }

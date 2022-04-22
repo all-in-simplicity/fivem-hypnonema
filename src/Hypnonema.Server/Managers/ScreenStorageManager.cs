@@ -1,4 +1,6 @@
-﻿namespace Hypnonema.Server.Managers
+﻿using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Server.Managers
 {
     using System;
     using System.Collections.Generic;
@@ -20,13 +22,13 @@
     {
         private LiteCollection<Screen> screenCollection;
 
-        public NetworkMethod<Screen> CreateScreen { get; private set; }
+        public NetworkMethod<CreateScreenMessage> CreateScreen { get; private set; }
 
-        public NetworkMethod<string> DeleteScreen { get; private set; }
+        public NetworkMethod<DeleteScreenMessage> DeleteScreen { get; private set; }
 
-        public NetworkMethod<Screen> EditScreen { get; private set; }
+        public NetworkMethod<EditScreenMessage> EditScreen { get; private set; }
 
-        public NetworkMethod<IList<Screen>> GetScreenList { get; private set; }
+        public NetworkMethod<ScreenListMessage> GetScreenList { get; private set; }
 
         public bool IsInitialized { get; private set; }
 
@@ -36,10 +38,10 @@
 
             this.screenCollection = screenCollection;
 
-            this.CreateScreen = new NetworkMethod<Screen>(Events.CreateScreen, this.OnCreateScreen);
-            this.DeleteScreen = new NetworkMethod<string>(Events.DeleteScreen, this.OnDeleteScreen);
-            this.EditScreen = new NetworkMethod<Screen>(Events.EditScreen, this.OnEditScreen);
-            this.GetScreenList = new NetworkMethod<IList<Screen>>(Events.GetScreenList, this.OnGetScreenList);
+            this.CreateScreen = new NetworkMethod<CreateScreenMessage>(Events.CreateScreen, this.OnCreateScreen);
+            this.DeleteScreen = new NetworkMethod<DeleteScreenMessage>(Events.DeleteScreen, this.OnDeleteScreen);
+            this.EditScreen = new NetworkMethod<EditScreenMessage>(Events.EditScreen, this.OnEditScreen);
+            this.GetScreenList = new NetworkMethod<ScreenListMessage>(Events.GetScreenList, this.OnGetScreenList);
 
             BaseServer.Self.AddExport(Events.GetScreenList, new Func<string>(this.OnGetScreenList));
             BaseServer.Self.AddExport(Events.CreateScreen, new Action<string>(this.OnCreateScreen));
@@ -49,7 +51,7 @@
             this.IsInitialized = true;
         }
 
-        private IList<Screen> GetScreensList()
+        private List<Screen> GetScreensList()
         {
             return this.screenCollection.FindAll().ToList();
         }
@@ -73,10 +75,11 @@
             var id = this.screenCollection.Insert(screen);
             screen.Id = id;
 
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
-        private void OnCreateScreen(Player p, Screen screen)
+        private void OnCreateScreen(Player p, CreateScreenMessage createScreenMessage)
         {
             if (!p.IsAceAllowed(Permission.Create))
             {
@@ -86,20 +89,22 @@
                 return;
             }
 
-            var existingScreen = this.screenCollection.FindOne(s => s.Name == screen.Name);
+            var existingScreen = this.screenCollection.FindOne(s => s.Name == createScreenMessage.Screen.Name);
             if (existingScreen != null)
             {
                 p.AddChatMessage(
-                    $"Failed to create a new screen. A screen with name \"{screen.Name}\" already exists.",
+                    $"Failed to create a new screen. A screen with name \"{createScreenMessage.Screen.Name}\" already exists.",
                     new[] { 255, 0, 0 });
                 return;
             }
 
-            var id = this.screenCollection.Insert(screen);
-            screen.Id = id;
+            var id = this.screenCollection.Insert(createScreenMessage.Screen);
+            createScreenMessage.Screen.Id = id;
 
-            this.CreateScreen.Invoke(p, screen);
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            this.CreateScreen.Invoke(p, createScreenMessage);
+
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
         private void OnDeleteScreen(string screenName)
@@ -111,11 +116,15 @@
                 return;
             }
 
-            this.DeleteScreen.Invoke(null, screenName);
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            var deleteScreenMessage = new DeleteScreenMessage(screenName);
+
+            this.DeleteScreen.Invoke(null, deleteScreenMessage);
+
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
-        private void OnDeleteScreen(Player p, string screenName)
+        private void OnDeleteScreen(Player p, DeleteScreenMessage deleteScreenMessage)
         {
             if (!p.IsAceAllowed(Permission.Delete))
             {
@@ -125,15 +134,17 @@
                 return;
             }
 
-            var count = this.screenCollection.Delete(s => s.Name == screenName);
+            var count = this.screenCollection.Delete(s => s.Name == deleteScreenMessage.ScreenName);
             if (count == 0)
             {
-                p.AddChatMessage($"Screen Deletion failed: Screen \"{screenName}\" not found.", new[] { 255, 0, 0 });
+                p.AddChatMessage($"Screen Deletion failed: Screen \"{deleteScreenMessage.ScreenName}\" not found.", new[] { 255, 0, 0 });
                 return;
             }
 
-            this.DeleteScreen.Invoke(null, screenName);
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            this.DeleteScreen.Invoke(null, deleteScreenMessage);
+
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
         private void OnEditScreen(string jsonScreen)
@@ -158,11 +169,15 @@
                 return;
             }
 
-            this.EditScreen.Invoke(null, screen);
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            var editScreenMessage = new EditScreenMessage(screen);
+
+            this.EditScreen.Invoke(null, editScreenMessage);
+
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
-        private void OnEditScreen(Player p, Screen screen)
+        private void OnEditScreen(Player p, EditScreenMessage editScreenMessage)
         {
             if (!p.IsAceAllowed(Permission.Edit))
             {
@@ -172,15 +187,17 @@
                 return;
             }
 
-            var found = this.screenCollection.Update(screen);
+            var found = this.screenCollection.Update(editScreenMessage.Screen);
             if (!found)
             {
-                p.AddChatMessage($"Editing failed. screen \"{screen.Name}\" not found.");
+                p.AddChatMessage($"Editing failed. screen \"{editScreenMessage.Screen.Name}\" not found.");
                 return;
             }
 
-            this.EditScreen.Invoke(null, screen);
-            this.GetScreenList.Invoke(null, this.GetScreensList());
+            this.EditScreen.Invoke(null, editScreenMessage);
+
+            var screenListMessage = new ScreenListMessage(this.GetScreensList());
+            this.GetScreenList.Invoke(null, screenListMessage);
         }
 
         private string OnGetScreenList()
@@ -189,11 +206,12 @@
             return JsonConvert.SerializeObject(screens);
         }
 
-        private void OnGetScreenList(Player p, IList<Screen> unused)
+        private void OnGetScreenList(Player p, ScreenListMessage unused)
         {
             var screens = this.GetScreensList();
 
-            this.GetScreenList.Invoke(p, screens);
+            var screenListMessage = new ScreenListMessage(screens);
+            this.GetScreenList.Invoke(p, screenListMessage);
         }
     }
 }

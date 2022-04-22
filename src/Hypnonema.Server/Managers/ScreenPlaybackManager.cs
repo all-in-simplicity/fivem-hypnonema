@@ -1,4 +1,6 @@
-﻿namespace Hypnonema.Server.Managers
+﻿using Hypnonema.Shared.Communications;
+
+namespace Hypnonema.Server.Managers
 {
     using System;
 
@@ -18,36 +20,36 @@
 
         private ScreenStateManager screenStateManager;
 
-        public NetworkMethod<string, float> Duration { get; private set; }
+        public NetworkMethod<StateDurationMessage> Duration { get; private set; }
 
         public bool IsInitialized { get; private set; }
 
-        public NetworkMethod<string> Pause { get; private set; }
+        public NetworkMethod<PauseMessage> Pause { get; private set; }
 
-        public NetworkMethod<PlayEvent> Play { get; private set; }
+        public NetworkMethod<PlayMessage> Play { get; private set; }
 
-        public NetworkMethod<string> PlaybackEnded { get; private set; }
+        public NetworkMethod<PlaybackEndedMessage> PlaybackEnded { get; private set; }
 
-        public NetworkMethod<string> Resume { get; private set; }
+        public NetworkMethod<ResumeMessage> Resume { get; private set; }
 
-        public NetworkMethod<string, float> Seek { get; private set; }
+        public NetworkMethod<SeekMessage> Seek { get; private set; }
 
-        public NetworkMethod<string> Stop { get; private set; }
+        public NetworkMethod<StopMessage> Stop { get; private set; }
 
-        public void Initialize(LiteCollection<Screen> screenCollection)
+        public void Initialize(LiteCollection<Screen> screens)
         {
             if (this.IsInitialized) return;
 
-            this.screenCollection = screenCollection;
+            this.screenCollection = screens;
             this.screenStateManager = new ScreenStateManager();
 
-            this.Play = new NetworkMethod<PlayEvent>(Events.Play, this.OnPlay);
-            this.Pause = new NetworkMethod<string>(Events.Pause, this.OnPause);
-            this.Stop = new NetworkMethod<string>(Events.Stop, this.OnStop);
-            this.Resume = new NetworkMethod<string>(Events.Resume, this.OnResume);
-            this.Seek = new NetworkMethod<string, float>(Events.Seek, this.OnSeek);
-            this.Duration = new NetworkMethod<string, float>(Events.UpdateStateDuration, this.OnUpdateDuration);
-            this.PlaybackEnded = new NetworkMethod<string>(Events.PlaybackEnded, this.OnPlaybackEnded);
+            this.Play = new NetworkMethod<PlayMessage>(Events.Play, this.OnPlay);
+            this.Pause = new NetworkMethod<PauseMessage>(Events.Pause, this.OnPause);
+            this.Stop = new NetworkMethod<StopMessage>(Events.Stop, this.OnStop);
+            this.Resume = new NetworkMethod<ResumeMessage>(Events.Resume, this.OnResume);
+            this.Seek = new NetworkMethod<SeekMessage>(Events.Seek, this.OnSeek);
+            this.Duration = new NetworkMethod<StateDurationMessage>(Events.UpdateStateDuration, this.OnUpdateDuration);
+            this.PlaybackEnded = new NetworkMethod<PlaybackEndedMessage>(Events.PlaybackEnded, this.OnPlaybackEnded);
 
             BaseServer.Self.AddExport(Events.Play, new Action<string, string>(this.OnPlay));
             BaseServer.Self.AddExport(Events.Pause, new Action<string>(this.OnPause));
@@ -68,11 +70,14 @@
                 return;
             }
 
-            this.Pause.Invoke(null, screenName);
+            var pauseMessage = new PauseMessage(screenName);
+
+            this.Pause.Invoke(null, pauseMessage);
+
             this.screenStateManager.OnPause(screenName);
         }
 
-        private void OnPause(Player p, string screenName)
+        private void OnPause(Player p, PauseMessage pauseMessage)
         {
             if (!p.IsAceAllowed(Permission.Pause))
             {
@@ -82,15 +87,15 @@
                 return;
             }
 
-            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            var screen = this.screenCollection.FindOne(s => s.Name == pauseMessage.ScreenName);
             if (screen == null)
             {
-                p.AddChatMessage($"Pausing failed. Screen \"{screenName}\" not found.");
+                p.AddChatMessage($"Pausing failed. Screen \"{pauseMessage.ScreenName}\" not found.");
                 return;
             }
 
-            this.Pause.Invoke(null, screenName);
-            this.screenStateManager.OnPause(screenName);
+            this.Pause.Invoke(null, pauseMessage);
+            this.screenStateManager.OnPause(pauseMessage.ScreenName);
         }
 
         // Called through export
@@ -103,22 +108,22 @@
                 return;
             }
 
-            var playEvent = new PlayEvent() { Screen = screen, Url = videoUrl };
+            var playMessage = new PlayMessage() { Screen = screen, Url = videoUrl };
 
-            if (!playEvent.IsValid)
+            if (!playMessage.IsValid)
             {
-                Logger.Error($"play \"{playEvent.Url}\" on screen \"{playEvent.Url}\" failed. Reason: Invalid url");
+                Logger.Error($"play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
                 return;
             }
 
-            this.Play.Invoke(null, playEvent);
+            this.Play.Invoke(null, playMessage);
 
             this.screenStateManager.OnPlay(screen, videoUrl);
 
-            Logger.Debug($"playing: {playEvent.Url} on \"{playEvent.Screen.Name}\"");
+            Logger.Debug($"playing: {playMessage.Url} on \"{playMessage.Screen.Name}\"");
         }
 
-        private void OnPlay(Player p, PlayEvent playEvent)
+        private void OnPlay(Player p, PlayMessage playMessage)
         {
             if (!p.IsAceAllowed(Permission.Play))
             {
@@ -126,29 +131,29 @@
                 return;
             }
 
-            if (!playEvent.IsValid)
+            if (!playMessage.IsValid)
             {
-                p.AddChatMessage($"Play \"{playEvent.Url}\" on screen \"{playEvent.Url}\" failed. Reason: Invalid url");
+                p.AddChatMessage($"Play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
                 return;
             }
 
-            var screen = this.screenCollection.FindOne(s => s.Name == playEvent.Screen.Name);
+            var screen = this.screenCollection.FindOne(s => s.Name == playMessage.Screen.Name);
             if (screen == null)
             {
-                p.AddChatMessage($"Play on screen \"{playEvent.Screen.Name}\" failed. screen not found");
+                p.AddChatMessage($"Play on screen \"{playMessage.Screen.Name}\" failed. screen not found");
                 return;
             }
 
-            Logger.Debug($"playing: {playEvent.Url} on \"{playEvent.Screen.Name}\"");
+            Logger.Debug($"playing: {playMessage.Url} on \"{playMessage.Screen.Name}\"");
 
-            this.Play.Invoke(null, playEvent);
+            this.Play.Invoke(null, playMessage);
 
-            this.screenStateManager.OnPlay(screen, playEvent.Url);
+            this.screenStateManager.OnPlay(screen, playMessage.Url);
         }
 
-        private void OnPlaybackEnded(Player p, string screenName)
+        private void OnPlaybackEnded(Player p, PlaybackEndedMessage playbackEndedMessage)
         {
-            this.screenStateManager.OnEnded(screenName);
+            this.screenStateManager.OnEnded(playbackEndedMessage.ScreenName);
         }
 
         // Called through export
@@ -161,11 +166,14 @@
                 return;
             }
 
-            this.Resume.Invoke(null, screenName);
+            var resumeMessage = new ResumeMessage(screenName);
+
+            this.Resume.Invoke(null, resumeMessage);
+            
             this.screenStateManager.OnResume(screenName);
         }
 
-        private void OnResume(Player p, string screenName)
+        private void OnResume(Player p, ResumeMessage resumeMessage)
         {
             if (!p.IsAceAllowed(Permission.Resume))
             {
@@ -173,19 +181,19 @@
                 return;
             }
 
-            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            var screen = this.screenCollection.FindOne(s => s.Name == resumeMessage.ScreenName);
             if (screen == null)
             {
-                p.AddChatMessage($"Resuming failed. screen \"{screenName}\" not found.");
+                p.AddChatMessage($"Resuming failed. screen \"{resumeMessage.ScreenName}\" not found.");
                 return;
             }
 
-            this.Resume.Invoke(null, screenName);
+            this.Resume.Invoke(null, resumeMessage);
 
-            this.screenStateManager.OnResume(screenName);
+            this.screenStateManager.OnResume(resumeMessage.ScreenName);
         }
 
-        private void OnSeek(Player p, string screenName, float time)
+        private void OnSeek(Player p, SeekMessage seekMessage)
         {
             if (!p.IsAceAllowed(Permission.Seek))
             {
@@ -193,15 +201,16 @@
                 return;
             }
 
-            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            var screen = this.screenCollection.FindOne(s => s.Name == seekMessage.ScreenName);
             if (screen == null)
             {
-                p.AddChatMessage($"Seek failed. screen \"{screenName}\" not found.");
+                p.AddChatMessage($"Seek failed. screen \"{seekMessage.ScreenName}\" not found.");
                 return;
             }
 
-            this.Seek.Invoke(null, screenName, time);
-            this.screenStateManager.OnSeek(screenName, time);
+            this.Seek.Invoke(null, seekMessage);
+
+            this.screenStateManager.OnSeek(seekMessage.ScreenName, seekMessage.Time);
         }
 
         // Export
@@ -214,7 +223,10 @@
                 return;
             }
 
-            this.Seek.Invoke(null, screenName, time);
+            var seekMessage = new SeekMessage(screenName, time);
+
+            this.Seek.Invoke(null, seekMessage);
+
             this.screenStateManager.OnSeek(screenName, time);
         }
 
@@ -228,12 +240,14 @@
                 return;
             }
 
-            this.Stop.Invoke(null, screenName);
+            var stopMessage = new StopMessage(screenName);
+
+            this.Stop.Invoke(null, stopMessage);
 
             this.screenStateManager.OnStop(screenName);
         }
 
-        private void OnStop(Player p, string screenName)
+        private void OnStop(Player p, StopMessage stopMessage)
         {
             if (!p.IsAceAllowed(Permission.Stop))
             {
@@ -241,21 +255,21 @@
                 return;
             }
 
-            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            var screen = this.screenCollection.FindOne(s => s.Name == stopMessage.ScreenName);
             if (screen == null)
             {
-                p.AddChatMessage($"Stopping failed. screen \"{screenName}\" not found.");
+                p.AddChatMessage($"Stopping failed. screen \"{stopMessage.ScreenName}\" not found.");
                 return;
             }
 
-            this.Stop.Invoke(null, screenName);
+            this.Stop.Invoke(null, stopMessage);
 
-            this.screenStateManager.OnStop(screenName);
+            this.screenStateManager.OnStop(stopMessage.ScreenName);
         }
 
-        private void OnUpdateDuration(Player p, string screenName, float duration)
+        private void OnUpdateDuration(Player p, StateDurationMessage stateDurationMessage)
         {
-            this.screenStateManager.OnUpdateDuration(screenName, duration);
+            this.screenStateManager.OnUpdateDuration(stateDurationMessage.ScreenName, stateDurationMessage.Duration);
         }
     }
 }
