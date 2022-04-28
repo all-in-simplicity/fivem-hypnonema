@@ -38,7 +38,7 @@ jobs:
     - run: Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Client.net.dll" -Destination "./build/hypnonema/client"
     - run: Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Hypnonema.Shared.dll" -Destination "./build/hypnonema/client" 
     - run: Copy-Item "./src/Hypnonema.Client/bin/Release/net452/Newtonsoft.Json.dll" -Destination "./build/hypnonema/client"
-    - run: Copy-Item "./src/Hypnonema.NUI/dist/HypnonemaNUI" -Destination "./build/hypnonema/client/html" -Recurse
+    - run: Copy-Item "./src/Hypnonema.NUI/build" -Destination "./build/hypnonema/client/html" -Recurse
     - run: Copy-Item "./stream" -Destination "./build/hypnonema/stream" -Recurse
     - run: Copy-Item "./src/Hypnonema.DUI/dist/index.html" -Destination "./build/hypnonema/wwwroot"
     - run: Copy-Item "./src/Hypnonema.Server/bin/Release/netstandard2.0/*" -Destination "./build/hypnonema/server/" -Exclude CitizenFX.Core.Server.dll -Recurse
