@@ -8,11 +8,11 @@
     public class Nui
     {
         public static readonly JsonSerializerSettings NuiSerializerSettings =
-            new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+            new JsonSerializerSettings {ContractResolver = new CamelCasePropertyNamesContractResolver()};
 
-        public static void SendMessage(string type, object payload)
+        public static void SendMessage(string method, object data)
         {
-            var message = new { type, payload };
+            var message = new {app = "hypnonema", method, data};
 
             API.SendNuiMessage(JsonConvert.SerializeObject(message, NuiSerializerSettings));
         }

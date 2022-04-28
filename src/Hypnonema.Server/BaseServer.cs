@@ -55,15 +55,15 @@
         {
             this.Exports.Add(name, action);
         }
-        
+
         public void RemoveEvent(string eventName, Delegate action)
         {
             this.EventHandlers[eventName] -= action;
         }
-        
+
         /// <summary>
-        /// CalculateMaxActiveScaleforms is used to specify how many scaleforms can be active at the same time.
-        /// The limit of max. active scaleforms is limited by number of *.gfx files in resource's stream directory.
+        ///     CalculateMaxActiveScaleforms is used to specify how many scaleforms can be active at the same time.
+        ///     The limit of max. active scaleforms is limited by number of *.gfx files in resource's stream directory.
         /// </summary>
         private void CalculateMaxActiveScaleforms()
         {

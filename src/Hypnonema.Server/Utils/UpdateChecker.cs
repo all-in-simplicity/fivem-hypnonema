@@ -26,20 +26,16 @@
             try
             {
                 var releases = await client.Repository.Release.GetAll(RepositoryOwner, RepositoryName);
-                if (releases == null)
-                {
-                    return;
-                }
+                if (releases == null) return;
 
                 var latestVersion = new Version(releases[0].TagName);
 
                 var versionComparison = LocalVersion.CompareTo(latestVersion);
                 if (versionComparison < 0)
-                {
+
                     // Newer Version found.
                     Debug.WriteLine(
                         $"^5There is a newer version \"{latestVersion}\" of Hypnonema available for download!");
-                }
             }
             catch (Exception e)
             {
@@ -49,7 +45,7 @@
 
         private static string GetAssemblyFileVersion()
         {
-            var attribute = (AssemblyFileVersionAttribute)Assembly.GetExecutingAssembly()
+            var attribute = (AssemblyFileVersionAttribute) Assembly.GetExecutingAssembly()
                 .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), true).Single();
             return attribute.Version;
         }

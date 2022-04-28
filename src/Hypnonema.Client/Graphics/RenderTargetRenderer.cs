@@ -59,7 +59,7 @@
             var handle = 0;
             if (!API.IsNamedRendertargetRegistered(targetName)) API.RegisterNamedRendertarget(targetName, false);
 
-            if (!API.IsNamedRendertargetLinked((uint)hash)) API.LinkNamedRendertarget((uint)hash);
+            if (!API.IsNamedRendertargetLinked((uint) hash)) API.LinkNamedRendertarget((uint) hash);
 
             if (API.IsNamedRendertargetRegistered(targetName)) handle = API.GetNamedRendertargetRenderId(targetName);
 

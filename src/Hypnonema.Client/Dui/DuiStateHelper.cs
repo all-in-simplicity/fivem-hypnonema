@@ -1,6 +1,4 @@
-﻿using Hypnonema.Shared.Communications;
-
-namespace Hypnonema.Client.Dui
+﻿namespace Hypnonema.Client.Dui
 {
     using System;
     using System.Collections.Concurrent;
@@ -9,6 +7,7 @@ namespace Hypnonema.Client.Dui
 
     using Hypnonema.Client.Communications;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Communications;
 
     public class DuiStateHelper
     {

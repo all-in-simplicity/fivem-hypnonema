@@ -1,6 +1,4 @@
-﻿using Hypnonema.Shared.Communications;
-
-namespace Hypnonema.Server.Managers
+﻿namespace Hypnonema.Server.Managers
 {
     using System;
     using System.Collections.Generic;
@@ -10,6 +8,7 @@ namespace Hypnonema.Server.Managers
 
     using Hypnonema.Server.Communications;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Communications;
     using Hypnonema.Shared.Models;
 
     using LiteDB;
@@ -61,7 +60,7 @@ namespace Hypnonema.Server.Managers
             var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
             if (screen == null)
             {
-                Logger.Error($"failed to create new screen. invalid argument");
+                Logger.Error("failed to create new screen. invalid argument");
                 return;
             }
 
@@ -85,7 +84,7 @@ namespace Hypnonema.Server.Managers
             {
                 p.AddChatMessage(
                     $"You are not permitted to create a new screen. missing ace: ${Permission.Create}",
-                    new[] { 255, 0, 0 });
+                    new[] {255, 0, 0});
                 return;
             }
 
@@ -94,7 +93,7 @@ namespace Hypnonema.Server.Managers
             {
                 p.AddChatMessage(
                     $"Failed to create a new screen. A screen with name \"{createScreenMessage.Screen.Name}\" already exists.",
-                    new[] { 255, 0, 0 });
+                    new[] {255, 0, 0});
                 return;
             }
 
@@ -130,14 +129,16 @@ namespace Hypnonema.Server.Managers
             {
                 p.AddChatMessage(
                     $"You are not permitted to delete a screen. missing ace: ${Permission.Delete}",
-                    new[] { 255, 0, 0 });
+                    new[] {255, 0, 0});
                 return;
             }
 
             var count = this.screenCollection.Delete(s => s.Name == deleteScreenMessage.ScreenName);
             if (count == 0)
             {
-                p.AddChatMessage($"Screen Deletion failed: Screen \"{deleteScreenMessage.ScreenName}\" not found.", new[] { 255, 0, 0 });
+                p.AddChatMessage(
+                    $"Screen Deletion failed: Screen \"{deleteScreenMessage.ScreenName}\" not found.",
+                    new[] {255, 0, 0});
                 return;
             }
 
@@ -183,7 +184,7 @@ namespace Hypnonema.Server.Managers
             {
                 p.AddChatMessage(
                     $"You are not permitted to edit a screen. missing ace: {Permission.Edit}",
-                    new[] { 255, 0, 0 });
+                    new[] {255, 0, 0});
                 return;
             }
 

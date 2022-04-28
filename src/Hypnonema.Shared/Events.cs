@@ -10,6 +10,8 @@
 
         public const string DuiState = "getDuiState";
 
+        public const string DuiStateChanged = "duiStateChanged";
+
         public const string EditScreen = "editScreen";
 
         public const string GetMaxActiveScaleforms = "getMaxActiveScaleforms";
@@ -24,16 +26,18 @@
 
         public const string PlaybackEnded = "playbackEnded";
 
+        public const string Repeat = "repeat";
+
         public const string RequestState = "requestState";
 
         public const string Resume = "resume";
+
+        public const string ScheduleExecuted = "scheduleExecuted";
 
         public const string Seek = "seek";
 
         public const string Stop = "stop";
 
         public const string UpdateStateDuration = "updateStateDuration";
-
-        public const string ScheduleExecuted = "scheduleExecuted";
     }
 }

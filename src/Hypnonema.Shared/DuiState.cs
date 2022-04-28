@@ -16,7 +16,7 @@
 
         public string CurrentSource { get; set; }
 
-        public float CurrentTime => (float)(DateTime.UtcNow - this.StartedAt).TotalSeconds;
+        public float CurrentTime => (float) (DateTime.UtcNow - this.StartedAt).TotalSeconds;
 
         public float Duration { get; set; }
 

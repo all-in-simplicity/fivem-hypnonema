@@ -1,6 +1,5 @@
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import ReactPlayer from 'react-player';
-import {useState, useRef} from 'react';
 import useNuiMessage from '../hooks/useNuiMessage';
 
 const Player = () => {
@@ -10,7 +9,7 @@ const Player = () => {
 
     const [url, setUrl] = useState('');
 
-    const [resourceName, setResourceName]  = useState('hypnonema');
+    const [resourceName, setResourceName] = useState('hypnonema');
 
     const [posterUrl, setPosterUrl] = useState('https://i.imgur.com/dPaIjEW.jpg');
 
@@ -22,10 +21,10 @@ const Player = () => {
 
     const [muted, setMuted] = useState(false);
 
-    const [loop, setLoop] = useState(false);
+    const [repeat, setRepeat] = useState(false);
 
     const onPlay = ({payload}) => {
-        if(!ReactPlayer.canPlay(payload)) {
+        if (!ReactPlayer.canPlay(payload)) {
             console.log(`playback aborted: cant play ${payload}`);
             return;
         }
@@ -40,7 +39,7 @@ const Player = () => {
     }
 
     const onInit = ({payload}) => {
-        const { resourceName, screenName, posterUrl} = payload;
+        const {resourceName, screenName, posterUrl} = payload;
 
         setScreenName(screenName);
         setResourceName(resourceName);
@@ -59,8 +58,8 @@ const Player = () => {
         player.current.seekTo(payload, 'seconds');
     }
 
-    const onLoop = () => {
-        setLoop(!loop);
+    const onRepeat = ({payload}) => {
+        setRepeat(payload);
     }
 
     const onVolume = ({payload}) => {
@@ -70,7 +69,7 @@ const Player = () => {
     }
 
     const onSynchronizeState = ({payload}) => {
-        const {url, paused, currentTime, looped} = payload;
+        const {url, paused, currentTime, repeat} = payload;
 
         setUrl(url);
 
@@ -79,11 +78,11 @@ const Player = () => {
         }
 
         player.current.seekTo(currentTime, 'seconds');
-        setLoop(looped);
+        setRepeat(repeat);
     }
 
     const onReady = () => {
-        if(player.current.player.player.constructor.name === 'Twitch') {
+        if (player.current.player.player.constructor.name === 'Twitch') {
             const internalPlayer = player.current.getInternalPlayer();
 
             const button = internalPlayer._iframe.contentWindow.document.querySelector('button[data-a-target="player-overlay-mature-accept"]');
@@ -94,20 +93,22 @@ const Player = () => {
     }
 
     const onEnded = () => {
-        if (!loop) {
+        if (!repeat) {
             setTimeout(() => {
-                sendDuiResponse('playbackEnded', { screenName}).then(() => {});
+                sendDuiResponse('playbackEnded', {screenName}).then(() => {
+                });
             }, 2500);
         }
     }
 
     const onDuration = (duration) => {
-        sendDuiResponse('updateStateDuration', {screenName, duration}).then(() => {});
+        sendDuiResponse('updateStateDuration', {screenName, duration}).then(() => {
+        });
     }
 
     useNuiMessage('synchronizeState', onSynchronizeState);
     useNuiMessage('volume', onVolume);
-    useNuiMessage('loop', onLoop);
+    useNuiMessage('repeat', onRepeat);
     useNuiMessage('seek', onSeek);
     useNuiMessage('resume', onResume);
     useNuiMessage('play', onPlay);
@@ -132,9 +133,9 @@ const Player = () => {
     return (
         <div style={{width: '100%', height: '100%'}}>
             {!playing &&
-            <div id='posterImg'>
-                <img src={posterUrl} alt=''/>
-            </div>
+                <div id='posterImg'>
+                    <img src={posterUrl} alt=''/>
+                </div>
             }
             <div className='player-wrapper'>
                 <ReactPlayer
@@ -144,7 +145,7 @@ const Player = () => {
                     pip={false}
                     playing={playing}
                     controls={false}
-                    loop={loop}
+                    loop={repeat}
                     playbackRate={1.0}
                     volume={volume}
                     muted={muted}

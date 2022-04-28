@@ -10,15 +10,15 @@
     using Hypnonema.Client.Graphics;
     using Hypnonema.Client.Utils;
 
-    using ClientScript = Hypnonema.Client.ClientScript;
+    using ClientScript = ClientScript;
 
     public sealed class MediaPlayer3D : MediaPlayerBase, IDisposable
     {
         private ScaleformRenderer scaleform;
 
         public MediaPlayer3D(
-            ScaleformRenderer renderer,
             DuiBrowser duiBrowser,
+            ScaleformRenderer scaleform,
             string playerName,
             float globalVolume,
             float soundAttenuation,
@@ -26,7 +26,7 @@
             float soundMinDistance)
             : base(duiBrowser, playerName, globalVolume, soundAttenuation, soundMaxDistance, soundMinDistance)
         {
-            this.scaleform = renderer;
+            this.scaleform = scaleform;
 
             ClientScript.Self.AddTick(this.CalculateVolume);
             ClientScript.Self.AddTick(this.Draw);
@@ -47,7 +47,7 @@
 
         public override async Task CalculateVolume()
         {
-            await BaseScript.Delay(150);
+            await BaseScript.Delay(1000);
 
             var distance = this.scaleform.GetDistanceToPlayer();
 

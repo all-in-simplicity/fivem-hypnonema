@@ -15,9 +15,9 @@
     {
         private static ScaleformRendererPool instance;
 
-        private readonly Stack<ScaleformRenderer> scaleformRenderers = new Stack<ScaleformRenderer>();
+        private readonly NetworkMethod<int> getMaxActiveScaleforms;
 
-        private NetworkMethod<int> getMaxActiveScaleforms;
+        private readonly Stack<ScaleformRenderer> scaleformRenderers = new Stack<ScaleformRenderer>();
 
         private int maxActiveScaleforms = 1;
 
@@ -74,10 +74,7 @@
 
         public void Dispose()
         {
-            foreach (var renderer in this.scaleformRenderers)
-            {
-                renderer.Dispose();
-            }
+            foreach (var renderer in this.scaleformRenderers) renderer.Dispose();
 
             GC.SuppressFinalize(this);
         }

@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using Hypnonema.Client.Utils;
-using Newtonsoft.Json;
-
-namespace Hypnonema.Client.Extensions
+﻿namespace Hypnonema.Client.Extensions
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Linq;
+
+    using Hypnonema.Client.Utils;
+
+    using Newtonsoft.Json;
+
     public static class DictionaryExtensions
     {
         public static T GetTypedValue<T>(this IDictionary<string, object> dictionary, string key, T defaultValue)
@@ -17,8 +19,8 @@ namespace Hypnonema.Client.Extensions
             {
                 var input = dictionary.FirstOrDefault(arg => arg.Key == key).Value?.ToString();
                 result = IsPrimitive<T>()
-                    ? (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input)
-                    : JsonConvert.DeserializeObject<T>(input, Nui.NuiSerializerSettings);
+                             ? (T) TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input)
+                             : JsonConvert.DeserializeObject<T>(input, Nui.NuiSerializerSettings);
             }
             catch (Exception)
             {
@@ -46,7 +48,8 @@ namespace Hypnonema.Client.Extensions
         {
             var type = typeof(T);
 
-            return type.IsPrimitive || type == typeof(decimal) || type == typeof(string) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(DateTimeOffset);
+            return type.IsPrimitive || type == typeof(decimal) || type == typeof(string) || type == typeof(DateTime)
+                   || type == typeof(TimeSpan) || type == typeof(DateTimeOffset);
         }
     }
 }

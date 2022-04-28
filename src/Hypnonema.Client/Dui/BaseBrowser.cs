@@ -51,10 +51,7 @@
 
         public long CreateRuntimeTexture()
         {
-            if (this.IsRuntimeTextureCreated)
-            {
-                return this.RuntimeTextureHandle;
-            }
+            if (this.IsRuntimeTextureCreated) return this.RuntimeTextureHandle;
 
             this.TxdName = $"hy_txd_{this.DuiHandle}";
             this.TxnName = "video";
@@ -84,7 +81,7 @@
 
         protected void SendMessage(string type, object payload = null)
         {
-            var message = new { type, payload = new { payload } };
+            var message = new {type, payload = new {payload}};
 
             API.SendDuiMessage(this.NativeValue, JsonConvert.SerializeObject(message, Nui.NuiSerializerSettings));
         }

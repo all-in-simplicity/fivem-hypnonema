@@ -10,6 +10,8 @@
 
         public bool Is3DRendered { get; set; }
 
+        public bool IsValid => string.IsNullOrEmpty(this.Name) || this.Is3DRendered || this.TargetSettings.IsValid;
+
         public string Name { get; set; }
 
         public PositionSettings PositionalSettings { get; set; }
@@ -18,11 +20,11 @@
 
         public static Screen CreateExampleScreen()
         {
-            return new Screen()
+            return new Screen
                        {
                            AlwaysOn = false,
                            BrowserSettings =
-                               new DuiBrowserSettings()
+                               new DuiBrowserSettings
                                    {
                                        GlobalVolume = 100f,
                                        Is3DAudioEnabled = false,
@@ -32,7 +34,7 @@
                                    },
                            Is3DRendered = true,
                            Name = "Hypnonema Example Screen",
-                           PositionalSettings = new PositionSettings()
+                           PositionalSettings = new PositionSettings
                                                     {
                                                         PositionX = -1678.949f,
                                                         PositionY = -928.3431f,
@@ -46,10 +48,6 @@
                                                     }
                        };
         }
-
-        public bool IsValid =>
-            string.IsNullOrEmpty(this.Name) || (this.Is3DRendered || this.TargetSettings.IsValid);
-       
 
         public class DuiBrowserSettings
         {

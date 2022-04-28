@@ -7,9 +7,9 @@
     {
         public static void AddChatMessage(this Player p, string message, int[] color = null)
         {
-            if (color == null) color = new[] { 0, 128, 128 };
+            if (color == null) color = new[] {0, 128, 128};
 
-            p.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
+            p.TriggerEvent("chat:addMessage", new {color, args = new[] {"[Hypnonema]", $"{message}"}});
         }
 
         public static bool IsAceAllowed(this Player p, string ace)

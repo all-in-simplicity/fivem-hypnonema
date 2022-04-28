@@ -2,14 +2,14 @@
 {
     public class StateDurationMessage
     {
-        public string ScreenName { get; set; }
-
-        public float Duration { get; set; }
-
         public StateDurationMessage(string screenName, float duration)
         {
             this.ScreenName = screenName;
             this.Duration = duration;
         }
+
+        public float Duration { get; set; }
+
+        public string ScreenName { get; set; }
     }
 }

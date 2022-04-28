@@ -1,8 +1,9 @@
-﻿using System;
-using Hypnonema.Shared.Models;
-
-namespace Hypnonema.Shared.Communications
+﻿namespace Hypnonema.Shared.Communications
 {
+    using System;
+
+    using Hypnonema.Shared.Models;
+
     public class PlayMessage
     {
         public bool IsValid =>

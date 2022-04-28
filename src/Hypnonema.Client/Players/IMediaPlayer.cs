@@ -12,6 +12,8 @@
 
         void Play(string url);
 
+        void Repeat(bool repeat);
+
         void Resume();
 
         void Seek(float time);
@@ -19,7 +21,5 @@
         void Stop();
 
         void SynchronizeState(bool paused, float currentTime, string currentSource, bool repeat);
-
-        void ToggleRepeat();
     }
 }

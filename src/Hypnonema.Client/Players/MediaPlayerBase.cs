@@ -5,6 +5,7 @@
 
     using Hypnonema.Client.Dui;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Models;
 
     public abstract class MediaPlayerBase : IMediaPlayer
     {
@@ -39,11 +40,15 @@
 
         public string PlayerName { get; protected set; }
 
+        public Screen Screen { get; set; }
+
         public float SoundAttenuation { get; set; } = 5f;
 
         public float SoundMaxDistance { get; set; } = 300f;
 
         public float SoundMinDistance { get; set; } = 10f;
+
+        public DuiState State { get; set; }
 
         public abstract Task CalculateVolume();
 
@@ -69,6 +74,11 @@
             this.duiBrowser.Play(url);
         }
 
+        public void Repeat(bool repeat)
+        {
+            this.duiBrowser.Repeat(repeat);
+        }
+
         public void Resume()
         {
             this.duiBrowser.Resume();
@@ -87,11 +97,6 @@
         public void SynchronizeState(bool paused, float currentTime, string currentSource, bool looped)
         {
             this.duiBrowser.SynchronizeState(paused, currentTime, currentSource, looped);
-        }
-
-        public void ToggleRepeat()
-        {
-            this.duiBrowser.ToggleRepeat();
         }
 
         protected float GetSoundFactor(float distance)

@@ -42,13 +42,14 @@ server_script 'server/Hypnonema.Server.net.dll'
 files {
     'client/Newtonsoft.Json.dll',
     'client/Hypnonema.Shared.dll',
-    'client/html/index.html',
-    'client/html/styles.css',
-    'client/html/bg.png',
-    'client/html/*.js'
+    'client/html/*',
+    'client/html/static/js/main.js',
+    'client/html/static/js/main.js.map',
+    'client/html/static/css/main.css',
+    'client/html/static/css/main.css.map'
 }
 
 author 'simpled-dev'
-version '1.9.0'
+version '1.9.2'
 description 'a Media Player Resource for FiveM'
 repository 'https://github.com/thiago-dev/fivem-hypnonema'

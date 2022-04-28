@@ -14,7 +14,7 @@
             try
             {
                 var input = API.GetResourceMetadata(resourceName, metadataKey, index);
-                result = (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input);
+                result = (T) TypeDescriptor.GetConverter(typeof(T)).ConvertFromString(input);
             }
             catch (Exception)
             {

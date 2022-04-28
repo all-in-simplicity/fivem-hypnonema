@@ -1,15 +1,13 @@
-﻿using Hypnonema.Shared.Communications;
-
-namespace Hypnonema.Server.Managers
+﻿namespace Hypnonema.Server.Managers
 {
     using System;
-    using System.Collections.Generic;
 
     using CitizenFX.Core;
 
     using Hypnonema.Server.Communications;
     using Hypnonema.Server.Utils;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Communications;
     using Hypnonema.Shared.Models;
 
     using Newtonsoft.Json;
@@ -23,7 +21,7 @@ namespace Hypnonema.Server.Managers
         public ScreenStateManager()
         {
             this.duiState = new NetworkMethod<DuiStateMessage>(Events.DuiState, this.OnDuiState);
-            
+
             BaseServer.Self.AddExport(Events.DuiState, new Func<string>(this.OnDuiState));
         }
 
@@ -49,6 +47,16 @@ namespace Hypnonema.Server.Managers
             this._state.Add(screen.Name, duiState);
         }
 
+        public void OnRepeat(string screenName, bool repeat)
+        {
+            var screenState = this._state.Get(screenName);
+            if (screenState == null) return;
+
+            screenState.Repeat = repeat;
+
+            this._state.Update(screenName, screenState);
+        }
+
         public void OnResume(string screenName)
         {
             var screenState = this._state.Get(screenName);
@@ -65,7 +73,7 @@ namespace Hypnonema.Server.Managers
             if (screenState == null) return;
 
             var diff = time - screenState.CurrentTime;
-            screenState.StartedAt = screenState.StartedAt.Subtract(new TimeSpan(0, 0, (int)diff));
+            screenState.StartedAt = screenState.StartedAt.Subtract(new TimeSpan(0, 0, (int) diff));
 
             this._state.Update(screenName, screenState);
         }
@@ -89,7 +97,7 @@ namespace Hypnonema.Server.Managers
         {
             var state = this._state.ToList();
 
-            return state == null ? "" : JsonConvert.SerializeObject(state);
+            return state == null ? string.Empty : JsonConvert.SerializeObject(state);
         }
 
         private void OnDuiState(Player p, DuiStateMessage duiStateMessage)

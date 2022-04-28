@@ -35,9 +35,22 @@
 
         private RenderTargetRenderer renderTarget { get; }
 
+        public static async Task<Prop> GetClosestObjectOfType(int hash)
+        {
+            var objects = API.GetGamePool("CObject");
+            foreach (int obj in objects)
+            {
+                var entity = API.GetEntityModel(obj);
+
+                if (entity == hash) return new Prop(obj);
+            }
+
+            return null;
+        }
+
         public async Task CalculateDistance()
         {
-            this.closestObject = await this.GetClosestObjectOfType();
+            this.closestObject = await GetClosestObjectOfType(this.renderTarget.Hash);
 
             await BaseScript.Delay(950);
         }
@@ -59,13 +72,8 @@
             else
             {
                 if (this.closestObject.IsOccluded)
-                {
                     this.duiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume / 2);
-                }
-                else
-                {
-                    this.duiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
-                }
+                else this.duiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
             }
 
             await BaseScript.Delay(300);
@@ -73,25 +81,9 @@
 
         public async Task Draw()
         {
-            if (this.closestObject == null)
-            {
-                return;
-            }
+            if (this.closestObject == null) return;
 
             this.renderTarget.Draw();
-        }
-
-        private async Task<Prop> GetClosestObjectOfType()
-        {
-            var objects = API.GetGamePool("CObject");
-            foreach (int obj in objects)
-            {
-                var entity = API.GetEntityModel(obj);
-
-                if (entity == this.renderTarget.Hash) return new Prop(obj);
-            }
-
-            return null;
         }
     }
 }

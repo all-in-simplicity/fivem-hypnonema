@@ -1,16 +1,13 @@
-﻿using Hypnonema.Client.Extensions;
-using Hypnonema.Shared.Communications;
-
-namespace Hypnonema.Client
+﻿namespace Hypnonema.Client
 {
     using System;
     using System.Collections.Generic;
 
-    using CitizenFX.Core;
-
     using Hypnonema.Client.Communications;
+    using Hypnonema.Client.Extensions;
     using Hypnonema.Client.Utils;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Communications;
     using Hypnonema.Shared.Models;
 
     public sealed class ScreenStorageManager : IDisposable
@@ -45,7 +42,7 @@ namespace Hypnonema.Client
             this.DeleteScreen = new NetworkMethod<DeleteScreenMessage>(Events.DeleteScreen, this.OnDeleteScreen);
             this.EditScreen = new NetworkMethod<EditScreenMessage>(Events.EditScreen, this.OnEditScreen);
             this.GetScreenList = new NetworkMethod<ScreenListMessage>(Events.GetScreenList, this.OnGetScreenList);
-            
+
             ClientScript.Self.RegisterCallback(Events.CreateScreen, this.OnCreateScreen);
             ClientScript.Self.RegisterCallback(Events.DeleteScreen, this.OnDeleteScreen);
             ClientScript.Self.RegisterCallback(Events.EditScreen, this.OnEditScreen);
@@ -70,7 +67,7 @@ namespace Hypnonema.Client
 
         private void OnCreateScreen(CreateScreenMessage createScreenMessage)
         {
-            Nui.SendMessage("createdScreen", createScreenMessage.Screen);
+            Nui.SendMessage(Events.CreateScreen, createScreenMessage.Screen);
         }
 
         private void OnDeleteScreen(IDictionary<string, object> data)
@@ -83,7 +80,7 @@ namespace Hypnonema.Client
             }
 
             var deleteScreenMessage = new DeleteScreenMessage(screenName);
-            
+
             this.DeleteScreen.Invoke(deleteScreenMessage);
         }
 

@@ -1,6 +1,4 @@
-﻿using Hypnonema.Shared.Communications;
-
-namespace Hypnonema.Server.Managers
+﻿namespace Hypnonema.Server.Managers
 {
     using System;
 
@@ -8,6 +6,7 @@ namespace Hypnonema.Server.Managers
 
     using Hypnonema.Server.Communications;
     using Hypnonema.Shared;
+    using Hypnonema.Shared.Communications;
     using Hypnonema.Shared.Models;
 
     using LiteDB;
@@ -30,6 +29,8 @@ namespace Hypnonema.Server.Managers
 
         public NetworkMethod<PlaybackEndedMessage> PlaybackEnded { get; private set; }
 
+        public NetworkMethod<RepeatMessage> Repeat { get; private set; }
+
         public NetworkMethod<ResumeMessage> Resume { get; private set; }
 
         public NetworkMethod<SeekMessage> Seek { get; private set; }
@@ -50,6 +51,7 @@ namespace Hypnonema.Server.Managers
             this.Seek = new NetworkMethod<SeekMessage>(Events.Seek, this.OnSeek);
             this.Duration = new NetworkMethod<StateDurationMessage>(Events.UpdateStateDuration, this.OnUpdateDuration);
             this.PlaybackEnded = new NetworkMethod<PlaybackEndedMessage>(Events.PlaybackEnded, this.OnPlaybackEnded);
+            this.Repeat = new NetworkMethod<RepeatMessage>(Events.Repeat, this.OnRepeat);
 
             BaseServer.Self.AddExport(Events.Play, new Action<string, string>(this.OnPlay));
             BaseServer.Self.AddExport(Events.Pause, new Action<string>(this.OnPause));
@@ -83,7 +85,7 @@ namespace Hypnonema.Server.Managers
             {
                 p.AddChatMessage(
                     $"You are not permitted to pause a screen. Missing ace: {Permission.Pause}",
-                    new[] { 255, 0, 0 });
+                    new[] {255, 0, 0});
                 return;
             }
 
@@ -108,7 +110,7 @@ namespace Hypnonema.Server.Managers
                 return;
             }
 
-            var playMessage = new PlayMessage() { Screen = screen, Url = videoUrl };
+            var playMessage = new PlayMessage {Screen = screen, Url = videoUrl};
 
             if (!playMessage.IsValid)
             {
@@ -133,7 +135,8 @@ namespace Hypnonema.Server.Managers
 
             if (!playMessage.IsValid)
             {
-                p.AddChatMessage($"Play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
+                p.AddChatMessage(
+                    $"Play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
                 return;
             }
 
@@ -156,6 +159,20 @@ namespace Hypnonema.Server.Managers
             this.screenStateManager.OnEnded(playbackEndedMessage.ScreenName);
         }
 
+        private void OnRepeat(Player p, RepeatMessage repeatMessage)
+        {
+            if (!p.IsAceAllowed(Permission.Play))
+            {
+                p.AddChatMessage(
+                    $"You are not permitted to resume a playback. Missing ace: {Permission.Play}",
+                    new[] {255, 0, 0});
+                return;
+            }
+
+            this.Repeat.Invoke(null, repeatMessage);
+            this.screenStateManager.OnRepeat(repeatMessage.ScreenName, repeatMessage.Repeat);
+        }
+
         // Called through export
         private void OnResume(string screenName)
         {
@@ -169,7 +186,7 @@ namespace Hypnonema.Server.Managers
             var resumeMessage = new ResumeMessage(screenName);
 
             this.Resume.Invoke(null, resumeMessage);
-            
+
             this.screenStateManager.OnResume(screenName);
         }
 
@@ -197,7 +214,7 @@ namespace Hypnonema.Server.Managers
         {
             if (!p.IsAceAllowed(Permission.Seek))
             {
-                p.AddChatMessage($"You are not permitted to seek. missing ace: {Permission.Seek}", new[] { 255, 0, 0 });
+                p.AddChatMessage($"You are not permitted to seek. missing ace: {Permission.Seek}", new[] {255, 0, 0});
                 return;
             }
 

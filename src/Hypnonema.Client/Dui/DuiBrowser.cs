@@ -39,10 +39,7 @@
 
             var duiBrowser = new DuiBrowser(screenName, posterUrl, url, width, height);
 
-            while (!duiBrowser.IsDuiAvailable)
-            {
-                await BaseScript.Delay(250);
-            }
+            while (!duiBrowser.IsDuiAvailable) await BaseScript.Delay(250);
 
             duiBrowser.CreateRuntimeTexture();
 
@@ -62,7 +59,7 @@
         {
             var resourceName = API.GetCurrentResourceName();
 
-            var payload = new { this.ScreenName, this.PosterUrl, resourceName };
+            var payload = new {this.ScreenName, this.PosterUrl, resourceName};
 
             this.SendMessage("init", payload);
         }
@@ -75,6 +72,11 @@
         public void Play(string url)
         {
             this.SendMessage("play", url);
+        }
+
+        public void Repeat(bool repeat)
+        {
+            this.SendMessage("repeat", repeat);
         }
 
         public void Resume()
@@ -97,15 +99,11 @@
             this.SendMessage("stop");
         }
 
-        public void SynchronizeState(bool paused, float currentTime, string url, bool looped)
+        public void SynchronizeState(bool paused, float currentTime, string url, bool repeat)
         {
-            var payload = new { paused, currentTime, url, looped };
-            this.SendMessage("synchronizeState", payload);
-        }
+            var payload = new {paused, currentTime, url, repeat};
 
-        public void ToggleRepeat()
-        {
-            this.SendMessage("loop");
+            this.SendMessage("synchronizeState", payload);
         }
     }
 }

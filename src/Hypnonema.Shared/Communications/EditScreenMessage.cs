@@ -1,14 +1,14 @@
-﻿using Hypnonema.Shared.Models;
-
-namespace Hypnonema.Shared.Communications
+﻿namespace Hypnonema.Shared.Communications
 {
+    using Hypnonema.Shared.Models;
+
     public class EditScreenMessage
     {
-        public Screen Screen { get; set; }
-
         public EditScreenMessage(Screen screen)
         {
             this.Screen = screen;
         }
+
+        public Screen Screen { get; set; }
     }
 }

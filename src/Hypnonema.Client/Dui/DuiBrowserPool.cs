@@ -35,8 +35,11 @@
             {
                 // no browser left. create one
                 browser = await DuiBrowser.CreateDuiBrowser(screen.Name, width, height);
+                browser.Init();
+                return browser;
             }
 
+            browser.ScreenName = screen.Name;
             browser.Init();
 
             return browser;
@@ -44,10 +47,7 @@
 
         public void Dispose()
         {
-            foreach (var duiBrowser in this.duiBrowsers)
-            {
-                duiBrowser.Dispose();
-            }
+            foreach (var duiBrowser in this.duiBrowsers) duiBrowser.Dispose();
 
             GC.SuppressFinalize(this);
         }
