@@ -20,7 +20,7 @@ interface StatusComponentProps {
 }
 
 export const StatusComponent: FC<StatusComponentProps> = (props) => {
-  const [expanded, setExpanded] = React.useState<string | false>(false);
+  const [expanded, setExpanded] = React.useState<string | false>("panel1");
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
