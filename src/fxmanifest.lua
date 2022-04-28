@@ -42,11 +42,9 @@ server_script 'server/Hypnonema.Server.net.dll'
 files {
     'client/Newtonsoft.Json.dll',
     'client/Hypnonema.Shared.dll',
-    'client/html/*',
+    'client/html/index.html',
     'client/html/static/js/main.js',
-    'client/html/static/js/main.js.map',
     'client/html/static/css/main.css',
-    'client/html/static/css/main.css.map'
 }
 
 author 'simpled-dev'
