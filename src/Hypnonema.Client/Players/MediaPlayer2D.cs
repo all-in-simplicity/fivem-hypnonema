@@ -3,86 +3,46 @@
     using System.Threading.Tasks;
 
     using CitizenFX.Core;
-    using CitizenFX.Core.Native;
 
     using Hypnonema.Client.Dui;
     using Hypnonema.Client.Graphics;
-
-    using ClientScript = Hypnonema.Client.ClientScript;
+    using Hypnonema.Shared.Models;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
     public sealed class MediaPlayer2D : MediaPlayerBase
     {
-        private Prop closestObject;
-
         public MediaPlayer2D(
             RenderTargetRenderer renderer,
             DuiBrowser duiBrowser,
-            string playerName,
+            Screen screen,
             float globalVolume,
             float soundAttenuation,
             float soundMaxDistance,
             float soundMinDistance)
-            : base(duiBrowser, playerName, globalVolume, soundAttenuation, soundMaxDistance, soundMinDistance)
+            : base(duiBrowser, screen, globalVolume, soundAttenuation, soundMaxDistance, soundMinDistance)
         {
             this.renderTarget = renderer;
-
-            ClientScript.Self.AddTick(this.CalculateVolume);
-            ClientScript.Self.AddTick(this.Draw);
-            ClientScript.Self.AddTick(this.CalculateDistance);
         }
 
         private RenderTargetRenderer renderTarget { get; }
 
-        public static async Task<Prop> GetClosestObjectOfType(int hash)
-        {
-            var objects = API.GetGamePool("CObject");
-            foreach (int obj in objects)
-            {
-                var entity = API.GetEntityModel(obj);
-
-                if (entity == hash) return new Prop(obj);
-            }
-
-            return null;
-        }
-
-        public async Task CalculateDistance()
-        {
-            this.closestObject = await GetClosestObjectOfType(this.renderTarget.Hash);
-
-            await BaseScript.Delay(950);
-        }
-
         public override async Task CalculateVolume()
         {
-            if (this.closestObject == null)
+            if (this.IsOccluded)
             {
-                // no object found, so set distance to maxRenderDistance to mute the player
-                this.duiBrowser.SetVolume(0f);
-                return;
-            }
-
-            var distance = World.GetDistance(Game.PlayerPed.Position, this.closestObject.Position);
-            if (distance >= this.SoundMaxDistance)
-            {
-                this.duiBrowser.SetVolume(0f);
+                this.duiBrowser.SetVolume((this.GetSoundFactor() / 2) * this.GlobalVolume);
             }
             else
             {
-                if (this.closestObject.IsOccluded)
-                    this.duiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume / 2);
-                else this.duiBrowser.SetVolume(this.GetSoundFactor(distance) * this.GlobalVolume);
+                this.duiBrowser.SetVolume(this.GetSoundFactor() * this.GlobalVolume);
             }
 
-            await BaseScript.Delay(300);
+            await BaseScript.Delay(2200);
         }
 
-        public async Task Draw()
+        public override async Task Draw()
         {
-            if (this.closestObject == null) return;
-
             this.renderTarget.Draw();
         }
     }

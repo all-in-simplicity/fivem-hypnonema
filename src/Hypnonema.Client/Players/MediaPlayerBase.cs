@@ -3,9 +3,17 @@
     using System;
     using System.Threading.Tasks;
 
+    using CitizenFX.Core;
+    using CitizenFX.Core.Native;
+
     using Hypnonema.Client.Dui;
+    using Hypnonema.Client.Utils;
     using Hypnonema.Shared;
     using Hypnonema.Shared.Models;
+
+    using ClientScript = Hypnonema.Client.ClientScript;
+    
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
     public abstract class MediaPlayerBase : IMediaPlayer
     {
@@ -13,7 +21,7 @@
 
         protected MediaPlayerBase(
             DuiBrowser duiBrowser,
-            string playerName,
+            Screen screen,
             float globalVolume,
             float soundAttenuation,
             float soundMaxDistance,
@@ -21,7 +29,7 @@
         {
             this.duiBrowser = duiBrowser;
 
-            this.PlayerName = playerName;
+            this.Screen = screen;
 
             this.GlobalVolume = globalVolume;
             this.SoundAttenuation = soundAttenuation;
@@ -29,6 +37,7 @@
             this.SoundMinDistance = soundMinDistance;
 
             ClientScript.Self.AddEvent(Events.ClientVolume, new Action<float>(this.OnClientVolumeChange));
+            ClientScript.Self.AddTick(this.CalculateDistance);
         }
 
         ~MediaPlayerBase()
@@ -38,7 +47,7 @@
 
         public float GlobalVolume { get; set; } = 100f;
 
-        public string PlayerName { get; protected set; }
+        public string PlayerName => this.Screen?.Name;
 
         public Screen Screen { get; set; }
 
@@ -47,14 +56,107 @@
         public float SoundMaxDistance { get; set; } = 300f;
 
         public float SoundMinDistance { get; set; } = 10f;
+        
+        protected bool IsOccluded { get; set; }
 
-        public DuiState State { get; set; }
+        private bool IsDrawTickRegistered { get; set; }
+
+        private bool IsCalculateVolumeTickRegistered { get; set; }
+
+        public float DistanceToPlayer { get; protected set; }
+
+        private async Task CalculateDistance()
+        {
+            if (this.Screen.Is3DRendered)
+            {
+                var screenPosition = new Vector3(
+                    this.Screen.PositionalSettings.PositionX,
+                    this.Screen.PositionalSettings.PositionY,
+                    this.Screen.PositionalSettings.PositionZ);
+
+                this.DistanceToPlayer = World.GetDistance(screenPosition, Game.PlayerPed.Position);
+            }
+            else
+            {
+                var hash = API.GetHashKey(this.Screen.TargetSettings.ModelName);
+
+                var closestObject = await GetClosestObjectOfType(hash);
+                
+                this.IsOccluded = closestObject != null && closestObject.IsOccluded;
+
+                this.DistanceToPlayer = closestObject == null ? this.MaxRenderDistance : World.GetDistance(closestObject.Position, Game.PlayerPed.Position);
+            }
+
+            if (this.DistanceToPlayer < this.MaxRenderDistance)
+            {
+                if (!this.IsCalculateVolumeTickRegistered)
+                {
+                    ClientScript.Self.AddTick(this.CalculateVolume);
+                    this.IsCalculateVolumeTickRegistered = true;
+                }
+
+                if (!this.IsDrawTickRegistered)
+                {
+                    ClientScript.Self.AddTick(this.Draw);
+                    this.IsDrawTickRegistered = true;
+                }
+            }
+            else
+            {
+                if (this.IsCalculateVolumeTickRegistered)
+                {
+                    ClientScript.Self.RemoveTick(this.CalculateVolume);
+                    this.IsCalculateVolumeTickRegistered = false;
+                }
+
+                if (this.IsDrawTickRegistered)
+                {
+                    ClientScript.Self.RemoveTick(this.Draw);
+                    this.IsDrawTickRegistered = false;
+                }
+
+                this.duiBrowser.SetVolume(0f);
+            }
+
+            await BaseScript.Delay(2000);
+        }
+
+        public static async Task<Prop> GetClosestObjectOfType(int hash)
+        {
+            var objects = API.GetGamePool("CObject");
+            foreach (int obj in objects)
+            {
+                var entity = API.GetEntityModel(obj);
+
+                if (entity == hash) return new Prop(obj);
+            }
+
+            return null;
+        }
+
+        public float MaxRenderDistance { get; set; } = ConfigReader.GetConfigKeyValue(
+            API.GetCurrentResourceName(),
+            "hypnonema_max_render_distance",
+            0,
+            400f);
 
         public abstract Task CalculateVolume();
+
+        public abstract Task Draw();
 
         public void Dispose()
         {
             if (this.duiBrowser.IsValid) DuiBrowserPool.Instance.ReleaseDuiBrowser(this.duiBrowser);
+
+            if (this.IsCalculateVolumeTickRegistered)
+            {
+                ClientScript.Self.RemoveTick(this.CalculateVolume);
+            }
+
+            if (this.IsDrawTickRegistered)
+            {
+                ClientScript.Self.RemoveTick(this.Draw);
+            }
 
             GC.SuppressFinalize(this);
         }
@@ -99,10 +201,10 @@
             this.duiBrowser.SynchronizeState(paused, currentTime, currentSource, looped);
         }
 
-        protected float GetSoundFactor(float distance)
+        protected float GetSoundFactor()
         {
             return this.SoundMinDistance / (this.SoundMinDistance + this.SoundAttenuation
-                                            * (Math.Max(distance, this.SoundMinDistance) - this.SoundMinDistance));
+                                            * (Math.Max(this.DistanceToPlayer, this.SoundMinDistance) - this.SoundMinDistance));
         }
 
         private void OnClientVolumeChange(float volume)

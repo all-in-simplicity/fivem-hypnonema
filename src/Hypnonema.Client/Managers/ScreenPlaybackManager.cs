@@ -89,6 +89,7 @@
             ClientScript.Self.RegisterCallback(Events.Stop, this.OnStop);
             ClientScript.Self.RegisterCallback(Events.Seek, this.OnSeek);
             ClientScript.Self.RegisterCallback(Events.Repeat, this.OnRepeat);
+            ClientScript.Self.RegisterCallback("playbackStart", this.OnPlaybackStart);
 
             ClientScript.Self.RegisterCallback(Events.UpdateStateDuration, this.OnUpdateStateDuration);
             ClientScript.Self.RegisterCallback(Events.RequestState, this.OnRequestState);
@@ -128,7 +129,7 @@
                 videoPlayer = new MediaPlayer3D(
                     duiBrowser,
                     scaleform,
-                    screen.Name,
+                    screen,
                     screen.BrowserSettings.GlobalVolume,
                     screen.BrowserSettings.SoundAttenuation,
                     screen.BrowserSettings.SoundMaxDistance,
@@ -145,7 +146,7 @@
                 videoPlayer = new MediaPlayer2D(
                     renderTarget,
                     duiBrowser,
-                    screen.Name,
+                    screen,
                     screen.BrowserSettings.GlobalVolume,
                     screen.BrowserSettings.SoundAttenuation,
                     screen.BrowserSettings.SoundMaxDistance,
@@ -153,6 +154,21 @@
             }
 
             return videoPlayer;
+        }
+
+        private void OnPlaybackStart(IDictionary<string, object> data)
+        {
+            var screenName = data.GetTypedValue<string>("screenName");
+            if (string.IsNullOrEmpty(screenName))
+            {
+                return;
+            }
+
+            var date = data.GetTypedValue<DateTime>("date");
+
+            this.DuiStateList.Where(s => s.Key == screenName).ToList().ForEach(d => d.Value.StartedAt = date);
+
+            Nui.SendMessage(Events.RequestState, this.DuiStateList.Values.ToList());
         }
 
         private void OnDeleteScreen(DeleteScreenMessage deleteScreenMessage)
@@ -387,7 +403,6 @@
             if (player == null) return;
 
             player.Stop();
-
             this.videoPlayers.Remove(player);
 
             player.Dispose();
