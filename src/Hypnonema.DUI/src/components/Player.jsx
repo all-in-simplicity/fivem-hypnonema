@@ -24,11 +24,6 @@ const Player = () => {
     const [repeat, setRepeat] = useState(false);
 
     const onPlay = ({payload}) => {
-        if (!ReactPlayer.canPlay(payload)) {
-            console.log(`playback aborted: cant play ${payload}`);
-            return;
-        }
-
         setUrl(payload);
         setPlaying(true);
     }
@@ -92,13 +87,15 @@ const Player = () => {
         }
     }
 
+    const onStart = () => {
+        sendDuiResponse('playbackStart', {screenName, date: new Date().toISOString()}).then(() => {});
+    }
+
     const onEnded = () => {
-        if (!repeat) {
-            setTimeout(() => {
-                sendDuiResponse('playbackEnded', {screenName}).then(() => {
-                });
-            }, 2500);
-        }
+        setTimeout(() => {
+            sendDuiResponse('playbackEnded', {screenName}).then(() => {
+            });
+        }, 2500);
     }
 
     const onDuration = (duration) => {
@@ -152,6 +149,7 @@ const Player = () => {
                     onDuration={onDuration}
                     onReady={onReady}
                     onEnded={onEnded}
+                    onStart={onStart}
                     onError={e => console.log('onError', JSON.stringify(e))}
                     width='100%'
                     height='100%'
