@@ -18,9 +18,11 @@ interface CurrentTrackProps {
 }
 
 export const CurrentTrack: FC<CurrentTrackProps> = (props) => {
+  const [startedAt, setStartedAt] = useState<string>(props.startedAt);
+
   const [currentTime, setCurrentTime] = useState<number>(
     Math.floor(
-      (new Date().getTime() - new Date(`${props.startedAt}`).getTime()) / 1000
+      (new Date().getTime() - new Date(`${startedAt}`).getTime()) / 1000
     )
   );
 
@@ -38,11 +40,18 @@ export const CurrentTrack: FC<CurrentTrackProps> = (props) => {
       if (currentTime < props.duration) {
         setCurrentTime((currentTime) => currentTime + 1);
       } else {
+        // start from beginning again if repeating
+        // TODO: find correct way
+        if (props.repeat) {
+          setCurrentTime(0);
+          setStartedAt(new Date().toISOString());
+          return;
+        }
         setCurrentTime(props.duration);
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [currentTime, props.duration, props.isPaused]);
+  }, [currentTime, props.duration, props.isPaused, props.repeat]);
 
   function valueLabelFormat(value: number) {
     return new Date(1000 * value).toISOString().substr(11, 8);
