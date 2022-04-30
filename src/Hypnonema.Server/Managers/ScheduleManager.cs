@@ -19,13 +19,13 @@
 
     public class ScheduleManager
     {
+        public Scheduler scheduler;
+
         private readonly NetworkMethod<CreateScheduleMessage> createSchedule;
 
         private readonly NetworkMethod<DeleteScheduleMessage> deleteSchedule;
 
         private readonly NetworkMethod<EditScheduleMessage> editSchedule;
-
-        public Scheduler scheduler;
 
         private readonly LiteCollection<Schedule> schedules;
 
@@ -65,14 +65,6 @@
             await this.ScheduleSavedSchedules();
         }
 
-        private async Task ScheduleSavedSchedules()
-        {
-            foreach (var schedule in this.schedules.Include(x => x.Screen).FindAll().ToList())
-            {
-                await this.scheduler.Schedule(schedule);
-            }
-        }
-
         private List<Schedule> getSchedules()
         {
             return this.schedules.Include(x => x.Screen).FindAll().ToList();
@@ -94,7 +86,7 @@
             // dates need to be converted to localtime
             createScheduleMessage.Schedule.StartDateTime = createScheduleMessage.Schedule.StartDateTime.ToLocalTime();
             createScheduleMessage.Schedule.EndDate = createScheduleMessage.Schedule.EndDate.ToLocalTime();
-            
+
             Logger.Debug($"scheduling scheduleId: {createScheduleMessage.Schedule.Id}");
             await this.scheduler.Schedule(createScheduleMessage.Schedule);
 
@@ -153,11 +145,10 @@
                     new[] {255, 0, 0});
                 return;
             }
-            
+
             Logger.Debug($"rescheduling schedule scheduleId: {editScheduleMessage.Schedule.Id}");
             await this.scheduler.RemoveSchedule(editScheduleMessage.Schedule);
             await this.scheduler.Schedule(editScheduleMessage.Schedule);
-
 
             this.editSchedule.Invoke(p, editScheduleMessage);
 
@@ -180,6 +171,14 @@
 
             Logger.Debug($"rescheduling scheduleId: {schedule.Id}");
             await this.scheduler.Schedule(schedule);
+        }
+
+        private async Task ScheduleSavedSchedules()
+        {
+            foreach (var schedule in this.schedules.Include(x => x.Screen).FindAll().ToList())
+            {
+                await this.scheduler.Schedule(schedule);
+            }
         }
     }
 }

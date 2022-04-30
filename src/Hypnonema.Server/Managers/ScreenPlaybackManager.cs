@@ -64,6 +64,31 @@
         }
 
         // Called through export
+        public void OnPlay(string screenName, string videoUrl)
+        {
+            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            if (screen == null)
+            {
+                Logger.Error($"play on screen \"{screenName}\" failed. Screen not found");
+                return;
+            }
+
+            var playMessage = new PlayMessage {Screen = screen, Url = videoUrl};
+
+            if (!playMessage.IsValid)
+            {
+                Logger.Error($"play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
+                return;
+            }
+
+            this.Play.Invoke(null, playMessage);
+
+            this.screenStateManager.OnPlay(screen, videoUrl);
+
+            Logger.Debug($"playing: {playMessage.Url} on \"{playMessage.Screen.Name}\"");
+        }
+
+        // Called through export
         private void OnPause(string screenName)
         {
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
@@ -99,31 +124,6 @@
 
             this.Pause.Invoke(null, pauseMessage);
             this.screenStateManager.OnPause(pauseMessage.ScreenName);
-        }
-
-        // Called through export
-        public void OnPlay(string screenName, string videoUrl)
-        {
-            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
-            if (screen == null)
-            {
-                Logger.Error($"play on screen \"{screenName}\" failed. Screen not found");
-                return;
-            }
-
-            var playMessage = new PlayMessage {Screen = screen, Url = videoUrl};
-
-            if (!playMessage.IsValid)
-            {
-                Logger.Error($"play \"{playMessage.Url}\" on screen \"{playMessage.Url}\" failed. Reason: Invalid url");
-                return;
-            }
-
-            this.Play.Invoke(null, playMessage);
-
-            this.screenStateManager.OnPlay(screen, videoUrl);
-
-            Logger.Debug($"playing: {playMessage.Url} on \"{playMessage.Screen.Name}\"");
         }
 
         private void OnPlay(Player p, PlayMessage playMessage)

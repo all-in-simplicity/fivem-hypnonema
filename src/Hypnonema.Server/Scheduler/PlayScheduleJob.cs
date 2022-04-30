@@ -25,13 +25,14 @@
 
             if (screenJson == null || url == null)
             {
-                Logger.Error("Failed to execute job because attempt to parse job data returned empty values. Aborting..");
+                Logger.Error(
+                    "Failed to execute job because attempt to parse job data returned empty values. Aborting..");
                 return;
             }
 
             var screen = JsonConvert.DeserializeObject<Screen>(screenJson);
 
-            var playMessage = new PlayMessage() { Screen = screen, Url = url };
+            var playMessage = new PlayMessage() {Screen = screen, Url = url};
 
             await BaseScript.Delay(0);
 
@@ -39,7 +40,7 @@
 
             BaseServer.Self.PlaybackManager.OnPlay(screen.Name, url);
 
-            //BaseScript.TriggerClientEvent(playEventName, JsonConvert.SerializeObject(playMessage));
+            // BaseScript.TriggerClientEvent(playEventName, JsonConvert.SerializeObject(playMessage));
         }
     }
 }

@@ -10,9 +10,9 @@
 
         public bool Is3DRendered { get; set; }
 
-        public string Name { get; set; }
-
         public float MaxRenderDistance { get; set; }
+
+        public string Name { get; set; }
 
         public PositionSettings PositionalSettings { get; set; }
 

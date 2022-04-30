@@ -1,7 +1,5 @@
 ﻿namespace Hypnonema.Shared.Communications
 {
-    using System;
-
     public class DeleteScheduleMessage
     {
         public DeleteScheduleMessage(int scheduleId)

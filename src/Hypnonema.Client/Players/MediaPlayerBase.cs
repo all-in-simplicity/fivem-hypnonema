@@ -51,15 +51,15 @@
             this.Dispose();
         }
 
-        public float DistanceToPlayer { get; protected set; }
-
-        public float GlobalVolume { get; set; } = 100f;
-
         public float DefaultMaxRenderDistance { get; set; } = ConfigReader.GetConfigKeyValue(
             API.GetCurrentResourceName(),
             "hypnonema_max_render_distance",
             0,
             400f);
+
+        public float DistanceToPlayer { get; protected set; }
+
+        public float GlobalVolume { get; set; } = 100f;
 
         public string PlayerName => this.Screen?.Name;
 

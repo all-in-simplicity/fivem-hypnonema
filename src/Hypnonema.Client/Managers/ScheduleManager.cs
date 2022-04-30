@@ -1,6 +1,5 @@
 ﻿namespace Hypnonema.Client
 {
-    using System;
     using System.Collections.Generic;
 
     using Hypnonema.Client.Communications;

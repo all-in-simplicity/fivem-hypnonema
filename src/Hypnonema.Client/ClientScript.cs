@@ -16,11 +16,11 @@
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public class ClientScript : BaseScript
     {
+        private readonly ScheduleManager scheduleManager = new ScheduleManager();
+
         private readonly ScreenPlaybackManager screenPlaybackManager = new ScreenPlaybackManager();
 
         private readonly ScreenStorageManager screenStorageManager = new ScreenStorageManager();
-
-        private readonly ScheduleManager scheduleManager = new ScheduleManager();
 
         public ClientScript()
         {

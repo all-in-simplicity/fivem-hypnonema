@@ -114,7 +114,7 @@
             foreach (var screen in this.screenCollection.FindAll())
             {
                 if (screen.MaxRenderDistance != 0) continue;
-                
+
                 screen.MaxRenderDistance = 400;
                 this.screenCollection.Update(screen);
             }

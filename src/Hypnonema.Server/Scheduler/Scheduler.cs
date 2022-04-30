@@ -64,7 +64,7 @@
 
         public async Task Schedule(Schedule schedule)
         {
-            var nextOccurrence = GetNextOccurrence(schedule);
+            var nextOccurrence = this.GetNextOccurrence(schedule);
             if (nextOccurrence == DateTime.MinValue || DateTime.Compare(nextOccurrence, DateTime.Now) < 0)
             {
                 // no more schedules left
@@ -98,11 +98,11 @@
         {
             // to get the correct RecurFrequency we have to add 1 to schedule.Rule;
             var frequency = schedule.Rule + 1;
-            
+
             return new Recurrence()
                        {
                            StartDateTime = schedule.StartDateTime.ToUniversalTime(),
-                           Frequency = (RecurFrequency)frequency,
+                           Frequency = (RecurFrequency) frequency,
                            RecurUntil = schedule.EndDate,
                            Interval = schedule.Interval,
                        };
@@ -110,47 +110,47 @@
 
         private DateTime GetNextOccurrence(Schedule schedule)
         {
-            Recurrence next = ConvertFromSchedule(schedule);
+            Recurrence next = this.ConvertFromSchedule(schedule);
             return next.NextInstance(DateTime.Now, true);
+
             /*
-            var taskTime = task.StartTime;
-            var taskDate = new DateTime(
-                task.EndDate.Year,
-                task.EndDate.Month,
-                task.EndDate.Day,
-                taskTime.Hour,
-                taskTime.Minute,
-                taskTime.Second);
-
-            var rRecur = new Recurrence
-                             {
-                                 StartDateTime = taskDate,
-                                 Frequency = 
-                             };
-
-            if (task.EndDate != default)
-            {
-                rRecur.RecurUntil = task.EndDate;
-            }
-
-            switch (task.Rule)
-            {
-                case "Daily":
-                    rRecur.RecurDaily(1);
-                    break;
-                case "Weekly":
-                    rRecur.RecurWeekly(Convert.ToInt32(task.Interval), (DaysOfWeek) task.DayOfWeek.GetValueOrDefault());
-                    break;
-                case "Monthly":
-                    rRecur.RecurMonthly((int) task.DayOfWeek.GetValueOrDefault(), Convert.ToInt32(task.Interval));
-                    break;
-                case "Single":
-                    rRecur.MaximumOccurrences = 1;
-                    break;
-            }
-
-            return rRecur.NextInstance(DateTime.Now, true);*/
+                        var taskTime = task.StartTime;
+                        var taskDate = new DateTime(
+                            task.EndDate.Year,
+                            task.EndDate.Month,
+                            task.EndDate.Day,
+                            taskTime.Hour,
+                            taskTime.Minute,
+                            taskTime.Second);
             
+                        var rRecur = new Recurrence
+                                         {
+                                             StartDateTime = taskDate,
+                                             Frequency = 
+                                         };
+            
+                        if (task.EndDate != default)
+                        {
+                            rRecur.RecurUntil = task.EndDate;
+                        }
+            
+                        switch (task.Rule)
+                        {
+                            case "Daily":
+                                rRecur.RecurDaily(1);
+                                break;
+                            case "Weekly":
+                                rRecur.RecurWeekly(Convert.ToInt32(task.Interval), (DaysOfWeek) task.DayOfWeek.GetValueOrDefault());
+                                break;
+                            case "Monthly":
+                                rRecur.RecurMonthly((int) task.DayOfWeek.GetValueOrDefault(), Convert.ToInt32(task.Interval));
+                                break;
+                            case "Single":
+                                rRecur.MaximumOccurrences = 1;
+                                break;
+                        }
+            
+                        return rRecur.NextInstance(DateTime.Now, true);*/
         }
 
         // simple log provider to get something to the console
