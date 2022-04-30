@@ -28,6 +28,8 @@ const Wrapper = styled.div`
 export const SchedulesPage: FC = () => {
   const [schedulesToDelete, setSchedulesToDelete] = useState(-1);
 
+  const { send } = useNuiRequest();
+
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
   const onCreate = () => {
@@ -39,8 +41,6 @@ export const SchedulesPage: FC = () => {
   useEffect(() => {
     send("getScheduleList").then(() => {});
   }, [send]);
-
-  const { send } = useNuiRequest();
 
   const navigate = useNavigate();
 
