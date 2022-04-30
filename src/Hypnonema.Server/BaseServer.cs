@@ -109,8 +109,8 @@
 
             await this.ScheduleManager.Start();
 
-            // existing screens mostly wont have this property which was introduced recently, so
-            // its set to a default value if this should be the case
+            // existing screens mostly wont have this property set, because it was introduced recently, so
+            // its set to a default value if the property should be 0
             foreach (var screen in this.screenCollection.FindAll())
             {
                 if (screen.MaxRenderDistance != 0) continue;
