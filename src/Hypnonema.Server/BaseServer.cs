@@ -109,20 +109,6 @@
 
             await this.ScheduleManager.Start();
 
-            var screen = this.screenCollection.FindOne(s => s.Name == "Hypnonema Example Screen");
-            var schedule = new Schedule()
-                               {
-                                   StartDateTime = DateTime.Parse("2022-04-30T05:05:36.0000000Z").ToLocalTime(),
-                                   Screen = screen,
-                                   Interval = 1,
-                                   DayOfWeek = DayOfWeek.Sunday,
-                                   EndDate = DateTime.Now.AddDays(1),
-                                   Rule = 4,
-                                   Url = "https://www.youtube.com/watch?v=dcYOjbyttvM",
-                               };
-
-            await this.ScheduleManager.scheduler.Schedule(schedule);
-
             this.getMaxActiveScaleforms = new NetworkMethod<int>(
                 Events.GetMaxActiveScaleforms,
                 this.OnGetMaxActiveScaleforms);
