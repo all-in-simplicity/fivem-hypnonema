@@ -18,7 +18,7 @@ import Schedule from "../types/schedule";
 import { setSchedules } from "../reducers/schedules";
 
 const Wrapper = styled.div`
-  width: 900px;
+  width: 1000px;
   height: 600px;
   margin: auto;
 `;

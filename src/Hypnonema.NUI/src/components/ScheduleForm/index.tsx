@@ -49,10 +49,16 @@ const isValidDate = (d: string | number | Date | null) => {
 export const ScheduleForm: FC<ScheduleFormProps> = (props) => {
   const formik = useFormik({
     initialValues: {
-      endDate: props.schedule ? parseISO(props.schedule.endDate || "") : null,
+      endDate:
+        props.schedule && props.schedule.endDate
+          ? parseISO(props.schedule.endDate)
+          : null,
       rule: props.schedule ? props.schedule.rule : Recurrence.Daily,
       interval: props.schedule ? props.schedule.interval : 1,
-      dayOfWeek: props.schedule ? props.schedule.dayOfWeek : DayOfWeek.Monday,
+      dayOfWeek:
+        props.schedule && props.schedule.dayOfWeek
+          ? props.schedule.dayOfWeek
+          : DayOfWeek.Monday,
       url: props.schedule ? props.schedule.url : "",
       screenName: props.schedule ? props.schedule.screen.name : "",
       startDateTime: props.schedule

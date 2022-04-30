@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@mui/material";
 import Paper from "@mui/material/Paper";
-import { getScheduleRuleText } from "../../utils";
+import { getNextScheduleOccurrence, getScheduleRuleText } from "../../utils";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { format, parseISO } from "date-fns";
@@ -28,11 +28,11 @@ export const SchedulesTable: FC<SchedulesTableProps> = (props) => {
       <Table sx={{ minWidth: 530 }} size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Screen</TableCell>
-            <TableCell align="center">Url</TableCell>
-            <TableCell align="right">Recurrence</TableCell>
-            <TableCell align="right">At</TableCell>
-            <TableCell align="right"></TableCell>
+            <TableCell></TableCell>
+            <TableCell align="left">Screen</TableCell>
+            <TableCell align="left">Url</TableCell>
+            <TableCell align="left">Recurrence</TableCell>
+            <TableCell align="left">Next</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -42,19 +42,7 @@ export const SchedulesTable: FC<SchedulesTableProps> = (props) => {
                 key={schedule.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">
-                  {schedule.screen?.name}
-                </TableCell>
-                <TableCell align="right">{schedule.url}</TableCell>
-                <TableCell align="right">
-                  {getScheduleRuleText(schedule)}
-                </TableCell>
-                <TableCell align="right">
-                  {format(parseISO(schedule.startDateTime), "p", {
-                    locale: enGB,
-                  })}{" "}
-                </TableCell>
-                <TableCell align="right">
+                <TableCell>
                   <IconButton
                     aria-label="delete"
                     onClick={() => props.onDelete(schedule)}
@@ -70,6 +58,18 @@ export const SchedulesTable: FC<SchedulesTableProps> = (props) => {
                     <EditIcon fontSize="inherit" />
                   </IconButton>
                 </TableCell>
+                <TableCell component="th" scope="row">
+                  {schedule.screen?.name}
+                </TableCell>
+                <TableCell>{schedule.url}</TableCell>
+                <TableCell>
+                  {getScheduleRuleText(schedule)} at{" "}
+                  {format(parseISO(schedule.startDateTime), "p", {
+                    locale: enGB,
+                  })}{" "}
+                </TableCell>
+
+                <TableCell>{getNextScheduleOccurrence(schedule)}</TableCell>
               </TableRow>
             ))
           ) : (

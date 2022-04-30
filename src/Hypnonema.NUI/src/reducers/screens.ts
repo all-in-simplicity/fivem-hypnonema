@@ -7,23 +7,7 @@ export interface IScreenState {
 }
 
 const initialState: IScreenState = {
-  screens: [
-    {
-      id: 5,
-      name: "test",
-      is3DRendered: false,
-      maxRenderDistance: 400,
-      targetSettings: { renderTargetName: "blab", modelName: "test" },
-      browserSettings: {
-        globalVolume: 100,
-        soundMinDistance: 20,
-        soundMaxDistance: 20,
-        soundAttenuation: 30,
-        is3DAudioEnabled: false,
-      },
-      alwaysOn: false,
-    },
-  ],
+  screens: [],
 };
 
 export const screens = createSlice({
