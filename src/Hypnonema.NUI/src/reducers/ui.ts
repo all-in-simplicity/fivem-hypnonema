@@ -20,7 +20,7 @@ export interface IUiState {
 }
 
 const initialState: IUiState = {
-  isAppVisible: false,
+  isAppVisible: true,
   isMenuOpen: true,
   snackbar: {
     isVisible: false,

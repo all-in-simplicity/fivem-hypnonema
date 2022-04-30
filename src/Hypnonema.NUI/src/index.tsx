@@ -19,6 +19,9 @@ import { EditScreenPage } from "./containers/EditScreenPage";
 import { CreateScreenPage } from "./containers/CreateScreenPage";
 import { PlayPage } from "./containers/PlayPage";
 import { StatusPage } from "./containers/StatusPage";
+import { SchedulesPage } from "./containers/SchedulesPage";
+import { CreateSchedulePage } from "./containers/CreateSchedulePage";
+import { EditSchedulePage } from "./containers/EditSchedulePage";
 
 const theme: ThemeOptions = createTheme({
   components: {
@@ -68,6 +71,15 @@ ReactDOM.render(
                 <Route path="/screen/:screenId" element={<EditScreenPage />} />
                 <Route path="/create-screen" element={<CreateScreenPage />} />
                 <Route path="/status" element={<StatusPage />} />
+                <Route path="/schedules" element={<SchedulesPage />} />
+                <Route
+                  path="/create-schedule"
+                  element={<CreateSchedulePage />}
+                />
+                <Route
+                  path="/edit-schedule/:scheduleId"
+                  element={<EditSchedulePage />}
+                />
               </Route>
             </Routes>
           </HashRouter>

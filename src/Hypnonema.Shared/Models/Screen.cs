@@ -10,9 +10,9 @@
 
         public bool Is3DRendered { get; set; }
 
-        public bool IsValid => string.IsNullOrEmpty(this.Name) || this.Is3DRendered || this.TargetSettings.IsValid;
-
         public string Name { get; set; }
+
+        public float MaxRenderDistance { get; set; }
 
         public PositionSettings PositionalSettings { get; set; }
 
@@ -23,6 +23,7 @@
             return new Screen
                        {
                            AlwaysOn = false,
+                           MaxRenderDistance = 400f,
                            BrowserSettings =
                                new DuiBrowserSettings
                                    {
@@ -85,9 +86,6 @@
 
         public class RenderTargetSettings
         {
-            public bool IsValid =>
-                !string.IsNullOrEmpty(this.ModelName) && !string.IsNullOrEmpty(this.RenderTargetName);
-
             public string ModelName { get; set; }
 
             public string RenderTargetName { get; set; }

@@ -3,6 +3,7 @@ export default interface Screen {
   name: string;
   alwaysOn: boolean;
   is3DRendered: boolean;
+  maxRenderDistance: number;
   browserSettings?: {
     globalVolume: number;
     soundAttenuation: number;

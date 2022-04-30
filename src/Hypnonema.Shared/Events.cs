@@ -4,7 +4,11 @@
     {
         public const string ClientVolume = "clientVolume";
 
+        public const string CreateSchedule = "createSchedule";
+
         public const string CreateScreen = "createScreen";
+
+        public const string DeleteSchedule = "deleteSchedule";
 
         public const string DeleteScreen = "deleteScreen";
 
@@ -12,9 +16,13 @@
 
         public const string DuiStateChanged = "duiStateChanged";
 
+        public const string EditSchedule = "editSchedule";
+
         public const string EditScreen = "editScreen";
 
         public const string GetMaxActiveScaleforms = "getMaxActiveScaleforms";
+
+        public const string GetScheduleList = "getScheduleList";
 
         public const string GetScreenList = "getScreenList";
 

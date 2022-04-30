@@ -16,6 +16,7 @@ import { Badge, BadgeProps, ListItemButton, styled } from "@mui/material";
 import { Link, To, useMatch, useResolvedPath } from "react-router-dom";
 import Toolbar from "@mui/material/Toolbar";
 import { useAppSelector } from "../../hooks/store";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 
 const drawerWidth = 240;
 
@@ -117,6 +118,12 @@ const Menu: FC<MenuProps> = (props) => {
               </ListItemIcon>
               <ListItemText primary="Status" />
             </StyledBadge>
+          </LinkItem>
+          <LinkItem to="/schedules">
+            <ListItemIcon>
+              <ScheduleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Schedules" />
           </LinkItem>
         </List>
         <Divider />

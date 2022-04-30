@@ -6,7 +6,7 @@
 
     using Newtonsoft.Json;
 
-    using ClientScript = ClientScript;
+    using ClientScript = Hypnonema.Client.ClientScript;
 
     public abstract class NetworkMethod : IDisposable
     {

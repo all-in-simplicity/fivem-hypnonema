@@ -23,9 +23,11 @@
     {
         public static bool IsLoggingEnabled = true;
 
-        private readonly ScreenPlaybackManager playbackManager = new ScreenPlaybackManager();
+        public ScreenPlaybackManager PlaybackManager = new ScreenPlaybackManager();
 
-        private readonly ScreenStorageManager storageManager = new ScreenStorageManager();
+        public ScheduleManager ScheduleManager;
+
+        public ScreenStorageManager StorageManager = new ScreenStorageManager();
 
         private string connectionString = "Filename=hypnonema.db";
 
@@ -34,6 +36,8 @@
         private NetworkMethod<int> getMaxActiveScaleforms;
 
         private int maxActiveScaleforms = 10;
+
+        private LiteCollection<Schedule> scheduleCollection;
 
         private LiteCollection<Screen> screenCollection;
 
@@ -99,8 +103,25 @@
 
             this.CalculateMaxActiveScaleforms();
 
-            this.playbackManager.Initialize(this.screenCollection);
-            this.storageManager.Initialize(this.screenCollection);
+            this.PlaybackManager.Initialize(this.screenCollection);
+            this.StorageManager.Initialize(this.screenCollection);
+            this.ScheduleManager = await ScheduleManager.Create(this.scheduleCollection);
+
+            await this.ScheduleManager.Start();
+
+            var screen = this.screenCollection.FindOne(s => s.Name == "Hypnonema Example Screen");
+            var schedule = new Schedule()
+                               {
+                                   StartDateTime = DateTime.Parse("2022-04-30T05:05:36.0000000Z").ToLocalTime(),
+                                   Screen = screen,
+                                   Interval = 1,
+                                   DayOfWeek = DayOfWeek.Sunday,
+                                   EndDate = DateTime.Now.AddDays(1),
+                                   Rule = 4,
+                                   Url = "https://www.youtube.com/watch?v=dcYOjbyttvM",
+                               };
+
+            await this.ScheduleManager.scheduler.Schedule(schedule);
 
             this.getMaxActiveScaleforms = new NetworkMethod<int>(
                 Events.GetMaxActiveScaleforms,
@@ -117,12 +138,19 @@
 
         private void OpenDatabase()
         {
+            // database fluent mapping
+            BsonMapper.Global.Entity<Schedule>().Id(x => x.Id);
+
+            BsonMapper.Global.Entity<Schedule>().DbRef(x => x.Screen, "screens");
+
             try
             {
                 this.database = new LiteDatabase(this.connectionString);
-                this.screenCollection = this.database.GetCollection<Screen>("screens");
 
+                this.screenCollection = this.database.GetCollection<Screen>("screens");
                 this.screenCollection.EnsureIndex(s => s.Name, true);
+
+                this.scheduleCollection = this.database.GetCollection<Schedule>("schedules");
             }
             catch (Exception e)
             {

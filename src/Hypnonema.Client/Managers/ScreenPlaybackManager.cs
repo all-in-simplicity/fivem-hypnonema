@@ -156,21 +156,6 @@
             return videoPlayer;
         }
 
-        private void OnPlaybackStart(IDictionary<string, object> data)
-        {
-            var screenName = data.GetTypedValue<string>("screenName");
-            if (string.IsNullOrEmpty(screenName))
-            {
-                return;
-            }
-
-            var date = data.GetTypedValue<DateTime>("date");
-
-            this.DuiStateList.Where(s => s.Key == screenName).ToList().ForEach(d => d.Value.StartedAt = date);
-
-            Nui.SendMessage(Events.RequestState, this.DuiStateList.Values.ToList());
-        }
-
         private void OnDeleteScreen(DeleteScreenMessage deleteScreenMessage)
         {
             var player = this.videoPlayers?.FirstOrDefault(p => p.PlayerName == deleteScreenMessage.ScreenName);
@@ -309,6 +294,21 @@
             var playbackEndedMessage = new PlaybackEndedMessage(screenName);
 
             this.PlaybackEnded.Invoke(playbackEndedMessage);
+        }
+
+        private void OnPlaybackStart(IDictionary<string, object> data)
+        {
+            var screenName = data.GetTypedValue<string>("screenName");
+            if (string.IsNullOrEmpty(screenName))
+            {
+                return;
+            }
+
+            var date = data.GetTypedValue<DateTime>("date");
+
+            this.DuiStateList.Where(s => s.Key == screenName).ToList().ForEach(d => d.Value.StartedAt = date);
+
+            Nui.SendMessage(Events.RequestState, this.DuiStateList.Values.ToList());
         }
 
         private async void OnRepeat(RepeatMessage repeatMessage)

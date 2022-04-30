@@ -50,11 +50,6 @@
                 this.scaleform.Render3D(this.Position, this.Rotation, this.Scale);
         }
 
-        public float GetDistanceToPlayer()
-        {
-            return World.GetDistance(this.Position, Game.PlayerPed.Position);
-        }
-
         public void SetPosition(Screen.PositionSettings positionalSettings)
         {
             this.Position = new Vector3(

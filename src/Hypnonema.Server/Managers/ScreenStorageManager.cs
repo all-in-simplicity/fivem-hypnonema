@@ -157,12 +157,6 @@
                 return;
             }
 
-            if (!screen.IsValid)
-            {
-                Logger.Error("Failed to edit screen. Received invalid screen argument");
-                return;
-            }
-
             var found = this.screenCollection.Update(screen);
             if (!found)
             {

@@ -20,6 +20,8 @@
 
         private readonly ScreenStorageManager screenStorageManager = new ScreenStorageManager();
 
+        private readonly ScheduleManager scheduleManager = new ScheduleManager();
+
         public ClientScript()
         {
             Self = this;
@@ -126,6 +128,7 @@
 
             this.screenStorageManager.Initialize();
             this.screenPlaybackManager.Initialize();
+            this.scheduleManager.Initialize();
 
             this.RegisterCommand();
 

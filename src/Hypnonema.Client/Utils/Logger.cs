@@ -13,7 +13,7 @@
         {
             if (!IsLoggingEnabled) return;
 
-            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] [DEBUG]";
+            var prefix = $"^6[Hypnonema][{DateTime.Now.ToShortTimeString()}] [DEBUG]";
 
             CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }
@@ -21,7 +21,7 @@
         public static void Error(string message)
         {
             if (!IsLoggingEnabled) return;
-            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^1[ERROR]";
+            var prefix = $"^6[Hypnonema][{DateTime.Now.ToShortTimeString()}] ^1[ERROR]";
 
             CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }
@@ -30,7 +30,7 @@
         {
             if (!IsLoggingEnabled) return;
 
-            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^5[INFO]";
+            var prefix = $"^6[Hypnonema][{DateTime.Now.ToShortTimeString()}] ^5[INFO]";
 
             CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }
@@ -39,7 +39,7 @@
         {
             if (!IsLoggingEnabled) return;
 
-            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}]^7";
+            var prefix = $"^6[Hypnonema][{DateTime.Now.ToShortTimeString()}]^7";
 
             CitizenFX.Core.Debug.WriteLine($"{prefix} {message}");
         }
@@ -48,7 +48,7 @@
         {
             if (!IsLoggingEnabled) return;
 
-            var prefix = $"^6[Hypnonema] [{DateTime.Now.ToShortTimeString()}] ^3[WARN]";
+            var prefix = $"^6[Hypnonema][{DateTime.Now.ToShortTimeString()}] ^3[WARN]";
 
             CitizenFX.Core.Debug.WriteLine($"{prefix} {message} ^7");
         }

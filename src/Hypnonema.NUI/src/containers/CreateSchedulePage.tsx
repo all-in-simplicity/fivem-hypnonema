@@ -1,11 +1,10 @@
 import { FC } from "react";
-
 import { Card, CardContent, Container, Typography } from "@mui/material";
-import { ScreenForm } from "../components/ScreenForm";
-import Screen from "../types/screen";
-import { useNuiRequest } from "fivem-nui-react-lib";
 import styled from "styled-components";
 import SimpleBar from "simplebar-react";
+import { ScheduleForm } from "../components/ScheduleForm";
+import { useAppSelector } from "../hooks/store";
+import { useNuiRequest } from "fivem-nui-react-lib";
 
 const Wrapper = styled.div`
   margin-top: 30px;
@@ -15,17 +14,22 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-export const CreateScreenPage: FC = () => {
+export const CreateSchedulePage: FC = () => {
+  const screens = useAppSelector((state) => state.screens.screens);
+
   const { send } = useNuiRequest();
 
-  const onSubmit = (data: Screen) => {
-    send("createScreen", { payload: JSON.stringify(data) }).then(() => {});
+  const onSubmitHandler = (data: any) => {
+    data.endDate = data.endDate || "";
+    data.screen = screens?.find((s) => s.name === data.screenName);
+
+    send("createSchedule", { payload: JSON.stringify(data) }).then(() => {});
   };
 
   return (
     <Container>
       <Typography sx={{ marginTop: "50px", marginBottom: "10px" }} variant="h5">
-        Create Screen
+        Create Schedule
       </Typography>
       <Wrapper>
         <Card
@@ -38,11 +42,15 @@ export const CreateScreenPage: FC = () => {
           <SimpleBar
             autoHide={false}
             style={{
-              maxHeight: "420px",
+              maxHeight: "430px",
             }}
           >
             <CardContent>
-              <ScreenForm onSubmit={(data: Screen) => onSubmit(data)} />
+              <ScheduleForm
+                onSubmitHandler={onSubmitHandler}
+                schedule={null}
+                screens={screens}
+              />
             </CardContent>
           </SimpleBar>
         </Card>

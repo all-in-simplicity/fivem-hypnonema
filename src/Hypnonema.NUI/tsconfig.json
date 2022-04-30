@@ -20,7 +20,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": false,
-    "rootDirs": ["src", "../../node_modules"],
+    "rootDirs": [
+      "src",
+      "../../node_modules"
+    ],
     "baseUrl": "./src"
   },
   "include": [

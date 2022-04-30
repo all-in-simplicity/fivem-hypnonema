@@ -27,6 +27,7 @@
     - [pause](#pause)
     - [stop](#stop)
     - [resume](#resume)
+    - [repeat](#repeat)
     - [seek](#seek)
     - [getScreenList](#getscreenlist)
     - [createScreen](#createscreen)
@@ -65,15 +66,16 @@ By default only members of `group.admin` are allowed to interact with hypnonema.
 To permit users to make use of all available functionality make sure to edit the `permissions.cfg` file inside the resource directory.
 
 Below is a list of all available permission settings.
-| Permission                  | Description                    |
-|-----------------------------|--------------------------------|
-| `hypnonema.screens.edit`    | Allow editing existing screens |
-| `hypnonema.screens.create`  | Allow creating screens         |
-| `hypnonema.screens.delete`  | Allow deleting screens         |
-| `hypnonema.playback.play`   | Allow playing videos           |
-| `hypnonema.playback.resume` | Allow resuming paused videos   |
-| `hypnonema.playback.pause`  | Allow pausing videos           |
-| `hypnonema.playback.stop`   | Allow stopping videos          |
+| Permission                  | Description                                  |
+|-----------------------------|----------------------------------------------|
+| `hypnonema.screens.edit`    | Allow editing existing screens               |
+| `hypnonema.screens.create`  | Allow creating screens                       |
+| `hypnonema.screens.delete`  | Allow deleting screens                       |
+| `hypnonema.playback.play`   | Allow playing videos                         |
+| `hypnonema.playback.resume` | Allow resuming paused videos                 |
+| `hypnonema.playback.repeat` | Allow enabling/disabling repeating of videos |
+| `hypnonema.playback.pause`  | Allow pausing videos                         |
+| `hypnonema.playback.stop`   | Allow stopping videos                        |
 
 ### Example permission config
 To restrict creating / editing screens to admins only but allow everyone to control the playback use following settings.
@@ -115,6 +117,11 @@ exports.hypnonema:stop(screenName)
 #### resume
 ```lua
 exports.hypnonema:resume(screenName)
+```
+
+#### repeat
+```lua 
+exports.hypnonema:repeat(screenName, shouldRepeat)
 ```
 
 #### seek
@@ -173,6 +180,7 @@ returns a list containing current player states.
 ```lua
 local duiState = json.decode(exports.hypnonema.getDuiState())
 ```
+
 
 ## License
 This work is licensed under a

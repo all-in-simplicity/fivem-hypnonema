@@ -1,11 +1,9 @@
-import { Card, CardContent, Container, Typography } from "@mui/material";
 import { FC } from "react";
-import { useAppSelector } from "../hooks/store";
-import { ScreenForm } from "../components/ScreenForm";
 import { useParams } from "react-router";
-import Screen from "../types/screen";
 import { useNuiRequest } from "fivem-nui-react-lib";
-
+import { useAppSelector } from "../hooks/store";
+import { Card, CardContent, Container, Typography } from "@mui/material";
+import { ScheduleForm } from "../components/ScheduleForm";
 import styled from "styled-components";
 import SimpleBar from "simplebar-react";
 
@@ -16,23 +14,29 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
 `;
-export const EditScreenPage: FC = () => {
-  const { screenId } = useParams();
+export const EditSchedulePage: FC = () => {
+  const { scheduleId } = useParams();
 
   const { send } = useNuiRequest();
 
-  const screen = useAppSelector((state) =>
-    state.screens.screens?.find((s) => s.id === parseInt(screenId!))
+  const schedule = useAppSelector((state) =>
+    state.schedules.schedules?.find((s) => s.id === parseInt(scheduleId!))
   );
 
-  const onSubmit = (data: Screen) => {
-    send("editScreen", { payload: JSON.stringify(data) }).then(() => {});
+  const screens = useAppSelector((state) => state.screens.screens);
+
+  const onSubmit = (data: any) => {
+    data.endDate = data.endDate || "";
+
+    data.screen = screens?.find((s) => s.name === data.screenName);
+
+    send("editSchedule", { payload: JSON.stringify(data) }).then(() => {});
   };
 
   return (
     <Container>
       <Typography sx={{ marginTop: "50px", marginBottom: "10px" }} variant="h5">
-        Edit Screen
+        Edit Schedule
       </Typography>
       <Wrapper>
         <Card
@@ -45,13 +49,14 @@ export const EditScreenPage: FC = () => {
           <SimpleBar
             autoHide={false}
             style={{
-              maxHeight: "420px",
+              maxHeight: "430px",
             }}
           >
             <CardContent>
-              <ScreenForm
-                onSubmit={(data: Screen) => onSubmit(data)}
-                screen={screen}
+              <ScheduleForm
+                schedule={schedule}
+                screens={screens}
+                onSubmitHandler={onSubmit}
               />
             </CardContent>
           </SimpleBar>

@@ -58,6 +58,7 @@
             BaseServer.Self.AddExport(Events.Stop, new Action<string>(this.OnStop));
             BaseServer.Self.AddExport(Events.Resume, new Action<string>(this.OnResume));
             BaseServer.Self.AddExport(Events.Seek, new Action<string, float>(this.OnSeek));
+            BaseServer.Self.AddExport(Events.Repeat, new Action<string, bool>(this.OnRepeat));
 
             this.IsInitialized = true;
         }
@@ -101,7 +102,7 @@
         }
 
         // Called through export
-        private void OnPlay(string screenName, string videoUrl)
+        public void OnPlay(string screenName, string videoUrl)
         {
             var screen = this.screenCollection.FindOne(s => s.Name == screenName);
             if (screen == null)
@@ -159,12 +160,29 @@
             this.screenStateManager.OnEnded(playbackEndedMessage.ScreenName);
         }
 
+        // Called through export
+        private void OnRepeat(string screenName, bool repeat)
+        {
+            var screen = this.screenCollection.FindOne(s => s.Name == screenName);
+            if (screen == null)
+            {
+                Logger.Error($"Setting repeat failed. screen \"{screenName}\" not found.");
+                return;
+            }
+
+            var repeatMessage = new RepeatMessage(screenName, repeat);
+
+            this.Repeat.Invoke(null, repeatMessage);
+
+            this.screenStateManager.OnRepeat(screenName, repeat);
+        }
+
         private void OnRepeat(Player p, RepeatMessage repeatMessage)
         {
-            if (!p.IsAceAllowed(Permission.Play))
+            if (!p.IsAceAllowed(Permission.Repeat))
             {
                 p.AddChatMessage(
-                    $"You are not permitted to resume a playback. Missing ace: {Permission.Play}",
+                    $"You are not permitted to repeat a playback. Missing ace: {Permission.Repeat}",
                     new[] {255, 0, 0});
                 return;
             }
