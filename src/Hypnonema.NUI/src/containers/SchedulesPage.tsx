@@ -38,7 +38,7 @@ export const SchedulesPage: FC = () => {
 
   useEffect(() => {
     send("getScheduleList").then(() => {});
-  }, []);
+  }, [send]);
 
   const { send } = useNuiRequest();
 
